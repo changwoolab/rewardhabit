@@ -11,7 +11,7 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
 
     @Field()
     @Column()
-    userId: string; // 구독 신청자명
+    userId: string; // 구독 신청자 id
 
     @Field()
     @Column()
