@@ -21,7 +21,7 @@ let PostResolver = class PostResolver {
         return posts;
     }
     async post(id, { req }) {
-        const post = await Post_1.Post.findOne({ id });
+        const post = await Post_1.Post.findOne({ where: { postId: id } });
         return post;
     }
 };

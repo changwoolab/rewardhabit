@@ -13,6 +13,7 @@ const apollo_server_express_1 = require("apollo-server-express");
 const type_graphql_1 = require("type-graphql");
 const apollo_server_core_1 = require("apollo-server-core");
 const post_1 = require("./resolvers/post");
+const Subscript_1 = require("./entities/Subscript");
 const main = async () => {
     await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -22,7 +23,7 @@ const main = async () => {
         username: secret_1.DB_USERNAME,
         password: secret_1.DB_PASSWORD,
         synchronize: true,
-        entities: [User_1.User, Post_1.Post],
+        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript],
     });
     const app = (0, express_1.default)();
     const apolloServer = new apollo_server_express_1.ApolloServer({

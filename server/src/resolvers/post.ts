@@ -17,7 +17,7 @@ export class PostResolver {
         @Arg('id', () => Int) id: number, 
         @Ctx() { req }: ReqResContext
     ): Promise<Post | undefined> {
-        const post = await Post.findOne({ id });
+        const post = await Post.findOne({ where: {postId:id} });
         return post;
     }
 }

@@ -8,6 +8,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from "type-graphql";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { PostResolver } from "./resolvers/post";
+import { Subscript } from "./entities/Subscript";
 
 const main = async() => {
     // Typeorm Connection
@@ -20,7 +21,7 @@ const main = async() => {
         password: DB_PASSWORD,
         //logging: true,
         synchronize: true, // migration 없이 자동 synchronize
-        entities: [User, Post],
+        entities: [User, Post, Subscript],
     });
     // Express
     const app = express();
