@@ -27,7 +27,11 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
 
     @Field()
     @Column()
-    returnPerReward: number; // 일일환급액
+    reward: number; // 보상당환급액
+
+    @Field()
+    @Column()
+    rewardCount: number; // 보상환급횟수
 
     @Field()
     @Column()
