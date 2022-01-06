@@ -21,6 +21,7 @@ const UserResponse_1 = require("../types/UserResponse");
 const typeorm_1 = require("typeorm");
 const makeUserAndIV_1 = require("../modules/forUserResolver/makeUserAndIV");
 const errors_1 = require("../modules/errors");
+const validateRegister_1 = require("../modules/forUserResolver/validateRegister");
 let UserResolver = class UserResolver {
     async test() {
         const user = await (0, typeorm_1.getRepository)(User_1.User)
@@ -31,6 +32,10 @@ let UserResolver = class UserResolver {
         return true;
     }
     async register(inputs) {
+        const notValid = await (0, validateRegister_1.validateRegister)(inputs);
+        if (notValid.errors) {
+            return notValid;
+        }
         const { user, iv } = await (0, makeUserAndIV_1.makeUserAndIV)(inputs);
         if (!user || !iv)
             return errors_1.notExpectedErr;
@@ -42,7 +47,9 @@ let UserResolver = class UserResolver {
             await User_1.User.delete({ userId: user.userId });
             return errors_1.notExpectedErr;
         }
-        return true;
+        return {
+            succeed: true
+        };
     }
     async login(inputs) {
         const user = await User_1.User.findOne({ userId: inputs });

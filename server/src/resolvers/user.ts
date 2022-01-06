@@ -6,6 +6,7 @@ import { UserResponse } from "../types/UserResponse";
 import { getRepository } from "typeorm";
 import { makeUserAndIV } from "../modules/forUserResolver/makeUserAndIV";
 import { notExpectedErr } from "../modules/errors";
+import { validateRegister } from "../modules/forUserResolver/validateRegister";
 
 
 @Resolver()
@@ -26,10 +27,10 @@ export class UserResolver {
         @Arg("inputs") inputs: UserRegisterInput,
     ): Promise<UserResponse | boolean> {
         // 1. invalid한 input이 있는지 검사
-        // const notValid = await validateRegister(inputs);
-        // if (notValid.errors) {
-        //     return notValid
-        // }
+        const notValid = await validateRegister(inputs);
+        if (notValid.errors) {
+            return notValid
+        }
 
         // 2. 주어진 Input을 바탕으로 암호화 된 user 및 iv 객체 만들기
         const { user, iv } = await makeUserAndIV(inputs);
@@ -45,7 +46,9 @@ export class UserResolver {
             return notExpectedErr;
         }
 
-        return true;
+        return {
+            succeed: true
+        };
     }
 
     @Mutation(() => UserResponse)
