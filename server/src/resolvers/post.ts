@@ -20,4 +20,16 @@ export class PostResolver {
         const post = await Post.findOne({ where: {postId:id} });
         return post;
     }
+
+    // 추후에 수정합시다.
+    @Mutation(() => Boolean)
+    async createPost(
+        @Arg("userId") userId: string,
+        @Arg("type") type: number,
+        @Arg("title") title: string,
+        @Arg("description") description: string,
+        @Ctx() { req }: ReqResContext
+    ): Promise<boolean> {
+        return false;
+    }
 }

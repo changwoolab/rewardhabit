@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
-const secret_1 = require("./initializer/secret");
+const secret_1 = require("./secret_modules/secret");
 const Post_1 = require("./entities/Post");
 const User_1 = require("./entities/User");
 const express_1 = __importDefault(require("express"));
@@ -14,6 +14,8 @@ const type_graphql_1 = require("type-graphql");
 const apollo_server_core_1 = require("apollo-server-core");
 const post_1 = require("./resolvers/post");
 const Subscript_1 = require("./entities/Subscript");
+const user_1 = require("./resolvers/user");
+const User_IV_1 = require("./entities/User_IV");
 const main = async () => {
     await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -23,12 +25,12 @@ const main = async () => {
         username: secret_1.DB_USERNAME,
         password: secret_1.DB_PASSWORD,
         synchronize: true,
-        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript],
+        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV],
     });
     const app = (0, express_1.default)();
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [post_1.PostResolver],
+            resolvers: [post_1.PostResolver, user_1.UserResolver],
             validate: false
         }),
         context: ({ req, res }) => ({ req, res }),

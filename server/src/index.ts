@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
-import {DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT} from "./initializer/secret";
+import {DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT} from "./secret_modules/secret";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import express from "express";
@@ -9,6 +9,8 @@ import { buildSchema } from "type-graphql";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { PostResolver } from "./resolvers/post";
 import { Subscript } from "./entities/Subscript";
+import { UserResolver } from "./resolvers/user";
+import { User_IV } from "./entities/User_IV";
 
 const main = async() => {
     // Typeorm Connection
@@ -21,7 +23,7 @@ const main = async() => {
         password: DB_PASSWORD,
         //logging: true,
         synchronize: true, // migration 없이 자동 synchronize
-        entities: [User, Post, Subscript],
+        entities: [User, Post, Subscript, User_IV],
     });
     // Express
     const app = express();
@@ -29,7 +31,7 @@ const main = async() => {
     // Apollo Server for Graphql
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [PostResolver],
+            resolvers: [PostResolver, UserResolver],
             validate: false
         }),
         // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요

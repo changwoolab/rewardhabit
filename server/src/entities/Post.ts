@@ -1,16 +1,16 @@
 import { Field, ObjectType } from "type-graphql";
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne} from "typeorm";
+import { User } from "./User";
 
 @ObjectType() // Graphql Type으로 Change
 @Entity()
 export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능하게 함
     @Field()
     @PrimaryGeneratedColumn()
-    postId: number;
+    id: number;
 
-    @Field()
-    @Column()
-    userId: string; // 작성자 id
+    @ManyToOne(() => User, user => user.posts)
+    user: User;
 
     @Field()
     @Column()

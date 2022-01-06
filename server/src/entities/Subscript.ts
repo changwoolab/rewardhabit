@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne} from "typeorm";
+import { User } from "./User";
 
 
 @ObjectType() // Graphql Type으로 Change
@@ -7,11 +8,10 @@ import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm";
 export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 가능하게 함
     @Field()
     @PrimaryGeneratedColumn()
-    subId: number;
+    id: number;
 
-    @Field()
-    @Column()
-    userId: string; // 구독 신청자 id
+    @ManyToOne(() => User, user => user.subscripts)
+    user: User;
 
     @Field()
     @Column()

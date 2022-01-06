@@ -24,6 +24,9 @@ let PostResolver = class PostResolver {
         const post = await Post_1.Post.findOne({ where: { postId: id } });
         return post;
     }
+    async createPost(userId, type, title, description, { req }) {
+        return false;
+    }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => [Post_1.Post]),
@@ -40,6 +43,17 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("userId")),
+    __param(1, (0, type_graphql_1.Arg)("type")),
+    __param(2, (0, type_graphql_1.Arg)("title")),
+    __param(3, (0, type_graphql_1.Arg)("description")),
+    __param(4, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "createPost", null);
 PostResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], PostResolver);

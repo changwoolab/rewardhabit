@@ -9,59 +9,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Subscript = void 0;
-const type_graphql_1 = require("type-graphql");
+exports.User_IV = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
-let Subscript = class Subscript extends typeorm_1.BaseEntity {
+let User_IV = class User_IV extends typeorm_1.BaseEntity {
 };
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Subscript.prototype, "id", void 0);
+], User_IV.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.subscripts),
+    (0, typeorm_1.OneToOne)(() => User_1.User, { cascade: true }),
+    (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", User_1.User)
-], Subscript.prototype, "user", void 0);
+], User_IV.prototype, "user", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Subscript.prototype, "type", void 0);
+    __metadata("design:type", String)
+], User_IV.prototype, "userIdIV", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Date)
-], Subscript.prototype, "startedAt", void 0);
+    __metadata("design:type", String)
+], User_IV.prototype, "lastNameIV", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Date)
-], Subscript.prototype, "expireAt", void 0);
+    __metadata("design:type", String)
+], User_IV.prototype, "firstNameIV", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Subscript.prototype, "reward", void 0);
+    __metadata("design:type", String)
+], User_IV.prototype, "emailIV", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Subscript.prototype, "rewardCount", void 0);
+    __metadata("design:type", String)
+], User_IV.prototype, "bankIV", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Subscript.prototype, "totalPayment", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Subscript.prototype, "interval", void 0);
-Subscript = __decorate([
-    (0, type_graphql_1.ObjectType)(),
+    __metadata("design:type", String)
+], User_IV.prototype, "accountIV", void 0);
+User_IV = __decorate([
     (0, typeorm_1.Entity)()
-], Subscript);
-exports.Subscript = Subscript;
-//# sourceMappingURL=Subscript.js.map
+], User_IV);
+exports.User_IV = User_IV;
+//# sourceMappingURL=User_IV.js.map
