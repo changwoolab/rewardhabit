@@ -11,6 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
@@ -21,18 +24,23 @@ const UserResponse_1 = require("../types/UserResponse");
 const typeorm_1 = require("typeorm");
 const makeUserAndIV_1 = require("../modules/forUserResolver/makeUserAndIV");
 const errors_1 = require("../modules/errors");
-const validateRegister_1 = require("../modules/forUserResolver/validateRegister");
+const checkDuplicateRegister_1 = require("../modules/forUserResolver/checkDuplicateRegister");
+const argon2_1 = __importDefault(require("argon2"));
+const PartialUser_1 = require("../types/PartialUser");
 let UserResolver = class UserResolver {
-    async test() {
-        const user = await (0, typeorm_1.getRepository)(User_1.User)
-            .createQueryBuilder("user")
-            .where("user.id = :id", { id: 1 })
-            .getOne();
-        console.log(user);
-        return true;
+    async loggedIn({ req }) {
+        if (!req.session.userId)
+            return null;
+        const user = await User_1.User.findOne({ id: req.session.userId });
+        if (!user)
+            return null;
+        const partialUser = new PartialUser_1.PartialUser(user);
+        if (!partialUser)
+            return errors_1.notExpectedErr;
+        return { partialUser: partialUser };
     }
     async register(inputs) {
-        const notValid = await (0, validateRegister_1.validateRegister)(inputs);
+        const notValid = await (0, checkDuplicateRegister_1.checkDuplicateRegister)(inputs);
         if (notValid.errors) {
             return notValid;
         }
@@ -51,25 +59,26 @@ let UserResolver = class UserResolver {
             succeed: true
         };
     }
-    async login(inputs) {
-        const user = await User_1.User.findOne({ userId: inputs });
-        if (!user) {
-            return {
-                errors: [{
-                        field: "userId",
-                        message: "아이디가 존재하지 않습니다."
-                    }]
-            };
-        }
-        return { user };
+    async login(userId, password, { req }) {
+        const user = await User_1.User.findOne({ userId: userId });
+        if (!user)
+            return errors_1.loginErr;
+        const valid = await argon2_1.default.verify(user.password, password);
+        if (!valid)
+            return errors_1.loginErr;
+        req.session.userId = user.id;
+        return {
+            succeed: true
+        };
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => Boolean),
+    (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
+    __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "test", null);
+], UserResolver.prototype, "loggedIn", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse_1.UserResponse),
     __param(0, (0, type_graphql_1.Arg)("inputs")),
@@ -79,9 +88,11 @@ __decorate([
 ], UserResolver.prototype, "register", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse_1.UserResponse),
-    __param(0, (0, type_graphql_1.Arg)("inputs")),
+    __param(0, (0, type_graphql_1.Arg)("userId")),
+    __param(1, (0, type_graphql_1.Arg)("password")),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
 UserResolver = __decorate([

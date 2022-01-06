@@ -20,6 +20,7 @@ const makeUserAndIV = async (inputs) => {
         user[key] = encryptedData[key].encryptedData;
         iv[key + "IV"] = encryptedData[key].iv;
     });
+    user.userId = inputs.userId;
     user.userName = inputs.userName;
     user.point = 0;
     user.level = 1;

@@ -1,4 +1,4 @@
-import { ReqResContext } from "../types"
+import { ReqResContext } from "../types/ReqResContext"
 import {Resolver, Query, Ctx, Arg, Int, Mutation} from "type-graphql"
 import { Post } from "../entities/Post"
 

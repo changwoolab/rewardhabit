@@ -26,10 +26,11 @@ export const makeUserAndIV = async (inputs: UserRegisterInput) => {
     });
 
     // 나머지 Data 저장
-    user.userName = inputs.userName
-    user.point = 0
-    user.level = 1
-    user.exp = 0
+    user.userId = inputs.userId;
+    user.userName = inputs.userName;
+    user.point = 0;
+    user.level = 1;
+    user.exp = 0;
 
     // Foreign key 설정
     iv.user = user;

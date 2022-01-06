@@ -11,9 +11,6 @@ export class User_IV extends BaseEntity { // BaseEntity로 Active Record를 가�
     user: User;
 
     @Column()
-    userIdIV: string;
-
-    @Column()
     lastNameIV: string;
 
     @Column()

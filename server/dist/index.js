@@ -16,6 +16,10 @@ const post_1 = require("./resolvers/post");
 const Subscript_1 = require("./entities/Subscript");
 const user_1 = require("./resolvers/user");
 const User_IV_1 = require("./entities/User_IV");
+const ioredis_1 = __importDefault(require("ioredis"));
+const express_session_1 = __importDefault(require("express-session"));
+const connect_redis_1 = __importDefault(require("connect-redis"));
+const test_1 = require("./resolvers/test");
 const main = async () => {
     await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -28,9 +32,26 @@ const main = async () => {
         entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV],
     });
     const app = (0, express_1.default)();
+    const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
+    const redisClient = new ioredis_1.default();
+    app.use((0, express_session_1.default)({
+        name: "qid",
+        store: new RedisStore({
+            client: redisClient,
+            disableTouch: true,
+        }),
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 5,
+            httpOnly: true,
+            sameSite: "lax",
+        },
+        saveUninitialized: false,
+        secret: 'akldjbf123DLSKFN1kljbqwlkjbfksjdfk124jnasjkdfnw',
+        resave: false,
+    }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [post_1.PostResolver, user_1.UserResolver],
+            resolvers: [test_1.TestResolver, post_1.PostResolver, user_1.UserResolver],
             validate: false
         }),
         context: ({ req, res }) => ({ req, res }),

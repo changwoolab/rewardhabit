@@ -13,6 +13,7 @@ exports.UserResponse = void 0;
 const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const FieldError_1 = require("./FieldError");
+const PartialUser_1 = require("./PartialUser");
 let UserResponse = class UserResponse {
 };
 __decorate([
@@ -27,6 +28,10 @@ __decorate([
     (0, type_graphql_1.Field)(() => Boolean, { nullable: true }),
     __metadata("design:type", Boolean)
 ], UserResponse.prototype, "succeed", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => PartialUser_1.PartialUser, { nullable: true }),
+    __metadata("design:type", PartialUser_1.PartialUser)
+], UserResponse.prototype, "partialUser", void 0);
 UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);

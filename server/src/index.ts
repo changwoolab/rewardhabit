@@ -11,6 +11,11 @@ import { PostResolver } from "./resolvers/post";
 import { Subscript } from "./entities/Subscript";
 import { UserResolver } from "./resolvers/user";
 import { User_IV } from "./entities/User_IV";
+import Redis from "ioredis";
+import session from 'express-session';
+import connectRedis from "connect-redis"
+import { ReqResContext } from "./types/ReqResContext"
+import { TestResolver } from "./resolvers/test";
 
 
 const main = async() => {
@@ -29,14 +34,38 @@ const main = async() => {
     // Express
     const app = express();
 
+    // Redis
+    // Apollo에서 Redis를 사용할 것이기 때문에 Apollo보다 먼저 실행되어야하므로 앞에 적어두기.
+    const RedisStore = connectRedis(session);
+    const redisClient = new Redis();
+    // Express-session, Session 정의하기
+    app.use(
+        session({
+            name: "qid",
+            store: new RedisStore({ 
+                client: redisClient,
+                disableTouch: true,
+            }),
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 5, // 5 hours (1000ms*60*60*5)
+                httpOnly: true, // Security! (유저가 Script로 Cookie에 접근 X)
+                sameSite: "lax", // Protect from CSRF
+                // secure: true // HTTPS에서만 쿠키 전송, Deploy할 때 합시다 지금은 localhost이므로
+            },
+            saveUninitialized: false,
+            secret: 'akldjbf123DLSKFN1kljbqwlkjbfksjdfk124jnasjkdfnw', // 어떻게 Cookie를 Assign할지 결정
+            resave: false,
+        })
+    );
+
     // Apollo Server for Graphql
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [PostResolver, UserResolver],
+            resolvers: [TestResolver, PostResolver, UserResolver],
             validate: false
         }),
-        // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요
-        context: ({ req, res }) => ({ req, res }),
+        // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요 (cookie 정보는 req, res에 담겨있다~)
+        context: ({ req, res }): ReqResContext => ({ req, res }),
         plugins: [
             ApolloServerPluginLandingPageGraphQLPlayground({}),
         ],
