@@ -1,16 +1,7 @@
 import { Box, FormControl, FormLabel, Input, FormErrorMessage } from '@chakra-ui/react';
 import { Field, useField } from 'formik';
 import React, { InputHTMLAttributes } from 'react';
-
-function validateName(value) {
-    let error;
-    if (!value) {
-        error = 'Name is required'
-    } else if (value.toString().toLowerCase() !== 'naruto') {
-        error = "Jeez! You're not a fan 😱"
-    }
-    return error;
-}
+import { validateRegister } from '../modules/validateRegister';
 
 interface InputFieldtProps {
     name: string;
@@ -20,7 +11,7 @@ interface InputFieldtProps {
 
 export const InputField: React.FC<InputFieldtProps> = (props) => {
     return (
-        <Field name={props.name} validate={validateName}>
+        <Field name={props.name} validate={validateRegister[props.name]}>
             {() => <SubInputField {...props}/>}
         </Field>
     );
@@ -37,7 +28,7 @@ export const SubInputField: React.FC<SubInputFieldProps> = ({label, size:_, ...p
     return (
         <Box mt={4}>
         <FormControl isInvalid={touched && !!error}>
-            <FormLabel htmlFor={field.name}>아이디</FormLabel>
+            <FormLabel htmlFor={field.name}>{label}</FormLabel>
             <Input {...field} {...props} id={field.name} />
             { touched && !!error ? <FormErrorMessage>{error}</FormErrorMessage> : null }
         </FormControl>
