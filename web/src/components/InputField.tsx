@@ -9,17 +9,17 @@ interface InputFieldtProps {
     type?: string
 }
 
+type SubInputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+    label: string;
+    name: string;
+}
+
 export const InputField: React.FC<InputFieldtProps> = (props) => {
     return (
         <Field name={props.name} validate={validateRegister[props.name]}>
             {() => <SubInputField {...props}/>}
         </Field>
     );
-}
-
-type SubInputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
-    label: string;
-    name: string;
 }
 
 export const SubInputField: React.FC<SubInputFieldProps> = ({label, size:_, ...props}) => {
