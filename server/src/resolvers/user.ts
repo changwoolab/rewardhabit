@@ -30,24 +30,17 @@ export class UserResolver {
     async register(
         @Arg("inputs") inputs: UserRegisterInput,
     ): Promise<UserResponse> {
-        // 1. invalid한 input이 있는지 검사 (글자수제한, 이메일형식 등)
-        ///////////////////////////////////////////////////////////////////////////////
-
-
-
-        ///////////////////////////////////////////////////////////////////////////////
-
-        // 2. 중복된 input이 있는지 검사
+        // 1. 중복된 input이 있는지 한 번 더 검사 (HOXY 모르니)
         const notValid = await checkDuplicateRegister(inputs);
         if (notValid.errors) {
             return notValid
         }
 
-        // 3. 주어진 Input을 바탕으로 암호화 된 user 및 iv 객체 만들기
+        // 2. 주어진 Input을 바탕으로 암호화 된 user 및 iv 객체 만들기
         const { user, iv } = await makeUserAndIV(inputs);
         if (!user || !iv) return notExpectedErr;
 
-        // 4. DB에 저장
+        // 3. DB에 저장
         const resUser = await getRepository(User).save(user);
         if (!resUser) return notExpectedErr;
         const resIV = await getRepository(User_IV).save(iv);

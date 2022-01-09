@@ -4,7 +4,7 @@ import React from 'react';
 import Wrapper from '../components/Wrapper';
 import {InputField} from '../components/InputField';
 import { object, string, ref } from "yup";
-import { useMutation } from 'urql';
+import { useRegisterMutation } from '../generated/graphql';
 
 const RegisterValidation = object().shape({
     userId: string().required("아이디를 입력해주세요")
@@ -25,8 +25,7 @@ interface registerProps {}
 
 // Register validate할 때는 먼저 WEB LEVEL로 Test한 뒤, SERVER LEVEL로 중복검사!
 const Register: React.FC<registerProps> = () => {
-  const [] = useMutation("");
-
+  const [, register] = useRegisterMutation();
     return (
         <Wrapper variant='small'>
         <Formik

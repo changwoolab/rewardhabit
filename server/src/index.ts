@@ -16,7 +16,7 @@ import session from 'express-session';
 import connectRedis from "connect-redis"
 import { ReqResContext } from "./types/ReqResContext"
 import { TestResolver } from "./resolvers/test";
-
+import cors from "cors";
 
 const main = async() => {
     // Typeorm Connection
@@ -38,6 +38,14 @@ const main = async() => {
     // Apollo에서 Redis를 사용할 것이기 때문에 Apollo보다 먼저 실행되어야하므로 앞에 적어두기.
     const RedisStore = connectRedis(session);
     const redisClient = new Redis();
+
+    // Express 전체에 대해 (모든 Route에 대해) CORS 설정
+    app.use(
+        cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    }));
+
     // Express-session, Session 정의하기
     app.use(
         session({
@@ -73,7 +81,7 @@ const main = async() => {
     await apolloServer.start();
     apolloServer.applyMiddleware({ 
         app,
-        cors: { origin: "http://localhost:3000" }
+        cors: false, // Express 전체에 CORS를 적용해줬으므로 이중으로 적용할 필요는 없음.
     });
 
     app.listen(4000, () => {

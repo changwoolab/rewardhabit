@@ -20,6 +20,7 @@ const ioredis_1 = __importDefault(require("ioredis"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const test_1 = require("./resolvers/test");
+const cors_1 = __importDefault(require("cors"));
 const main = async () => {
     await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -34,6 +35,10 @@ const main = async () => {
     const app = (0, express_1.default)();
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
     const redisClient = new ioredis_1.default();
+    app.use((0, cors_1.default)({
+        origin: "http://localhost:3000",
+        credentials: true,
+    }));
     app.use((0, express_session_1.default)({
         name: "qid",
         store: new RedisStore({
@@ -60,7 +65,10 @@ const main = async () => {
         ],
     });
     await apolloServer.start();
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({
+        app,
+        cors: false,
+    });
     app.listen(4000, () => {
         console.log('server started on localhost:4000');
     });
