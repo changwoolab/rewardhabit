@@ -5,11 +5,13 @@ import { UserRegisterInput } from "../types/UserRegisterInput";
 import { UserResponse } from "../types/UserResponse";
 import { getRepository } from "typeorm";
 import { makeUserAndIV } from "../modules/forUserResolver/makeUserAndIV";
-import { loginErr, notExpectedErr } from "../modules/errors";
+import { notExpectedErr } from "../modules/errors";
 import { checkDuplicateRegister } from "../modules/forUserResolver/checkDuplicateRegister";
 import argon2 from "argon2";
 import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
+import { directQuerying } from "../modules/directQuerying";
+import { decrypt } from "../secret_modules/encrypt";
 
 
 @Resolver()
@@ -26,6 +28,7 @@ export class UserResolver {
         return {partialUser: partialUser};
     }
 
+    // Register try-catch 문으로 수정하기! (모든 Error를 처리할 수 있도록..)
     @Mutation(() => UserResponse)
     async register(
         @Arg("inputs") inputs: UserRegisterInput,
@@ -55,25 +58,59 @@ export class UserResolver {
         };
     }
 
-    @Mutation(() => UserResponse)
+    @Mutation(() => Boolean)
     async login (
         @Arg("userId") userId: string,
         @Arg("password") password: string,
         @Ctx() { req }: ReqResContext
-    ): Promise<UserResponse> {
+    ): Promise<Boolean> {
         // userid를 찾아보고 없으면 Error return
         const user = await User.findOne({userId: userId});
-        if (!user) return loginErr; // 한 번만 쓰고 싶었지만 아래 user.password 타입을 명확하게 해줘야해서 적음..
+        if (!user) return false; // 한 번만 쓰고 싶었지만 아래 user.password 타입을 명확하게 해줘야해서 적음..
 
         // password validation
         const valid = await argon2.verify(user.password, password);
-        if (!valid) return loginErr
+        if (!valid) return false;
 
         // Session & Cookie를 설정해준다.
         req.session.userId = user.id;
 
-        return { 
-            succeed: true
-        };
+        return true;
+    }
+
+    // 회원가입 시 userId, userName, Email, Account Field를 입력했을 때 즉시 중복검사를 해주는 Query
+    // Query로 할 시, urql useQuery할 때 Variable 속성을 Reexecute로 바꿀 수 없는 문제점이 발생함.
+    // 따라서, Mutation으로 하는 수 없이 구현했음.
+    @Mutation(() => Boolean)
+    async checkImmediateDuplicate(
+        @Arg("mode") mode: string,
+        @Arg("input") input: string
+    ): Promise<Boolean> {
+        if (mode == "userId" || mode == "userName") {
+            const users = await User.find({select: [mode]});
+            for (let key in users) {
+                if (input == users[key].userId) {
+                   return false
+                }
+            }
+        } else {
+            let sql = "";
+            if (mode == "account") sql = "SELECT account, accountIV FROM user JOIN user_iv ON (user.id = user_iv.userId);"
+            else if (mode == "email") sql = "SELECT email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);"
+            else return false;
+            const users = await directQuerying(sql, []);
+
+            for (let key in users) {
+                let forDecrypte = {
+                    encryptedData: users[key][mode],
+                    iv: users[key][mode+"IV"]
+                }
+                const decryptedUserInfo = decrypt(forDecrypte);
+                if (input == decryptedUserInfo) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

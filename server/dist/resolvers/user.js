@@ -27,6 +27,8 @@ const errors_1 = require("../modules/errors");
 const checkDuplicateRegister_1 = require("../modules/forUserResolver/checkDuplicateRegister");
 const argon2_1 = __importDefault(require("argon2"));
 const PartialUser_1 = require("../types/PartialUser");
+const directQuerying_1 = require("../modules/directQuerying");
+const encrypt_1 = require("../secret_modules/encrypt");
 let UserResolver = class UserResolver {
     async loggedIn({ req }) {
         if (!req.session.userId)
@@ -62,14 +64,43 @@ let UserResolver = class UserResolver {
     async login(userId, password, { req }) {
         const user = await User_1.User.findOne({ userId: userId });
         if (!user)
-            return errors_1.loginErr;
+            return false;
         const valid = await argon2_1.default.verify(user.password, password);
         if (!valid)
-            return errors_1.loginErr;
+            return false;
         req.session.userId = user.id;
-        return {
-            succeed: true
-        };
+        return true;
+    }
+    async checkImmediateDuplicate(mode, input) {
+        if (mode == "userId" || mode == "userName") {
+            const users = await User_1.User.find({ select: [mode] });
+            for (let key in users) {
+                if (input == users[key].userId) {
+                    return false;
+                }
+            }
+        }
+        else {
+            let sql = "";
+            if (mode == "account")
+                sql = "SELECT account, accountIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
+            else if (mode == "email")
+                sql = "SELECT email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
+            else
+                return false;
+            const users = await (0, directQuerying_1.directQuerying)(sql, []);
+            for (let key in users) {
+                let forDecrypte = {
+                    encryptedData: users[key][mode],
+                    iv: users[key][mode + "IV"]
+                };
+                const decryptedUserInfo = (0, encrypt_1.decrypt)(forDecrypte);
+                if (input == decryptedUserInfo) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 };
 __decorate([
@@ -87,7 +118,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => UserResponse_1.UserResponse),
+    (0, type_graphql_1.Mutation)(() => Boolean),
     __param(0, (0, type_graphql_1.Arg)("userId")),
     __param(1, (0, type_graphql_1.Arg)("password")),
     __param(2, (0, type_graphql_1.Ctx)()),
@@ -95,6 +126,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "login", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("mode")),
+    __param(1, (0, type_graphql_1.Arg)("input")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "checkImmediateDuplicate", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);
