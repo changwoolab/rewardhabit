@@ -25,9 +25,16 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  checkImmediateDuplicate: Scalars['Boolean'];
   createPost: Scalars['Boolean'];
-  login: UserResponse;
+  login: Scalars['Boolean'];
   register: UserResponse;
+};
+
+
+export type MutationCheckImmediateDuplicateArgs = {
+  input: Scalars['String'];
+  mode: Scalars['String'];
 };
 
 
@@ -116,6 +123,14 @@ export type UserResponse = {
   user?: Maybe<User>;
 };
 
+export type LoginMutationVariables = Exact<{
+  userId: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login: boolean };
+
 export type RegisterMutationVariables = Exact<{
   userId: Scalars['String'];
   password: Scalars['String'];
@@ -130,7 +145,24 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', succeed?: boolean | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
 
+export type CheckImmediateDuplicateMutationVariables = Exact<{
+  mode: Scalars['String'];
+  input: Scalars['String'];
+}>;
 
+
+export type CheckImmediateDuplicateMutation = { __typename?: 'Mutation', checkImmediateDuplicate: boolean };
+
+
+export const LoginDocument = gql`
+    mutation Login($userId: String!, $password: String!) {
+  login(userId: $userId, password: $password)
+}
+    `;
+
+export function useLoginMutation() {
+  return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
 export const RegisterDocument = gql`
     mutation Register($userId: String!, $password: String!, $lastName: String!, $firstName: String!, $email: String!, $userName: String!, $bank: String!, $account: String!) {
   register(
@@ -155,4 +187,13 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const CheckImmediateDuplicateDocument = gql`
+    mutation CheckImmediateDuplicate($mode: String!, $input: String!) {
+  checkImmediateDuplicate(mode: $mode, input: $input)
+}
+    `;
+
+export function useCheckImmediateDuplicateMutation() {
+  return Urql.useMutation<CheckImmediateDuplicateMutation, CheckImmediateDuplicateMutationVariables>(CheckImmediateDuplicateDocument);
 };

@@ -1,28 +1,27 @@
 import { Box, FormControl, FormLabel, Input, FormErrorMessage } from '@chakra-ui/react';
 import { Field, useField } from 'formik';
 import React, { InputHTMLAttributes } from 'react';
-import { validateRegister } from '../modules/validateRegister';
 
-interface InputFieldtProps {
+interface MoreInputFieldtProps {
     name: string;
     label: string;
     type?: string
 }
 
-type SubInputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
     label: string;
     name: string;
 }
 
-export const InputField: React.FC<InputFieldtProps> = (props) => {
+export const MoreInputField: React.FC<MoreInputFieldtProps> = (props) => {
     return (
-        <Field name={props.name} validate={validateRegister[props.name]}>
-            {() => <SubInputField {...props}/>}
+        <Field name={props.name}>
+            {() => <InputField {...props}/>}
         </Field>
     );
 }
 
-export const SubInputField: React.FC<SubInputFieldProps> = ({label, size:_, ...props}) => {
+export const InputField: React.FC<InputFieldProps> = ({label, size:_, ...props}) => {
     const [field, {touched, error}] = useField(props);
     props.placeholder = label;
     return (

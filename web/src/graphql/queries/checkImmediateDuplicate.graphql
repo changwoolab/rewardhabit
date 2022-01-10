@@ -1,0 +1,9 @@
+mutation CheckImmediateDuplicate (
+    $mode: String!, 
+    $input: String!
+) {
+    checkImmediateDuplicate (
+        mode: $mode,
+        input: $input
+    )
+}
