@@ -6,6 +6,8 @@ import {InputField} from '../components/InputField';
 import { object, string, ref, ValidationError } from "yup";
 import { useCheckImmediateDuplicateMutation, useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../modules/toErrorMap';
+import { Container } from '../components/Container';
+import { Navbar } from '../components/Navbar';
 
 interface registerProps {}
 
@@ -55,6 +57,9 @@ const Register: React.FC<registerProps> = () => {
   });
 
     return (
+      <>
+      <Navbar/>
+      <Container height="120vh">
         <Wrapper variant='small'>
         <Formik
           initialValues={{ userId: "", password: "", confirmPassword: "", lastName: "", firstName: "", email: "", userName: "", bank: "", account: "" }}
@@ -84,6 +89,8 @@ const Register: React.FC<registerProps> = () => {
           )}
         </Formik>
         </Wrapper>
+        </Container>
+        </>
       )
 }
 

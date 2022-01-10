@@ -2,7 +2,9 @@ import { Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { Container } from '../components/Container';
 import { InputField } from '../components/InputField';
+import { Navbar } from '../components/Navbar';
 import Wrapper from '../components/Wrapper';
 import { useLoginMutation } from '../generated/graphql';
 
@@ -13,6 +15,9 @@ const Login: React.FC<loginProps> = ({}) => {
     const [,login] = useLoginMutation();
 
     return (
+    <>
+    <Navbar/>
+    <Container height="100vh">
     <Wrapper variant='small'>
       <Formik initialValues={{ userId: "", password: "",}} onSubmit={async(values, {setErrors}) => {
           const res = await login(values);
@@ -32,6 +37,8 @@ const Login: React.FC<loginProps> = ({}) => {
         )}
       </Formik>
     </Wrapper>
+    </Container>
+    </>
     );
 }
 

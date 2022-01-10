@@ -17,7 +17,7 @@ import { decrypt } from "../secret_modules/encrypt";
 @Resolver()
 export class UserResolver {
     @Query(() => UserResponse, { nullable: true })
-    async loggedIn(
+    async me(
         @Ctx() {req}: ReqResContext
     ): Promise<UserResponse | null> {
         if (!req.session.userId) return null;

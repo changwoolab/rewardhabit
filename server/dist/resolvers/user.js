@@ -30,7 +30,7 @@ const PartialUser_1 = require("../types/PartialUser");
 const directQuerying_1 = require("../modules/directQuerying");
 const encrypt_1 = require("../secret_modules/encrypt");
 let UserResolver = class UserResolver {
-    async loggedIn({ req }) {
+    async me({ req }) {
         if (!req.session.userId)
             return null;
         const user = await User_1.User.findOne({ id: req.session.userId });
@@ -109,7 +109,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "loggedIn", null);
+], UserResolver.prototype, "me", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => UserResponse_1.UserResponse),
     __param(0, (0, type_graphql_1.Arg)("inputs")),

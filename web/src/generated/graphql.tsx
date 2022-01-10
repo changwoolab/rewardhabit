@@ -77,7 +77,7 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  loggedIn?: Maybe<UserResponse>;
+  me?: Maybe<UserResponse>;
   post: Post;
   posts: Array<Post>;
   test: Scalars['Boolean'];
@@ -153,6 +153,11 @@ export type CheckImmediateDuplicateMutationVariables = Exact<{
 
 export type CheckImmediateDuplicateMutation = { __typename?: 'Mutation', checkImmediateDuplicate: boolean };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
+
 
 export const LoginDocument = gql`
     mutation Login($userId: String!, $password: String!) {
@@ -196,4 +201,22 @@ export const CheckImmediateDuplicateDocument = gql`
 
 export function useCheckImmediateDuplicateMutation() {
   return Urql.useMutation<CheckImmediateDuplicateMutation, CheckImmediateDuplicateMutationVariables>(CheckImmediateDuplicateDocument);
+};
+export const MeDocument = gql`
+    query Me {
+  me {
+    partialUser {
+      id
+      userId
+      userName
+      point
+      level
+      exp
+    }
+  }
+}
+    `;
+
+export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
