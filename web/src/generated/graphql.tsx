@@ -28,6 +28,7 @@ export type Mutation = {
   checkImmediateDuplicate: Scalars['Boolean'];
   createPost: Scalars['Boolean'];
   login?: Maybe<UserResponse>;
+  logout: Scalars['Boolean'];
   register: UserResponse;
 };
 
@@ -117,6 +118,11 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
+
 export type RegisterMutationVariables = Exact<{
   userId: Scalars['String'];
   password: Scalars['String'];
@@ -172,6 +178,15 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
     mutation Register($userId: String!, $password: String!, $lastName: String!, $firstName: String!, $email: String!, $userName: String!, $bank: String!, $account: String!) {
