@@ -12,6 +12,7 @@ import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
 import { directQuerying } from "../modules/directQuerying";
 import { decrypt } from "../secret_modules/encrypt";
+import { COOKIE_NAME } from "../secret_modules/constants";
 
 
 @Resolver()
@@ -114,5 +115,25 @@ export class UserResolver {
             }
         }
         return true;
+    }
+
+
+    // 로그아웃
+    @Mutation(() => Boolean)
+    async logout(
+        @Ctx() { req, res }: ReqResContext
+    ) {
+        // 1. req.session.destroy()를 통해서 세션을 제거함으로써 로그아웃 가능
+        // 단, 위의 req.session.destroy의 콜백함수는 void를 리턴하기 때문에 Boolean을 리턴하기 위해서는 Promise를 만들 필요가 있음.
+        return await new Promise(resolve => req.session.destroy(err => {
+            // 2. 쿠키 제거
+            res.clearCookie(COOKIE_NAME);
+            // 에러 발생 -> return false
+            if (err) {
+                resolve(false);
+                return;
+            }
+            resolve(true);
+        }))
     }
 }

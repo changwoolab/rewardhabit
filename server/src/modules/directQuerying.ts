@@ -1,4 +1,4 @@
-import { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } from "../secret_modules/secret";
+import { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } from "../secret_modules/constants";
 import mysql from "mysql2/promise"
 
 // mysql Connection, 여러 column들을 select하는 sql 처리 위해 사용 

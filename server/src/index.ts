@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
-import {DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT} from "./secret_modules/secret";
+import {DB_NAME, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, COOKIE_NAME} from "./secret_modules/constants";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import express from "express";
@@ -49,7 +49,7 @@ const main = async() => {
     // Express-session, Session 정의하기
     app.use(
         session({
-            name: "qid",
+            name: COOKIE_NAME,
             store: new RedisStore({ 
                 client: redisClient,
                 disableTouch: true,

@@ -1,10 +1,8 @@
-import {
-  Link as ChakraLink,
-  Text,
-} from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { Container } from '../components/Container'
-import { DarkModeSwitch } from '../components/DarkModeSwitch'
 import { Navbar } from '../components/Navbar'
+import { withUrqlClient } from "next-urql"
+import { createUrqlClient } from '../modules/createUrqlClient'
 
 const Index = () => (
   <>
@@ -15,4 +13,5 @@ const Index = () => (
   </>
 )
 
-export default Index
+// withUrqlClient(Client 정보)(페이지)
+export default withUrqlClient(createUrqlClient, {ssr: true})(Index);

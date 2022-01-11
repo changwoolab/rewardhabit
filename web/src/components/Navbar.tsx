@@ -2,13 +2,14 @@ import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
-import { useMeQuery } from '../generated/graphql';
+import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
 interface navBarProps {}
 
 export const Navbar: React.FC<navBarProps> = ({}) => {
     // 로그인 되어 있다면 유저 정보를 받아오는 쿼리
     const [{data, fetching}] = useMeQuery();
+    const [{fetching: logoutFetching}, logout] = useLogoutMutation();
     let body = null;
 
     // 로딩중...
@@ -30,7 +31,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         body = (
             <Flex mr={12}>
               <Box mr={2}>{data.me.partialUser.userName}</Box>
-              <Button variant="link" color={"white"}>로그아웃</Button>
+              <Button variant="link" color={"white"} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Button>
             </Flex>
         )
     }
