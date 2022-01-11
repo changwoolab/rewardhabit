@@ -8,6 +8,7 @@ import { useCheckImmediateDuplicateMutation, useRegisterMutation } from '../gene
 import { toErrorMap } from '../modules/toErrorMap';
 import { Container } from '../components/Container';
 import { Navbar } from '../components/Navbar';
+import { useRouter } from 'next/router';
 
 interface registerProps {}
 
@@ -15,6 +16,7 @@ interface registerProps {}
 const Register: React.FC<registerProps> = () => {
   const [, register] = useRegisterMutation();
   const [, checkDup] = useCheckImmediateDuplicateMutation();
+  const router = useRouter();
 
   // 중복을 확인해주는 함수
   const checker = async (mode: string, input: string) => {
@@ -72,6 +74,11 @@ const Register: React.FC<registerProps> = () => {
             if (reg.data?.register.errors) {
               if (reg.data.register.errors[0].field == "notExpected") alert("서버 오류가 발생했습니다\n 잠시 후 다시 실행해주세요");
               else setErrors(toErrorMap(reg.data.register.errors));
+            }
+
+            // 회원가입 성공시 index page로
+            if (reg.data?.register) {
+              router.push("/");
             }
           }}
         >
