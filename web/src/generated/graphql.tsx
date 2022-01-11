@@ -105,6 +105,8 @@ export type UserResponse = {
   partialUser?: Maybe<PartialUser>;
 };
 
+export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
+
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
 export type LoginMutationVariables = Exact<{
@@ -142,6 +144,12 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
+export const ErrorsFragFragmentDoc = gql`
+    fragment ErrorsFrag on FieldError {
+  field
+  message
+}
+    `;
 export const PartialUserFragFragmentDoc = gql`
     fragment PartialUserFrag on PartialUser {
   id
@@ -171,15 +179,15 @@ export const RegisterDocument = gql`
     inputs: {userId: $userId, password: $password, lastName: $lastName, firstName: $firstName, email: $email, userName: $userName, bank: $bank, account: $account}
   ) {
     errors {
-      field
-      message
+      ...ErrorsFrag
     }
     partialUser {
       ...PartialUserFrag
     }
   }
 }
-    ${PartialUserFragFragmentDoc}`;
+    ${ErrorsFragFragmentDoc}
+${PartialUserFragFragmentDoc}`;
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
