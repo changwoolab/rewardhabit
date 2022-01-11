@@ -29,6 +29,7 @@ const argon2_1 = __importDefault(require("argon2"));
 const PartialUser_1 = require("../types/PartialUser");
 const directQuerying_1 = require("../modules/directQuerying");
 const encrypt_1 = require("../secret_modules/encrypt");
+const constants_1 = require("../secret_modules/constants");
 let UserResolver = class UserResolver {
     async me({ req }) {
         if (!req.session.userId)
@@ -106,6 +107,16 @@ let UserResolver = class UserResolver {
         }
         return true;
     }
+    async logout({ req, res }) {
+        return await new Promise(resolve => req.session.destroy(err => {
+            res.clearCookie(constants_1.COOKIE_NAME);
+            if (err) {
+                resolve(false);
+                return;
+            }
+            resolve(true);
+        }));
+    }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
@@ -138,6 +149,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "checkImmediateDuplicate", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "logout", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);

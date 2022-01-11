@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
-const secret_1 = require("./secret_modules/secret");
+const constants_1 = require("./secret_modules/constants");
 const Post_1 = require("./entities/Post");
 const User_1 = require("./entities/User");
 const express_1 = __importDefault(require("express"));
@@ -24,11 +24,11 @@ const cors_1 = __importDefault(require("cors"));
 const main = async () => {
     await (0, typeorm_1.createConnection)({
         type: 'mysql',
-        host: secret_1.DB_HOST,
-        port: secret_1.DB_PORT,
-        database: secret_1.DB_NAME,
-        username: secret_1.DB_USERNAME,
-        password: secret_1.DB_PASSWORD,
+        host: constants_1.DB_HOST,
+        port: constants_1.DB_PORT,
+        database: constants_1.DB_NAME,
+        username: constants_1.DB_USERNAME,
+        password: constants_1.DB_PASSWORD,
         synchronize: true,
         entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV],
     });
@@ -40,7 +40,7 @@ const main = async () => {
         credentials: true,
     }));
     app.use((0, express_session_1.default)({
-        name: "qid",
+        name: constants_1.COOKIE_NAME,
         store: new RedisStore({
             client: redisClient,
             disableTouch: true,
