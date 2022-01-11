@@ -5,11 +5,11 @@ import Wrapper from '../components/Wrapper';
 import {InputField} from '../components/InputField';
 import { object, string, ref, ValidationError } from "yup";
 import { useCheckImmediateDuplicateMutation, useRegisterMutation } from '../generated/graphql';
-import { toErrorMap } from '../modules/toErrorMap';
+import { toErrorMap } from '../utils/toErrorMap';
 import { Container } from '../components/Container';
 import { Navbar } from '../components/Navbar';
 import { useRouter } from 'next/router';
-import { createUrqlClient } from '../modules/createUrqlClient';
+import { createUrqlClient } from '../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
 
 

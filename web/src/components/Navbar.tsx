@@ -3,12 +3,16 @@ import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { isServer } from '../utils/isServer';
 
 interface navBarProps {}
 
 export const Navbar: React.FC<navBarProps> = ({}) => {
     // 로그인 되어 있다면 유저 정보를 받아오는 쿼리
-    const [{data, fetching}] = useMeQuery();
+    const [{data, fetching}] = useMeQuery({
+      // SSR로 인해 서버에서 쿠키를 처리하는 일이 없도록 만듦. (서버에는 세션만 있으므로!)
+      pause: isServer()
+    });
     const [{fetching: logoutFetching}, logout] = useLogoutMutation();
     let body = null;
 
@@ -28,6 +32,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         )
       // Logged in
     } else {
+      console.log("logged in")
         body = (
             <Flex mr={12}>
               <Box mr={2}>{data.me.partialUser.userName}</Box>

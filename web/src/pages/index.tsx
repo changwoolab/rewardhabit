@@ -2,7 +2,7 @@ import { Text } from '@chakra-ui/react'
 import { Container } from '../components/Container'
 import { Navbar } from '../components/Navbar'
 import { withUrqlClient } from "next-urql"
-import { createUrqlClient } from '../modules/createUrqlClient'
+import { createUrqlClient } from '../utils/createUrqlClient'
 
 const Index = () => (
   <>

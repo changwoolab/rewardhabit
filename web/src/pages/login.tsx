@@ -7,7 +7,7 @@ import { InputField } from '../components/InputField';
 import { Navbar } from '../components/Navbar';
 import Wrapper from '../components/Wrapper';
 import { useLoginMutation } from '../generated/graphql';
-import { createUrqlClient } from '../modules/createUrqlClient';
+import { createUrqlClient } from '../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
 
 interface loginProps {}
