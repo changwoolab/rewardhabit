@@ -17,12 +17,7 @@ mutation Register (
             message
         }
         partialUser {
-            id
-            userId
-            userName
-            point
-            level
-            exp
+            ...PartialUserFrag
         }
     }
 }

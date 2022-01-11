@@ -3,12 +3,7 @@ mutation Login(
 ) {
     login(userId: $userId, password: $password) {
         partialUser {
-            id
-            userId
-            userName
-            point
-            level
-            exp
+            ...PartialUserFrag
         }
     }
 }

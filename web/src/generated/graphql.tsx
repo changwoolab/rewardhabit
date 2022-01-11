@@ -88,22 +88,6 @@ export type QueryPostArgs = {
   id: Scalars['Int'];
 };
 
-export type User = {
-  __typename?: 'User';
-  account: Scalars['String'];
-  bank: Scalars['String'];
-  email: Scalars['String'];
-  exp: Scalars['Float'];
-  firstName: Scalars['String'];
-  id: Scalars['Float'];
-  lastName: Scalars['String'];
-  level: Scalars['Float'];
-  point: Scalars['Float'];
-  registerDate: Scalars['DateTime'];
-  userId: Scalars['String'];
-  userName: Scalars['String'];
-};
-
 export type UserRegisterInput = {
   account: Scalars['String'];
   bank: Scalars['String'];
@@ -119,8 +103,9 @@ export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   partialUser?: Maybe<PartialUser>;
-  user?: Maybe<User>;
 };
+
+export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
 export type LoginMutationVariables = Exact<{
   userId: Scalars['String'];
@@ -157,21 +142,25 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
-
+export const PartialUserFragFragmentDoc = gql`
+    fragment PartialUserFrag on PartialUser {
+  id
+  userId
+  userName
+  point
+  level
+  exp
+}
+    `;
 export const LoginDocument = gql`
     mutation Login($userId: String!, $password: String!) {
   login(userId: $userId, password: $password) {
     partialUser {
-      id
-      userId
-      userName
-      point
-      level
-      exp
+      ...PartialUserFrag
     }
   }
 }
-    `;
+    ${PartialUserFragFragmentDoc}`;
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
@@ -186,16 +175,11 @@ export const RegisterDocument = gql`
       message
     }
     partialUser {
-      id
-      userId
-      userName
-      point
-      level
-      exp
+      ...PartialUserFrag
     }
   }
 }
-    `;
+    ${PartialUserFragFragmentDoc}`;
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
@@ -213,16 +197,11 @@ export const MeDocument = gql`
     query Me {
   me {
     partialUser {
-      id
-      userId
-      userName
-      point
-      level
-      exp
+      ...PartialUserFrag
     }
   }
 }
-    `;
+    ${PartialUserFragFragmentDoc}`;
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });

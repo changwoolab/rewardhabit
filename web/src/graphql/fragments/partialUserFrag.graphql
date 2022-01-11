@@ -1,0 +1,8 @@
+fragment PartialUserFrag on PartialUser{
+    id
+    userId
+    userName
+    point
+    level
+    exp
+}

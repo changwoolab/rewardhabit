@@ -1,12 +1,7 @@
 query Me {
     me {
     partialUser{
-      id
-      userId
-      userName
-      point
-      level
-      exp
+      ...PartialUserFrag
     }
   }
 }
