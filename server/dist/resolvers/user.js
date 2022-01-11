@@ -39,7 +39,7 @@ let UserResolver = class UserResolver {
         const partialUser = new PartialUser_1.PartialUser(user);
         if (!partialUser)
             return errors_1.notExpectedErr;
-        return { partialUser: partialUser };
+        return { partialUser };
     }
     async register(inputs) {
         const notValid = await (0, checkDuplicateRegister_1.checkDuplicateRegister)(inputs);
@@ -57,19 +57,23 @@ let UserResolver = class UserResolver {
             await User_1.User.delete({ userId: user.userId });
             return errors_1.notExpectedErr;
         }
-        return {
-            succeed: true
-        };
+        const partialUser = new PartialUser_1.PartialUser(user);
+        if (!partialUser)
+            return errors_1.notExpectedErr;
+        return { partialUser };
     }
     async login(userId, password, { req }) {
         const user = await User_1.User.findOne({ userId: userId });
         if (!user)
-            return false;
+            return null;
         const valid = await argon2_1.default.verify(user.password, password);
         if (!valid)
-            return false;
+            return null;
         req.session.userId = user.id;
-        return true;
+        const partialUser = new PartialUser_1.PartialUser(user);
+        if (!partialUser)
+            return errors_1.notExpectedErr;
+        return { partialUser };
     }
     async checkImmediateDuplicate(mode, input) {
         if (mode == "userId" || mode == "userName") {
@@ -118,7 +122,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => Boolean),
+    (0, type_graphql_1.Mutation)(() => UserResponse_1.UserResponse, { nullable: true }),
     __param(0, (0, type_graphql_1.Arg)("userId")),
     __param(1, (0, type_graphql_1.Arg)("password")),
     __param(2, (0, type_graphql_1.Ctx)()),

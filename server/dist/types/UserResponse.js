@@ -25,10 +25,6 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], UserResponse.prototype, "user", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(() => Boolean, { nullable: true }),
-    __metadata("design:type", Boolean)
-], UserResponse.prototype, "succeed", void 0);
-__decorate([
     (0, type_graphql_1.Field)(() => PartialUser_1.PartialUser, { nullable: true }),
     __metadata("design:type", PartialUser_1.PartialUser)
 ], UserResponse.prototype, "partialUser", void 0);

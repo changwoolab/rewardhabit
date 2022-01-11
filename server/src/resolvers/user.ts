@@ -25,7 +25,7 @@ export class UserResolver {
         if (!user) return null;
         const partialUser = new PartialUser(user);
         if (!partialUser) return notExpectedErr;
-        return {partialUser: partialUser};
+        return { partialUser };
     }
 
     // Register try-catch 문으로 수정하기! (모든 Error를 처리할 수 있도록..)
@@ -53,29 +53,31 @@ export class UserResolver {
             return notExpectedErr;
         }
 
-        return {
-            succeed: true
-        };
+        const partialUser = new PartialUser(user);
+        if (!partialUser) return notExpectedErr;
+        return { partialUser };
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => UserResponse, {nullable: true})
     async login (
         @Arg("userId") userId: string,
         @Arg("password") password: string,
         @Ctx() { req }: ReqResContext
-    ): Promise<Boolean> {
+    ): Promise<UserResponse | null> {
         // userid를 찾아보고 없으면 Error return
         const user = await User.findOne({userId: userId});
-        if (!user) return false; // 한 번만 쓰고 싶었지만 아래 user.password 타입을 명확하게 해줘야해서 적음..
+        if (!user) return null; // 한 번만 쓰고 싶었지만 아래 user.password 타입을 명확하게 해줘야해서 적음..
 
         // password validation
         const valid = await argon2.verify(user.password, password);
-        if (!valid) return false;
+        if (!valid) return null;
 
         // Session & Cookie를 설정해준다.
         req.session.userId = user.id;
 
-        return true;
+        const partialUser = new PartialUser(user);
+        if (!partialUser) return notExpectedErr;
+        return { partialUser };
     }
 
     // 회원가입 시 userId, userName, Email, Account Field를 입력했을 때 즉시 중복검사를 해주는 Query

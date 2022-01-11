@@ -10,8 +10,6 @@ export class UserResponse {
     errors?: FieldError[];
     @Field(() => User, {nullable: true})
     user?: User;
-    @Field(() => Boolean, {nullable: true})
-    succeed?: boolean
     @Field(() => PartialUser, {nullable: true})
     partialUser?: PartialUser
 }

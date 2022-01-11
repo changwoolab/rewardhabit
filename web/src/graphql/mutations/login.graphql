@@ -1,5 +1,14 @@
 mutation Login(
     $userId: String!, $password: String!
 ) {
-    login(userId: $userId, password: $password)
+    login(userId: $userId, password: $password) {
+        partialUser {
+            id
+            userId
+            userName
+            point
+            level
+            exp
+        }
+    }
 }

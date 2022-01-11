@@ -67,7 +67,9 @@ const Register: React.FC<registerProps> = () => {
           onSubmit={async (values, {setErrors}) => {
             const reg = await register(values);
             if (reg.error) alert("서버 오류가 발생했습니다\n 잠시 후 다시 실행해주세요");
-            if (reg.data?.register.errors) { // 혹시 모를 Error가 발생했을 경우, Set Error
+            
+            // 혹시 모를 Error가 발생했을 경우, Set Error
+            if (reg.data?.register.errors) {
               if (reg.data.register.errors[0].field == "notExpected") alert("서버 오류가 발생했습니다\n 잠시 후 다시 실행해주세요");
               else setErrors(toErrorMap(reg.data.register.errors));
             }

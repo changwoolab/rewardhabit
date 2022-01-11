@@ -16,7 +16,6 @@ mutation Register (
             field
             message
         }
-        succeed
         partialUser {
             id
             userId

@@ -27,7 +27,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   checkImmediateDuplicate: Scalars['Boolean'];
   createPost: Scalars['Boolean'];
-  login: Scalars['Boolean'];
+  login?: Maybe<UserResponse>;
   register: UserResponse;
 };
 
@@ -119,7 +119,6 @@ export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   partialUser?: Maybe<PartialUser>;
-  succeed?: Maybe<Scalars['Boolean']>;
   user?: Maybe<User>;
 };
 
@@ -129,7 +128,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: boolean };
+export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
 export type RegisterMutationVariables = Exact<{
   userId: Scalars['String'];
@@ -143,7 +142,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', succeed?: boolean | null | undefined, errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
 
 export type CheckImmediateDuplicateMutationVariables = Exact<{
   mode: Scalars['String'];
@@ -161,7 +160,16 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse'
 
 export const LoginDocument = gql`
     mutation Login($userId: String!, $password: String!) {
-  login(userId: $userId, password: $password)
+  login(userId: $userId, password: $password) {
+    partialUser {
+      id
+      userId
+      userName
+      point
+      level
+      exp
+    }
+  }
 }
     `;
 
@@ -177,7 +185,6 @@ export const RegisterDocument = gql`
       field
       message
     }
-    succeed
     partialUser {
       id
       userId
