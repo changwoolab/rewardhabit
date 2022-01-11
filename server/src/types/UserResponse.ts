@@ -1,4 +1,3 @@
-import { User } from "../entities/User";
 import { ObjectType, Field } from "type-graphql";
 import { FieldError } from "./FieldError";
 import { PartialUser } from "./PartialUser";
@@ -8,8 +7,6 @@ import { PartialUser } from "./PartialUser";
 export class UserResponse {
     @Field(() => [FieldError], {nullable: true})
     errors?: FieldError[];
-    @Field(() => User, {nullable: true})
-    user?: User;
     @Field(() => PartialUser, {nullable: true})
     partialUser?: PartialUser
 }
