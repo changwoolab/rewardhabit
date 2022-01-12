@@ -157,8 +157,9 @@ export class UserResolver {
             if (email == decryptedEmail) {
                 sendEmail(decryptedEmail, `[보상습관] 아이디 찾기`, 
                             forgotUserIdForm("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }
