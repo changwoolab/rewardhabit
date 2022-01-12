@@ -59,6 +59,7 @@ export class UserResolver {
         return { partialUser };
     }
 
+    // 로그인
     @Mutation(() => UserResponse, {nullable: true})
     async login (
         @Arg("userId") userId: string,
