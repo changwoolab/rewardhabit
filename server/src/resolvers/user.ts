@@ -13,6 +13,8 @@ import { PartialUser } from "../types/PartialUser";
 import { directQuerying } from "../utils/directQuerying";
 import { decrypt } from "../secret_modules/encrypt";
 import { COOKIE_NAME } from "../secret_modules/constants";
+import { sendEmail } from "../utils/sendEmail";
+import { forgotUserIdForm } from "../utils/email/forgotUserId";
 
 
 @Resolver()
@@ -36,7 +38,7 @@ export class UserResolver {
     ): Promise<UserResponse> {
         // 1. 중복된 input이 있는지 한 번 더 검사 (HOXY 모르니)
         const notValid = await checkDuplicateRegister(inputs);
-        if (notValid.errors) {
+        if (notValid?.errors) {
             return notValid
         }
 
@@ -136,5 +138,27 @@ export class UserResolver {
             }
             resolve(true);
         }))
+    }
+
+    // 아이디 찾기
+    @Mutation(() => Boolean)
+    async forgotUserId(
+        @Arg("email") email: string,
+    ) {
+        const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
+        const users = await directQuerying(sql, [])
+        if (!users) return false;
+        for (let key in users) {
+            let beforeDecrypteEmail = {
+                encryptedData: users[key].email,
+                iv: users[key].emailIV
+            }
+            const decryptedEmail = decrypt(beforeDecrypteEmail);
+            if (email == decryptedEmail) {
+                sendEmail(decryptedEmail, `[보상습관] 아이디 찾기`, 
+                            forgotUserIdForm("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+            }
+        }
+        return true;
     }
 }
