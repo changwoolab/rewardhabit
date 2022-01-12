@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const constants_1 = require("../secret_modules/constants");
-async function sendEmail(to, html) {
+async function sendEmail(to, subject, html) {
     let transporter = nodemailer_1.default.createTransport({
         service: "gmail",
         host: "smtp.gmail.com",
@@ -18,14 +18,12 @@ async function sendEmail(to, html) {
             rejectUnauthorized: false
         }
     });
-    let info = await transporter.sendMail({
+    await transporter.sendMail({
         from: '"보상습관👻" <rewardhabit@gmail.com>',
         to: to,
-        subject: "Hello ✔",
+        subject,
         html,
     });
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer_1.default.getTestMessageUrl(info));
 }
 exports.sendEmail = sendEmail;
 //# sourceMappingURL=sendEmail.js.map

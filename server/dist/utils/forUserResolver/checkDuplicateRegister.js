@@ -24,9 +24,7 @@ const checkDuplicateRegister = async (inputs) => {
             }
         }
     }
-    return {
-        succeed: true
-    };
+    return null;
 };
 exports.checkDuplicateRegister = checkDuplicateRegister;
 //# sourceMappingURL=checkDuplicateRegister.js.map

@@ -30,6 +30,8 @@ const PartialUser_1 = require("../types/PartialUser");
 const directQuerying_1 = require("../utils/directQuerying");
 const encrypt_1 = require("../secret_modules/encrypt");
 const constants_1 = require("../secret_modules/constants");
+const sendEmail_1 = require("../utils/sendEmail");
+const forgotUserId_1 = require("../utils/email/forgotUserId");
 let UserResolver = class UserResolver {
     async me({ req }) {
         if (!req.session.userId)
@@ -44,7 +46,7 @@ let UserResolver = class UserResolver {
     }
     async register(inputs) {
         const notValid = await (0, checkDuplicateRegister_1.checkDuplicateRegister)(inputs);
-        if (notValid.errors) {
+        if (notValid === null || notValid === void 0 ? void 0 : notValid.errors) {
             return notValid;
         }
         const { user, iv } = await (0, makeUserAndIV_1.makeUserAndIV)(inputs);
@@ -117,6 +119,23 @@ let UserResolver = class UserResolver {
             resolve(true);
         }));
     }
+    async forgotUserId(email) {
+        const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
+        const users = await (0, directQuerying_1.directQuerying)(sql, []);
+        if (!users)
+            return false;
+        for (let key in users) {
+            let beforeDecrypteEmail = {
+                encryptedData: users[key].email,
+                iv: users[key].emailIV
+            };
+            const decryptedEmail = (0, encrypt_1.decrypt)(beforeDecrypteEmail);
+            if (email == decryptedEmail) {
+                (0, sendEmail_1.sendEmail)(decryptedEmail, `[보상습관] 아이디 찾기`, (0, forgotUserId_1.forgotUserIdForm)("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+            }
+        }
+        return true;
+    }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
@@ -156,6 +175,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("email")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "forgotUserId", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);
