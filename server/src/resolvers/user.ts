@@ -4,13 +4,13 @@ import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
 import { UserResponse } from "../types/UserResponse";
 import { getRepository } from "typeorm";
-import { makeUserAndIV } from "../modules/forUserResolver/makeUserAndIV";
-import { notExpectedErr } from "../modules/errors";
-import { checkDuplicateRegister } from "../modules/forUserResolver/checkDuplicateRegister";
+import { makeUserAndIV } from "../utils/forUserResolver/makeUserAndIV";
+import { notExpectedErr } from "../utils/errors";
+import { checkDuplicateRegister } from "../utils/forUserResolver/checkDuplicateRegister";
 import argon2 from "argon2";
 import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
-import { directQuerying } from "../modules/directQuerying";
+import { directQuerying } from "../utils/directQuerying";
 import { decrypt } from "../secret_modules/encrypt";
 import { COOKIE_NAME } from "../secret_modules/constants";
 
