@@ -34,7 +34,7 @@ const main = async () => {
     });
     const app = (0, express_1.default)();
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
-    const redisClient = new ioredis_1.default();
+    const redis = new ioredis_1.default();
     app.use((0, cors_1.default)({
         origin: "http://localhost:3000",
         credentials: true,
@@ -42,7 +42,7 @@ const main = async () => {
     app.use((0, express_session_1.default)({
         name: constants_1.COOKIE_NAME,
         store: new RedisStore({
-            client: redisClient,
+            client: redis,
             disableTouch: true,
         }),
         cookie: {
@@ -59,7 +59,7 @@ const main = async () => {
             resolvers: [test_1.TestResolver, post_1.PostResolver, user_1.UserResolver],
             validate: false
         }),
-        context: ({ req, res }) => ({ req, res }),
+        context: ({ req, res }) => ({ req, res, redis }),
         plugins: [
             (0, apollo_server_core_1.ApolloServerPluginLandingPageGraphQLPlayground)({}),
         ],

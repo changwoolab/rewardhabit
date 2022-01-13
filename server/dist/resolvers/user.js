@@ -32,6 +32,7 @@ const encrypt_1 = require("../secret_modules/encrypt");
 const constants_1 = require("../secret_modules/constants");
 const sendEmail_1 = require("../utils/sendEmail");
 const emailForm_1 = require("../utils/email/emailForm");
+const uuid_1 = require("uuid");
 let UserResolver = class UserResolver {
     async me({ req }) {
         if (!req.session.userId)
@@ -139,6 +140,42 @@ let UserResolver = class UserResolver {
         }
         return false;
     }
+    async forgotPassword(userId, email, { redis }) {
+        if (!email || !userId)
+            return false;
+        const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId) WHERE user.userId = ?;";
+        const user = await (0, directQuerying_1.directQuerying)(sql, [userId]);
+        if (!user)
+            return false;
+        let beforeDecrypteEmail = {
+            encryptedData: user[0].email,
+            iv: user[0].emailIV
+        };
+        const decryptedEmail = (0, encrypt_1.decrypt)(beforeDecrypteEmail);
+        if (email == decryptedEmail) {
+            const token = (0, uuid_1.v4)();
+            await redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, userId, "ex", 1000 * 60 * 10);
+            (0, sendEmail_1.sendEmail)(decryptedEmail, `[보상습관] 비밀번호 찾기`, (0, emailForm_1.emailForm)("보상습관 비밀번호 안내", "비밀번호 찾기를 통해 요청하신 비밀번호 변경 URL을 알려드립니다.", "요청하신 URL", `<a href="http://localhost:3000/nidlogin/forgot/change-password/${token}">[비밀번호 변경 URL]</a>`));
+            return true;
+        }
+        return false;
+    }
+    async changePassword(token, newPassword, { redis }) {
+        const userId = await redis.get(constants_1.FORGOT_PASSWORD_PREFIX + token);
+        if (!userId)
+            return false;
+        const hashedNewPassword = await argon2_1.default.hash(newPassword);
+        if (!hashedNewPassword)
+            return false;
+        const result = await (0, typeorm_1.createQueryBuilder)()
+            .update(User_1.User)
+            .set({ password: hashedNewPassword })
+            .where("userId = :userId", { userId: "cwyoo0101" })
+            .execute();
+        if (result.affected == 1)
+            return true;
+        return false;
+    }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
@@ -185,6 +222,24 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "forgotUserId", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("userId")),
+    __param(1, (0, type_graphql_1.Arg)("email")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "forgotPassword", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    __param(0, (0, type_graphql_1.Arg)("token")),
+    __param(1, (0, type_graphql_1.Arg)("newPassword")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "changePassword", null);
 UserResolver = __decorate([
     (0, type_graphql_1.Resolver)()
 ], UserResolver);
