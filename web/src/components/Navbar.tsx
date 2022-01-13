@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Link } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
@@ -22,11 +22,11 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     } else if (!data?.me?.partialUser) {
         body = (
             <>
-            <NextLink href="/login">
+            <NextLink href="/nidlogin/login">
               <Link>로그인</Link>
             </NextLink>
-            <NextLink href="/register">
-              <Link ml={2} mr={12}>회원가입</Link>
+            <NextLink href="/nidlogin/register">
+              <Link ml={2}>회원가입</Link>
             </NextLink>
             </>
         )
@@ -34,7 +34,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     } else {
       console.log("logged in")
         body = (
-            <Flex mr={12}>
+            <Flex>
               <Box mr={2}>{data.me.partialUser.userName}</Box>
               <Button variant="link" color={"white"} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Button>
             </Flex>
@@ -44,8 +44,8 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         <Flex bg="gray" p={3.5} ml={"auto"}>
           <Box ml={"auto"}>
             {body}
+            <DarkModeSwitch />
           </Box>
-          <DarkModeSwitch />
         </Flex>
     );
 }
