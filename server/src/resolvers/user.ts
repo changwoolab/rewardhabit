@@ -149,11 +149,11 @@ export class UserResolver {
     async forgotUserId(
         @Arg("email") email: string,
     ) {
+        if (!email) return false;
         // 이메일이 인풋으로 들어왔을 때 아이디를 찾아야 하므로, userId, email, emailIV를 select
         const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
         const users = await directQuerying(sql, [])
         if (!users) return false;
-
         // 이메일을 Decrypt하여 대응되는 아이디 찾기
         for (let key in users) {
             let beforeDecrypteEmail = {

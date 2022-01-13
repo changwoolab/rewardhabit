@@ -27,6 +27,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   checkImmediateDuplicate: Scalars['Boolean'];
   createPost: Scalars['Boolean'];
+  forgotUserId: Scalars['Boolean'];
   login?: Maybe<UserResponse>;
   logout: Scalars['Boolean'];
   register: UserResponse;
@@ -44,6 +45,11 @@ export type MutationCreatePostArgs = {
   title: Scalars['String'];
   type: Scalars['Float'];
   userId: Scalars['String'];
+};
+
+
+export type MutationForgotUserIdArgs = {
+  email: Scalars['String'];
 };
 
 
@@ -110,6 +116,13 @@ export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, mes
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
+export type ForgotUserIdMutationVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type ForgotUserIdMutation = { __typename?: 'Mutation', forgotUserId: boolean };
+
 export type LoginMutationVariables = Exact<{
   userId: Scalars['String'];
   password: Scalars['String'];
@@ -166,6 +179,15 @@ export const PartialUserFragFragmentDoc = gql`
   exp
 }
     `;
+export const ForgotUserIdDocument = gql`
+    mutation ForgotUserId($email: String!) {
+  forgotUserId(email: $email)
+}
+    `;
+
+export function useForgotUserIdMutation() {
+  return Urql.useMutation<ForgotUserIdMutation, ForgotUserIdMutationVariables>(ForgotUserIdDocument);
+};
 export const LoginDocument = gql`
     mutation Login($userId: String!, $password: String!) {
   login(userId: $userId, password: $password) {

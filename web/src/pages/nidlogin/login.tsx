@@ -1,13 +1,13 @@
-import { Button } from '@chakra-ui/react';
+import { Box, Button, Center, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { Container } from '../components/Container';
-import { InputField } from '../components/InputField';
-import { Navbar } from '../components/Navbar';
-import Wrapper from '../components/Wrapper';
-import { useLoginMutation } from '../generated/graphql';
-import { createUrqlClient } from '../utils/createUrqlClient';
+import { Container } from '../../components/Container';
+import { InputField } from '../../components/InputField';
+import { Navbar } from '../../components/Navbar';
+import Wrapper from '../../components/Wrapper';
+import { useLoginMutation } from '../../generated/graphql';
+import { createUrqlClient } from '../../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
 
 interface loginProps {}
@@ -39,7 +39,13 @@ const Login: React.FC<loginProps> = ({}) => {
          <Form>
             <InputField name="userId" label="아이디"/>
             <InputField name="password" label="비밀번호" type="password"/>
-            <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'> 로그인 </Button>
+            <Box textAlign={"center"}>
+              <Button mt={4} w={"100%"} colorScheme='teal' isLoading={isSubmitting} type='submit'> 로그인 </Button>
+            </Box>
+            <Center mt={4}>
+              <Link href="/nidlogin/forgot/forgotUserId"> 아이디 찾기 </Link>
+              <Link ml={4} href="/nidlogin/forgot/forgotPassword"> 비밀번호 찾기 </Link>
+            </Center>
           </Form>
         )}
       </Formik>

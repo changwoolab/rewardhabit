@@ -1,0 +1,7 @@
+mutation ForgotUserId (
+    $email: String!
+){
+    forgotUserId(
+        email: $email,
+    )
+}
