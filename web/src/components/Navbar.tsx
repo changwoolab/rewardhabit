@@ -42,6 +42,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     }
     return (
         <Flex bg="gray" p={3.5} ml={"auto"}>
+          <Link href="/">보상습관</Link>
           <Box ml={"auto"}>
             {body}
             <DarkModeSwitch />
