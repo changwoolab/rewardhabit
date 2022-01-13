@@ -1,6 +1,6 @@
 
-
-export const forgotUserIdForm = (title: string, message: string, request: string, response: string) => { 
+// 이메일 보내줄 때 사용하는 형식
+export const emailForm = (title: string, message: string, request: string, response: string) => { 
     return `
     <div align="center" style="border-style: solid;border-width: thin;border-color:#dadce0;border-radius: 8px;padding: 40px 20px;margin-left: 300px;margin-right: 300px;">
     <table align="center" border="0" cellpadding="0" style="width:100%;max-width:700px;margin:0 auto;padding:0;border: 1px solid #eee;">

@@ -14,7 +14,7 @@ import { directQuerying } from "../utils/directQuerying";
 import { decrypt } from "../secret_modules/encrypt";
 import { COOKIE_NAME } from "../secret_modules/constants";
 import { sendEmail } from "../utils/sendEmail";
-import { forgotUserIdForm } from "../utils/email/forgotUserId";
+import { emailForm } from "../utils/email/emailForm";
 
 
 @Resolver()
@@ -92,6 +92,7 @@ export class UserResolver {
         @Arg("mode") mode: string,
         @Arg("input") input: string
     ): Promise<Boolean> {
+        // 1. userId, userName 중복 검사
         if (mode == "userId" || mode == "userName") {
             const users = await User.find({select: [mode]});
             for (let key in users) {
@@ -99,13 +100,16 @@ export class UserResolver {
                    return false
                 }
             }
-        } else {
+        } 
+        // 2. account, email 중복 검사
+        else {
             let sql = "";
             if (mode == "account") sql = "SELECT account, accountIV FROM user JOIN user_iv ON (user.id = user_iv.userId);"
             else if (mode == "email") sql = "SELECT email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);"
             else return false;
             const users = await directQuerying(sql, []);
 
+            // Decrypt하여 중복되는지 검사하기
             for (let key in users) {
                 let forDecrypte = {
                     encryptedData: users[key][mode],
@@ -145,9 +149,12 @@ export class UserResolver {
     async forgotUserId(
         @Arg("email") email: string,
     ) {
+        // 이메일이 인풋으로 들어왔을 때 아이디를 찾아야 하므로, userId, email, emailIV를 select
         const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
         const users = await directQuerying(sql, [])
         if (!users) return false;
+
+        // 이메일을 Decrypt하여 대응되는 아이디 찾기
         for (let key in users) {
             let beforeDecrypteEmail = {
                 encryptedData: users[key].email,
@@ -156,7 +163,7 @@ export class UserResolver {
             const decryptedEmail = decrypt(beforeDecrypteEmail);
             if (email == decryptedEmail) {
                 sendEmail(decryptedEmail, `[보상습관] 아이디 찾기`, 
-                            forgotUserIdForm("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+                            emailForm("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
                 return true;
             }
         }
