@@ -31,7 +31,7 @@ const directQuerying_1 = require("../utils/directQuerying");
 const encrypt_1 = require("../secret_modules/encrypt");
 const constants_1 = require("../secret_modules/constants");
 const sendEmail_1 = require("../utils/sendEmail");
-const forgotUserId_1 = require("../utils/email/forgotUserId");
+const emailForm_1 = require("../utils/email/emailForm");
 let UserResolver = class UserResolver {
     async me({ req }) {
         if (!req.session.userId)
@@ -120,6 +120,8 @@ let UserResolver = class UserResolver {
         }));
     }
     async forgotUserId(email) {
+        if (!email)
+            return false;
         const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
         const users = await (0, directQuerying_1.directQuerying)(sql, []);
         if (!users)
@@ -131,10 +133,11 @@ let UserResolver = class UserResolver {
             };
             const decryptedEmail = (0, encrypt_1.decrypt)(beforeDecrypteEmail);
             if (email == decryptedEmail) {
-                (0, sendEmail_1.sendEmail)(decryptedEmail, `[보상습관] 아이디 찾기`, (0, forgotUserId_1.forgotUserIdForm)("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+                (0, sendEmail_1.sendEmail)(decryptedEmail, `[보상습관] 아이디 찾기`, (0, emailForm_1.emailForm)("보상습관 아이디 안내", "아이디 찾기를 통해 요청하신 아이디를 알려드립니다.", "요청하신 아이디", users[key].userId));
+                return true;
             }
         }
-        return true;
+        return false;
     }
 };
 __decorate([
