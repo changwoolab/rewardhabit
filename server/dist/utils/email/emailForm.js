@@ -56,7 +56,7 @@ const emailForm = (title, message, request, response) => {
                         </tr>
                         <tr>
                             <td style="font-size:13px;line-height:18px;color:#000;font-family:AppleSDGothicNeo-Regular,HelveticaNeue,'맑은고딕',Malgun Gothic,나눔고딕,NanumGothic,'돋움',Dotum,Sans-serif;letter-spacing:-0.025em;padding:20px 25px 0">
-                              - 타인이 고객님의 이메일을 자신의 정보로 입력했을 때, 이 이메일이 발송될 수 있습니다.
+                              - 타인이 귀하의 이메일을 자신의 정보로 입력했을 때, 이 이메일이 발송될 수 있습니다.
                             </td>
                         </tr>
                         <tr>
