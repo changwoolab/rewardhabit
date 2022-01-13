@@ -3,7 +3,7 @@ import {User} from "../entities/User"
 import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
 import { UserResponse } from "../types/UserResponse";
-import { getRepository } from "typeorm";
+import { createQueryBuilder, getRepository } from "typeorm";
 import { makeUserAndIV } from "../utils/forUserResolver/makeUserAndIV";
 import { notExpectedErr } from "../utils/errors";
 import { checkDuplicateRegister } from "../utils/forUserResolver/checkDuplicateRegister";
@@ -12,9 +12,10 @@ import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
 import { directQuerying } from "../utils/directQuerying";
 import { decrypt } from "../secret_modules/encrypt";
-import { COOKIE_NAME } from "../secret_modules/constants";
+import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from "../secret_modules/constants";
 import { sendEmail } from "../utils/sendEmail";
 import { emailForm } from "../utils/email/emailForm";
+import { v4 } from "uuid"
 
 
 @Resolver()
@@ -148,7 +149,7 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async forgotUserId(
         @Arg("email") email: string,
-    ) {
+    ): Promise<Boolean> {
         if (!email) return false;
         // 이메일이 인풋으로 들어왔을 때 아이디를 찾아야 하므로, userId, email, emailIV를 select
         const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
@@ -167,6 +168,68 @@ export class UserResolver {
                 return true;
             }
         }
+        return false;
+    }
+
+    // 비밀번호 찾기
+    @Mutation(() => Boolean)
+    async forgotPassword(
+        @Arg("userId") userId: string,
+        @Arg("email") email: string,
+        @Ctx() { redis }: ReqResContext,
+    ) {
+        if (!email || !userId) return false;
+        const sql = "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId) WHERE user.userId = ?;";
+        const user = await directQuerying(sql, [userId]);
+        if (!user) return false;
+        // 이메일을 Decrypt하여 대응되는 아이디 찾기
+        let beforeDecrypteEmail = {
+            encryptedData: user[0].email,
+            iv: user[0].emailIV
+        }
+        const decryptedEmail = decrypt(beforeDecrypteEmail);
+        if (email == decryptedEmail) {
+            // uuid를 이용하여 랜덤 스트링 생성
+            const token = v4();
+
+            // Redis에 토큰 및 관련 정보를 함께 저장하기
+            // token 앞에 prefix를 붙임으로써 구분할 수 있도록 만들기
+            await redis.set(FORGOT_PASSWORD_PREFIX + token, userId, "ex", 1000 * 60 * 10); // 10분간 토큰 유지
+
+
+            sendEmail(decryptedEmail, `[보상습관] 비밀번호 찾기`, 
+                        emailForm("보상습관 비밀번호 안내", "비밀번호 찾기를 통해 요청하신 비밀번호 변경 URL을 알려드립니다.", "요청하신 URL", 
+                           `<a href="http://localhost:3000/nidlogin/forgot/change-password/${token}">[비밀번호 변경 URL]</a>`));
+            return true;
+        }
+        return false;
+    }
+
+    @Mutation(() => Boolean)
+    async changePassword(
+        @Arg("token") token: string,
+        @Arg("newPassword") newPassword: string,
+        @Ctx() { redis }: ReqResContext
+    ): Promise<Boolean> {
+        // 토큰이 redis에 저장되어 있는지 확인하기
+        const userId = await redis.get(FORGOT_PASSWORD_PREFIX + token);
+        if (!userId) return false;
+
+        // 새로운 비밀번호 암호화하기
+        const hashedNewPassword = await argon2.hash(newPassword);
+        if (!hashedNewPassword) return false;
+
+        // 비밀번호 변경하기
+        const result = await createQueryBuilder()
+                    .update(User)
+                    .set({ password: hashedNewPassword })
+                    .where("userId = :userId", { userId: "cwyoo0101" })
+                    .execute();
+
+        // 변경된 것이 1개라면 성공
+        if (result.affected == 1) return true;
+
+        // 변경된 것이 없거나 2개 이상이면... -> 오류가 있는 것!
         return false;
     }
 }

@@ -27,7 +27,7 @@ const main = async() => {
         database: DB_NAME,
         username: DB_USERNAME,
         password: DB_PASSWORD,
-        //logging: true,
+        // logging: true,
         synchronize: true, // migration 없이 자동 synchronize
         entities: [User, Post, Subscript, User_IV],
     });
@@ -37,7 +37,7 @@ const main = async() => {
     // Redis
     // Apollo에서 Redis를 사용할 것이기 때문에 Apollo보다 먼저 실행되어야하므로 앞에 적어두기.
     const RedisStore = connectRedis(session);
-    const redisClient = new Redis();
+    const redis = new Redis();
 
     // Express 전체에 대해 (모든 Route에 대해) CORS 설정
     app.use(
@@ -51,7 +51,7 @@ const main = async() => {
         session({
             name: COOKIE_NAME,
             store: new RedisStore({ 
-                client: redisClient,
+                client: redis,
                 disableTouch: true,
             }),
             cookie: {
@@ -73,7 +73,7 @@ const main = async() => {
             validate: false
         }),
         // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요 (cookie 정보는 req, res에 담겨있다~)
-        context: ({ req, res }): ReqResContext => ({ req, res }),
+        context: ({ req, res }): ReqResContext => ({ req, res, redis }),
         plugins: [
             ApolloServerPluginLandingPageGraphQLPlayground({}),
         ],
