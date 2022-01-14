@@ -32,7 +32,6 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         )
       // Logged in
     } else {
-      console.log("logged in")
         body = (
             <Flex>
               <Box mr={2}>{data.me.partialUser.userName}</Box>
