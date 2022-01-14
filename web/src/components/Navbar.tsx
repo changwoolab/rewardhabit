@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, Link } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Link, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
@@ -33,19 +33,34 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
       // Logged in
     } else {
         body = (
-            <Flex>
-              <Box mr={2}>{data.me.partialUser.userName}</Box>
+            <>
+              <Menu>
+                <MenuButton as={Button} colorScheme='blue'>
+                  {data.me.partialUser.userName}
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup title='Profile'>
+                    <MenuItem>My Account</MenuItem>
+                    <MenuItem>Payments </MenuItem>
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuGroup title='Help'>
+                    <MenuItem>Docs</MenuItem>
+                    <MenuItem>FAQ</MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
               <Button variant="link" color={"white"} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Button>
-            </Flex>
+            </>
         )
     }
     return (
         <Flex bg="gray" p={3.5} ml={"auto"}>
           <Link href="/">보상습관</Link>
-          <Box ml={"auto"}>
+          <Flex ml={"auto"}>
             {body}
             <DarkModeSwitch />
-          </Box>
+          </Flex>
         </Flex>
     );
 }
