@@ -70,7 +70,7 @@ const Register: React.FC<registerProps> = () => {
           initialValues={{ userId: "", password: "", confirmPassword: "", lastName: "", firstName: "", email: "", userName: "", bank: "", account: "" }}
           validationSchema={RegisterValidation}
           onSubmit={async (values, {setErrors}) => {
-            const reg = await register(values);
+            const reg = await register({inputs: values});
             if (reg.error) alert("서버 오류가 발생했습니다\n 잠시 후 다시 실행해주세요");
             
             // 혹시 모를 Error가 발생했을 경우, Set Error

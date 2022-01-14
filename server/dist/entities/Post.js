@@ -21,6 +21,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Post.prototype, "id", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Post.prototype, "userId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts),
     __metadata("design:type", User_1.User)
 ], Post.prototype, "user", void 0);
@@ -43,7 +48,7 @@ __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Post.prototype, "description", void 0);
+], Post.prototype, "texts", void 0);
 Post = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

@@ -15,6 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
+const isAuth_1 = require("../middleware/isAuth");
+let PostInput = class PostInput {
+};
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], PostInput.prototype, "title", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], PostInput.prototype, "texts", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", Number)
+], PostInput.prototype, "type", void 0);
+PostInput = __decorate([
+    (0, type_graphql_1.InputType)()
+], PostInput);
 let PostResolver = class PostResolver {
     async posts({ req }) {
         const posts = Post_1.Post.find();
@@ -24,8 +42,8 @@ let PostResolver = class PostResolver {
         const post = await Post_1.Post.findOne({ where: { postId: id } });
         return post;
     }
-    async createPost(userId, type, title, description, { req }) {
-        return false;
+    async createPost(input, { req }) {
+        return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId, writtenDate: new Date })).save();
     }
 };
 __decorate([
@@ -44,14 +62,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => Boolean),
-    __param(0, (0, type_graphql_1.Arg)("userId")),
-    __param(1, (0, type_graphql_1.Arg)("type")),
-    __param(2, (0, type_graphql_1.Arg)("title")),
-    __param(3, (0, type_graphql_1.Arg)("description")),
-    __param(4, (0, type_graphql_1.Ctx)()),
+    (0, type_graphql_1.Mutation)(() => Post_1.Post),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("input")),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, String, String, Object]),
+    __metadata("design:paramtypes", [PostInput, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 PostResolver = __decorate([

@@ -9,6 +9,10 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field()
+    @Column()
+    userId: number;
+
     @ManyToOne(() => User, user => user.posts)
     user: User;
 
@@ -26,5 +30,5 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
 
     @Field()
     @Column()
-    description: string; // 내용
+    texts: string; // 내용
 }

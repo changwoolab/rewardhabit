@@ -1,16 +1,6 @@
-mutation Register (
-    $userId: String!,    $password: String!, 
-    $lastName: String!,  $firstName: String!,
-    $email: String!,     $userName: String!,
-    $bank: String!,      $account: String!
-    ) {
+mutation Register ($inputs: UserRegisterInput!) {
     register (
-        inputs: {
-            userId: $userId,        password: $password,
-            lastName: $lastName,    firstName: $firstName,
-            email: $email,          userName: $userName,
-            bank: $bank,            account: $account
-        }
+        inputs: $inputs
     ) {
         errors {
             ...ErrorsFrag

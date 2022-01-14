@@ -27,7 +27,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   changePassword: Scalars['Boolean'];
   checkImmediateDuplicate: Scalars['Boolean'];
-  createPost: Scalars['Boolean'];
+  createPost: Post;
   forgotPassword: Scalars['Boolean'];
   forgotUserId: Scalars['Boolean'];
   login?: Maybe<UserResponse>;
@@ -49,10 +49,7 @@ export type MutationCheckImmediateDuplicateArgs = {
 
 
 export type MutationCreatePostArgs = {
-  description: Scalars['String'];
-  title: Scalars['String'];
-  type: Scalars['Float'];
-  userId: Scalars['String'];
+  input: PostInput;
 };
 
 
@@ -89,11 +86,18 @@ export type PartialUser = {
 
 export type Post = {
   __typename?: 'Post';
-  description: Scalars['String'];
   id: Scalars['Float'];
+  texts: Scalars['String'];
   title: Scalars['String'];
   type: Scalars['Float'];
+  userId: Scalars['Float'];
   writtenDate: Scalars['DateTime'];
+};
+
+export type PostInput = {
+  texts: Scalars['String'];
+  title: Scalars['String'];
+  type: Scalars['Float'];
 };
 
 export type Query = {
@@ -138,6 +142,13 @@ export type ChangePasswordMutationVariables = Exact<{
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: boolean };
 
+export type CreatePostMutationVariables = Exact<{
+  input: PostInput;
+}>;
+
+
+export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', id: number, userId: number, writtenDate: any, type: number, title: string, texts: string } };
+
 export type ForgotPasswordMutationVariables = Exact<{
   userId: Scalars['String'];
   email: Scalars['String'];
@@ -167,14 +178,7 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
 export type RegisterMutationVariables = Exact<{
-  userId: Scalars['String'];
-  password: Scalars['String'];
-  lastName: Scalars['String'];
-  firstName: Scalars['String'];
-  email: Scalars['String'];
-  userName: Scalars['String'];
-  bank: Scalars['String'];
-  account: Scalars['String'];
+  inputs: UserRegisterInput;
 }>;
 
 
@@ -218,6 +222,22 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreatePostDocument = gql`
+    mutation CreatePost($input: PostInput!) {
+  createPost(input: $input) {
+    id
+    userId
+    writtenDate
+    type
+    title
+    texts
+  }
+}
+    `;
+
+export function useCreatePostMutation() {
+  return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($userId: String!, $email: String!) {
   forgotPassword(userId: $userId, email: $email)
@@ -259,10 +279,8 @@ export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
-    mutation Register($userId: String!, $password: String!, $lastName: String!, $firstName: String!, $email: String!, $userName: String!, $bank: String!, $account: String!) {
-  register(
-    inputs: {userId: $userId, password: $password, lastName: $lastName, firstName: $firstName, email: $email, userName: $userName, bank: $bank, account: $account}
-  ) {
+    mutation Register($inputs: UserRegisterInput!) {
+  register(inputs: $inputs) {
     errors {
       ...ErrorsFrag
     }

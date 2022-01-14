@@ -1,6 +1,17 @@
 import { ReqResContext } from "../types/ReqResContext"
-import {Resolver, Query, Ctx, Arg, Int, Mutation} from "type-graphql"
+import {Resolver, Query, Ctx, Arg, Int, Mutation, InputType, Field, UseMiddleware} from "type-graphql"
 import { Post } from "../entities/Post"
+import { isAuth } from "../middleware/isAuth";
+
+@InputType()
+class PostInput {
+    @Field()
+    title: string;
+    @Field()
+    texts: string;
+    @Field()
+    type: number;
+}
 
 @Resolver()
 export class PostResolver {
@@ -21,15 +32,18 @@ export class PostResolver {
         return post;
     }
 
-    // 추후에 수정합시다.
-    @Mutation(() => Boolean)
+    // Post 업로드
+    @Mutation(() => Post)
+    @UseMiddleware(isAuth)
     async createPost(
-        @Arg("userId") userId: string,
-        @Arg("type") type: number,
-        @Arg("title") title: string,
-        @Arg("description") description: string,
+        @Arg("input") input: PostInput,
         @Ctx() { req }: ReqResContext
-    ): Promise<boolean> {
-        return false;
+    ): Promise<Post> {
+        // 포스트 올리기.
+        return Post.create({
+            ...input,
+            userId: req.session.userId,
+            writtenDate: new Date,
+        }).save();
     }
 }
