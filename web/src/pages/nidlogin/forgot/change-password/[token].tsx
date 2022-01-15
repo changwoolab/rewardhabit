@@ -5,10 +5,8 @@ import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { object, string, ref } from "yup";
-import { Container } from '../../../../components/Container';
 import { InputField } from '../../../../components/InputField';
-import { Navbar } from '../../../../components/Navbar';
-import Wrapper from '../../../../components/Wrapper';
+import { Layout } from '../../../../components/Layout';
 import { useChangePasswordMutation } from '../../../../generated/graphql';
 import { createUrqlClient } from '../../../../utils/createUrqlClient';
 
@@ -25,10 +23,7 @@ const ChangePassword: NextPage<{token: string}> = ({ token }) => {
     const router = useRouter();
 
     return (
-        <>
-        <Navbar/>
-        <Container height="100vh">
-        <Wrapper variant='small'>
+        <Layout variant="small">
           <Formik validationSchema={ChangePasswordValidation} 
             initialValues={{ newPassword: "", confirmNewPassword: "" }} onSubmit={async(values) => {
               // ChangePassword 요청 보내기
@@ -60,9 +55,7 @@ const ChangePassword: NextPage<{token: string}> = ({ token }) => {
               </Form>
             )}
           </Formik>
-        </Wrapper>
-        </Container>
-        </>
+        </Layout>
     );
 }
 

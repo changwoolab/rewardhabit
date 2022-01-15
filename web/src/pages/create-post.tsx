@@ -1,15 +1,17 @@
-import { Box, Button, FormControl, Select } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { number, object, ref, string, ValidationError } from 'yup';
+import { object, string } from 'yup';
 import { Container } from '../components/Container';
 import { InputField } from '../components/InputField';
+import { Layout } from '../components/Layout';
 import { Navbar } from '../components/Navbar';
 import Wrapper from '../components/Wrapper';
 import { useCreatePostMutation } from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
+import { selectOptions } from '../utils/selectOptions';
 
 // Yup validation Schema
 const createPostValidation = object().shape({
@@ -25,13 +27,10 @@ const CreatePost: React.FC<createPostProps> = ({}) => {
     const [, createPost] = useCreatePostMutation();
 
     return (
-        <>
-    <Navbar/>
-    <Container height="100vh">
-    <Wrapper variant='regular'>
+      <Layout variant="regular">
       <Formik initialValues={{ title: "", texts: "", type: 0}} 
         validationSchema={createPostValidation}
-        onSubmit={async(values, {setErrors}) => {
+        onSubmit={async(values) => {
           // 타입 변경
           values.type = Number(values.type);
           const res = await createPost({input: values});
@@ -44,7 +43,7 @@ const CreatePost: React.FC<createPostProps> = ({}) => {
         {({ isSubmitting }) => (
          <Form>
             <InputField name="title" label="제목"/>
-            <InputField name="type" label="종류" select selectOptions={[{ value: "1", option: "독서록"}, {value: "2", option: "일기"}]}/>
+            <InputField name="type" label="종류" select selectOptions={selectOptions}/>
             <InputField name="texts" label="내용" textarea />
             <Box textAlign={"center"}>
               <Button mt={4} w={"100%"} colorScheme='teal' isLoading={isSubmitting} type='submit'> 발행 </Button>
@@ -52,9 +51,8 @@ const CreatePost: React.FC<createPostProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
-    </Container>
-    </>
+      </Layout>
+
     );
 }
 

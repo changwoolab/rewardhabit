@@ -1,16 +1,12 @@
-import { Text } from '@chakra-ui/react'
-import { Container } from '../components/Container'
-import { Navbar } from '../components/Navbar'
+import { Center, Text } from '@chakra-ui/react'
 import { withUrqlClient } from "next-urql"
 import { createUrqlClient } from '../utils/createUrqlClient'
+import { Layout } from '../components/Layout'
 
 const Index = () => (
-  <>
-  <Navbar/>
-  <Container height="100vh">
-      <Text>Next ❤️ Chakra</Text>
-  </Container>
-  </>
+  <Layout variant="large">
+      <Center><Text>Next ❤️ Chakra</Text></Center>
+  </Layout>
 )
 
 // withUrqlClient(Client 정보)(페이지)

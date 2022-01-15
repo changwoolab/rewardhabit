@@ -2,13 +2,11 @@ import { Box, Button, Center, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { Container } from '../../components/Container';
 import { InputField } from '../../components/InputField';
-import { Navbar } from '../../components/Navbar';
-import Wrapper from '../../components/Wrapper';
 import { useLoginMutation } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
+import { Layout } from '../../components/Layout';
 
 interface loginProps {}
 
@@ -17,10 +15,7 @@ const Login: React.FC<loginProps> = ({}) => {
     const [,login] = useLoginMutation();
 
     return (
-    <>
-    <Navbar/>
-    <Container height="100vh">
-    <Wrapper variant='small'>
+      <Layout variant="small">
       <Formik initialValues={{ userId: "", password: "",}} onSubmit={async(values, {setErrors}) => {
           const res = await login(values);
           if (res.error) alert("서버 오류가 발생했습니다\n잠시 후 다시 실행해주세요");
@@ -49,9 +44,7 @@ const Login: React.FC<loginProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
-    </Container>
-    </>
+    </Layout>
     );
 }
 

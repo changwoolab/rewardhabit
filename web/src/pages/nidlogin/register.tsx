@@ -11,6 +11,7 @@ import { Navbar } from '../../components/Navbar';
 import { useRouter } from 'next/router';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
+import { Layout } from '../../components/Layout';
 
 
 interface registerProps {}
@@ -62,10 +63,7 @@ const Register: React.FC<registerProps> = () => {
   });
 
     return (
-      <>
-      <Navbar/>
-      <Container height="120vh">
-        <Wrapper variant='small'>
+      <Layout variant="small" height="120vh">
         <Formik
           initialValues={{ userId: "", password: "", confirmPassword: "", lastName: "", firstName: "", email: "", userName: "", bank: "", account: "" }}
           validationSchema={RegisterValidation}
@@ -100,9 +98,7 @@ const Register: React.FC<registerProps> = () => {
             </Form>
           )}
         </Formik>
-        </Wrapper>
-        </Container>
-        </>
+        </Layout>
       )
 }
 

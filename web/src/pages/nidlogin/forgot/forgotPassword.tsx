@@ -3,21 +3,16 @@ import { Formik, Form } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import React from 'react';
 import { InputField } from '../../../components/InputField';
-import { Navbar } from '../../../components/Navbar';
-import Wrapper from '../../../components/Wrapper';
 import { useForgotPasswordMutation } from '../../../generated/graphql';
 import { createUrqlClient } from '../../../utils/createUrqlClient';
-import { Container } from '../../../components/Container';
+import { Layout } from '../../../components/Layout';
 
 interface forgotPasswordProps {}
 
 const forgotPassword: React.FC<forgotPasswordProps> = ({}) => {
     const [, sendChangePasswordEmail] = useForgotPasswordMutation();
     return (
-        <>
-        <Navbar/>
-        <Container height="100vh">
-        <Wrapper variant='small'>
+        <Layout variant="small">
           <Formik initialValues={{ userId: "", email: "" }} onSubmit={async(values, {setErrors}) => {
               // 가입할 때 쓴 이메일 주소를 바탕으로 아이디를 찾고, 그 아이디를 이메일로 보내기
               const res = await sendChangePasswordEmail(values);
@@ -38,9 +33,8 @@ const forgotPassword: React.FC<forgotPasswordProps> = ({}) => {
               </Form>
             )}
           </Formik>
-        </Wrapper>
-        </Container>
-        </>
+        </Layout>
+
     );
 }
 
