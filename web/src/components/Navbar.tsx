@@ -55,7 +55,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         )
     }
     return (
-        <Flex position="sticky" top={0} bg="gray" p={3.5} ml={"auto"}>
+        <Flex zIndex={1} position="sticky" top={0} bg="gray" p={3.5} ml={"auto"}>
           <Link href="/">보상습관</Link>
           <Flex ml={"auto"}>
             {body}
