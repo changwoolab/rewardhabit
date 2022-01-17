@@ -87,9 +87,11 @@ export type PartialUser = {
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Float'];
+  likes: Scalars['Float'];
   texts: Scalars['String'];
   title: Scalars['String'];
   type: Scalars['Float'];
+  updateDate: Scalars['DateTime'];
   userId: Scalars['Float'];
   writtenDate: Scalars['DateTime'];
 };
@@ -113,6 +115,12 @@ export type QueryPostArgs = {
   id: Scalars['Int'];
 };
 
+
+export type QueryPostsArgs = {
+  cursor?: InputMaybe<Scalars['DateTime']>;
+  limit: Scalars['Int'];
+};
+
 export type UserRegisterInput = {
   account: Scalars['String'];
   bank: Scalars['String'];
@@ -131,6 +139,8 @@ export type UserResponse = {
 };
 
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
+
+export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, texts: string };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -197,10 +207,30 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
+export type PostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: InputMaybe<Scalars['DateTime']>;
+}>;
+
+
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, texts: string }> };
+
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
   field
   message
+}
+    `;
+export const PostFragFragmentDoc = gql`
+    fragment PostFrag on Post {
+  id
+  userId
+  writtenDate
+  updateDate
+  type
+  likes
+  title
+  texts
 }
     `;
 export const PartialUserFragFragmentDoc = gql`
@@ -316,4 +346,15 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const PostsDocument = gql`
+    query Posts($limit: Int!, $cursor: DateTime) {
+  posts(limit: $limit, cursor: $cursor) {
+    ...PostFrag
+  }
+}
+    ${PostFragFragmentDoc}`;
+
+export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
 };

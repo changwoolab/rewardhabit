@@ -31,9 +31,14 @@ __decorate([
 ], Post.prototype, "user", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Post.prototype, "writtenDate", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Post.prototype, "updateDate", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)(),
@@ -46,9 +51,14 @@ __decorate([
 ], Post.prototype, "title", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)("text"),
     __metadata("design:type", String)
 ], Post.prototype, "texts", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], Post.prototype, "likes", void 0);
 Post = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

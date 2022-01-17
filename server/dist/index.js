@@ -21,17 +21,22 @@ const express_session_1 = __importDefault(require("express-session"));
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const test_1 = require("./resolvers/test");
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const main = async () => {
-    await (0, typeorm_1.createConnection)({
+    const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
         host: constants_1.DB_HOST,
         port: constants_1.DB_PORT,
         database: constants_1.DB_NAME,
         username: constants_1.DB_USERNAME,
         password: constants_1.DB_PASSWORD,
+        logging: true,
         synchronize: true,
         entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV],
+        migrations: [path_1.default.join(__dirname, "./migrations/*")],
+        multipleStatements: true
     });
+    await conn.runMigrations();
     const app = (0, express_1.default)();
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
     const redis = new ioredis_1.default();

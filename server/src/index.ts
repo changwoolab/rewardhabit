@@ -17,20 +17,24 @@ import connectRedis from "connect-redis"
 import { ReqResContext } from "./types/ReqResContext"
 import { TestResolver } from "./resolvers/test";
 import cors from "cors";
+import path from "path";
 
 const main = async() => {
     // Typeorm Connection
-    await createConnection({
+    const conn = await createConnection({
         type: 'mysql',
         host: DB_HOST,
         port: DB_PORT,
         database: DB_NAME,
         username: DB_USERNAME,
         password: DB_PASSWORD,
-        // logging: true,
+        logging: true,
         synchronize: true, // migration 없이 자동 synchronize
         entities: [User, Post, Subscript, User_IV],
+        migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
+        multipleStatements: true // 여러개의 mock data를 넣을 것이므로
     });
+    await conn.runMigrations();
     // Express
     const app = express();
 

@@ -80,12 +80,18 @@ let UserResolver = class UserResolver {
         return { partialUser };
     }
     async checkImmediateDuplicate(mode, input) {
-        if (mode == "userId" || mode == "userName") {
-            const users = await User_1.User.find({ select: [mode] });
-            for (let key in users) {
-                if (input == users[key].userId) {
-                    return false;
-                }
+        if (mode == "userId") {
+            const user = await User_1.User.findOne({ where: { userId: input } });
+            console.log(user);
+            if (user) {
+                return false;
+            }
+        }
+        else if (mode == "userName") {
+            const user = await User_1.User.findOne({ where: { userName: input } });
+            console.log(user);
+            if (user) {
+                return false;
             }
         }
         else {

@@ -28,7 +28,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ data }) => {
               </MenuGroup>
               <MenuDivider />
               <MenuGroup color={bgColor} title='독서록/일기'>
-                <MenuItem color={bgColor}>내가 쓴 글</MenuItem>
+                <MenuItem color={bgColor}><Link href="/post/myPost">내가 쓴 글</Link></MenuItem>
               </MenuGroup>
               <MenuItem><Link color={bgColor} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Link></MenuItem>
             </MenuList>

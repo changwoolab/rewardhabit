@@ -17,6 +17,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "suppressImplicitAnyIndexErrors": true, // 자존심 상하지만.. 나중에 실력이 더 좋아졌을 때 이걸 끄고 해봅시다...
     "jsx": "preserve"
   },
   "include": [

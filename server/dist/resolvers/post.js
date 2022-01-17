@@ -16,6 +16,7 @@ exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 const isAuth_1 = require("../middleware/isAuth");
+const typeorm_1 = require("typeorm");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -34,23 +35,33 @@ PostInput = __decorate([
     (0, type_graphql_1.InputType)()
 ], PostInput);
 let PostResolver = class PostResolver {
-    async posts({ req }) {
-        const posts = Post_1.Post.find();
-        return posts;
+    async posts(limit, cursor, { req }) {
+        const realLimit = Math.min(50, limit);
+        const realCursor = cursor ? cursor : new Date;
+        return (0, typeorm_1.getConnection)()
+            .getRepository(Post_1.Post)
+            .createQueryBuilder("post")
+            .where("type = :type", { type: 3 })
+            .andWhere("writtenDate < :cursor", { cursor: realCursor })
+            .orderBy("writtenDate", "DESC")
+            .take(realLimit)
+            .getMany();
     }
     async post(id, { req }) {
         const post = await Post_1.Post.findOne({ where: { postId: id } });
         return post;
     }
     async createPost(input, { req }) {
-        return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId, writtenDate: new Date })).save();
+        return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId })).save();
     }
 };
 __decorate([
     (0, type_graphql_1.Query)(() => [Post_1.Post]),
-    __param(0, (0, type_graphql_1.Ctx)()),
+    __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("cursor", () => Date, { nullable: true })),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([

@@ -1,0 +1,10 @@
+fragment PostFrag on Post{
+    id
+    userId
+    writtenDate
+    updateDate
+    type
+    likes
+    title
+    texts
+}
