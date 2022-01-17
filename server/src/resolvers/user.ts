@@ -194,7 +194,7 @@ export class UserResolver {
 
             // Redis에 토큰 및 관련 정보를 함께 저장하기
             // token 앞에 prefix를 붙임으로써 구분할 수 있도록 만들기
-            await redis.set(FORGOT_PASSWORD_PREFIX + token, userId, "ex", 1000 * 60 * 10); // 10분간 토큰 유지
+            await redis.set(FORGOT_PASSWORD_PREFIX + token, userId, "EX", 60 * 10); // 10분간 토큰 유지
 
 
             sendEmail(decryptedEmail, `[보상습관] 비밀번호 찾기`, 

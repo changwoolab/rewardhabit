@@ -154,7 +154,7 @@ let UserResolver = class UserResolver {
         const decryptedEmail = (0, encrypt_1.decrypt)(beforeDecrypteEmail);
         if (email == decryptedEmail) {
             const token = (0, uuid_1.v4)();
-            await redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, userId, "ex", 1000 * 60 * 10);
+            await redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, userId, "EX", 60 * 10);
             (0, sendEmail_1.sendEmail)(decryptedEmail, `[보상습관] 비밀번호 찾기`, (0, emailForm_1.emailForm)("보상습관 비밀번호 안내", "비밀번호 찾기를 통해 요청하신 비밀번호 변경 URL을 알려드립니다.", "요청하신 URL", `<a href="http://localhost:3000/nidlogin/forgot/change-password/${token}">[비밀번호 변경 URL]</a>`));
             return true;
         }
