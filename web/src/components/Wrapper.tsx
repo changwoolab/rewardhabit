@@ -6,7 +6,7 @@ export type WrapperVariant = "small" | "regular" | "large";
 const wrapperSize = {
     "small": "400px",
     "regular": "800px",
-    "large": "100%",
+    "large": "1000px",
 }
 
 interface WrapperProps {
