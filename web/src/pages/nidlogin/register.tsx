@@ -1,13 +1,10 @@
 import { Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import React from 'react';
-import Wrapper from '../../components/Wrapper';
 import {InputField} from '../../components/InputField';
 import { object, string, ref, ValidationError } from "yup";
 import { useCheckImmediateDuplicateMutation, useRegisterMutation } from '../../generated/graphql';
 import { toErrorMap } from '../../utils/toErrorMap';
-import { Container } from '../../components/Container';
-import { Navbar } from '../../components/Navbar';
 import { useRouter } from 'next/router';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import { withUrqlClient } from "next-urql"
@@ -68,8 +65,20 @@ const Register: React.FC<registerProps> = () => {
           initialValues={{ userId: "", password: "", confirmPassword: "", lastName: "", firstName: "", email: "", userName: "", bank: "", account: "" }}
           validationSchema={RegisterValidation}
           onSubmit={async (values, {setErrors}) => {
-            const reg = await register({inputs: values});
-            if (reg.error) alert("서버 오류가 발생했습니다\n 잠시 후 다시 실행해주세요");
+            let val: {
+              userId: string;
+              password: string;
+              confirmPassword?: string;
+              lastName: string;
+              firstName: string;
+              email: string;
+              userName: string;
+              bank: string;
+              account: string;
+            } = values;
+            delete val.confirmPassword;
+            const reg = await register({inputs: val});
+            if (reg.error) alert("서버 오류가 발생했습니다\n새로고침 후 다시 진행해주세요.");
             
             // 혹시 모를 Error가 발생했을 경우, Set Error
             if (reg.data?.register.errors) {

@@ -56,7 +56,6 @@ export class UserResolver {
             await User.delete({userId: user.userId});
             return notExpectedErr;
         }
-
         const partialUser = new PartialUser(user);
         if (!partialUser) return notExpectedErr;
         return { partialUser };
@@ -72,7 +71,7 @@ export class UserResolver {
         // userid를 찾아보고 없으면 Error return
         const user = await User.findOne({userId: userId});
         if (!user) return null; // 한 번만 쓰고 싶었지만 아래 user.password 타입을 명확하게 해줘야해서 적음..
-
+        
         // password validation
         const valid = await argon2.verify(user.password, password);
         if (!valid) return null;
@@ -94,14 +93,19 @@ export class UserResolver {
         @Arg("input") input: string
     ): Promise<Boolean> {
         // 1. userId, userName 중복 검사
-        if (mode == "userId" || mode == "userName") {
-            const users = await User.find({select: [mode]});
-            for (let key in users) {
-                if (input == users[key].userId) {
-                   return false
-                }
+        if (mode == "userId") {
+            const user = await User.findOne({where: {userId: input}});
+            console.log(user);
+            if (user) {
+                return false;
             }
-        } 
+        } else if (mode == "userName") {
+            const user = await User.findOne({where: {userName: input}});
+            console.log(user);
+            if (user) {
+                 return false;
+            }
+        }
         // 2. account, email 중복 검사
         else {
             let sql = "";
@@ -109,7 +113,6 @@ export class UserResolver {
             else if (mode == "email") sql = "SELECT email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);"
             else return false;
             const users = await directQuerying(sql, []);
-
             // Decrypt하여 중복되는지 검사하기
             for (let key in users) {
                 let forDecrypte = {
