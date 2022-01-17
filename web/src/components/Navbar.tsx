@@ -1,9 +1,10 @@
-import {  Button, Flex, Link, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/react';
+import {  Button, Center, Flex, Link, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList, useColorMode, Text } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
+import { UserMenu } from './UserMenu';
 
 interface navBarProps {}
 
@@ -13,9 +14,9 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
       // SSR로 인해 서버에서 쿠키를 처리하는 일이 없도록 만듦. (서버에는 세션만 있으므로!)
       pause: isServer()
     });
-    const [{fetching: logoutFetching}, logout] = useLogoutMutation();
-    let body = null;
 
+
+    let body = null;
     // 로딩중...
     if (fetching) {
       // Not logged in
@@ -33,33 +34,18 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
       // Logged in
     } else {
         body = (
-            <>
-              <Menu>
-                <MenuButton as={Button} colorScheme='blue'>
-                  {data.me.partialUser.userName}
-                </MenuButton>
-                <MenuList>
-                  <MenuGroup title='Profile'>
-                    <MenuItem>My Account</MenuItem>
-                    <MenuItem>Payments </MenuItem>
-                  </MenuGroup>
-                  <MenuDivider />
-                  <MenuGroup title='Help'>
-                    <MenuItem>Docs</MenuItem>
-                    <MenuItem>FAQ</MenuItem>
-                  </MenuGroup>
-                </MenuList>
-              </Menu>
-              <Button variant="link" color={"white"} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Button>
-            </>
+          <>
+            <Link alignSelf={"center"} mr={4} href="/post/create-post">글쓰기</Link>
+            <UserMenu data={data}/>
+          </>
         )
     }
     return (
-        <Flex zIndex={1} position="sticky" top={0} bg="gray" p={3.5} ml={"auto"}>
-          <Link href="/">보상습관</Link>
+        <Flex zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"}>
+          <Center><Link href="/">보상습관</Link></Center>
           <Flex ml={"auto"}>
             {body}
-            <DarkModeSwitch />
+            <Center><DarkModeSwitch /></Center>
           </Flex>
         </Flex>
     );

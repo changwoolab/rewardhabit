@@ -8,8 +8,7 @@ interface LayoutProps {
     height?: string;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, variant, height }) => {
-    if (!height) height="100vh";
+export const Layout: React.FC<LayoutProps> = ({ children, variant, height="100vh" }) => {
     return (
         <>
           <Navbar />
