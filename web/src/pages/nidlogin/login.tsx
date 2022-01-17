@@ -22,7 +22,12 @@ const Login: React.FC<loginProps> = ({}) => {
 
           // 로그인 성공!
           if (res.data?.login) {
-            router.push("/");
+            // router에 있는 next Query를 받아서 원래 있던 페이지로 돌아가도록 하기
+            if (typeof router.query.next === "string") {
+              router.push(router.query.next);
+            } else {
+              router.push("/");
+            }
           } 
           
           // 로그인 실패.. ㅠㅠ
