@@ -3,7 +3,7 @@ import { Formik, Form } from 'formik';
 import { NextPage } from 'next';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
 import { object, string, ref } from "yup";
 import { InputField } from '../../../../components/InputField';
 import { Layout } from '../../../../components/Layout';
@@ -18,21 +18,21 @@ const ChangePasswordValidation = object().shape({
 })
 
 // Dynamic Route를 가능하게 하는 Next.js! 아래의 getInitialProps로부터 token 받아옴.
-const ChangePassword: NextPage<{token: string}> = ({ token }) => {
+const ChangePassword: NextPage = () => {
     const [, changePassword] = useChangePasswordMutation();
     const router = useRouter();
 
     return (
         <Layout variant="small">
           <Formik validationSchema={ChangePasswordValidation} 
-            initialValues={{ newPassword: "", confirmNewPassword: "" }} onSubmit={async(values) => {
+            initialValues={{ newPassword: "", confirmNewPassword: "" }} onSubmit={async(values, { setErrors }) => {
               // ChangePassword 요청 보내기
               const toSend = {
-                  token: token,
+                  // router에 있는 query에 담긴 token 가져오기
+                  token: typeof router.query.token === "string" ? router.query.token : "",
                   newPassword: values.newPassword,
               };
               const res = await changePassword(toSend);
-              console.log(res);
 
               // 결과 처리
               if (!res.data) {
@@ -41,7 +41,7 @@ const ChangePassword: NextPage<{token: string}> = ({ token }) => {
                 alert("10분 이상이 지나, 더 이상 유효하지 않은 URL입니다.\n비밀번호 찾기를 다시 진행해주세요.");
               } else {
                 alert("비밀번호 변경이 완료되었습니다\n로그인을 진행해주세요.");
-                router.push("/");
+                router.push("/nidlogin/login");
               }
             }}>
             {({ isSubmitting }) => (
@@ -57,13 +57,6 @@ const ChangePassword: NextPage<{token: string}> = ({ token }) => {
           </Formik>
         </Layout>
     );
-}
-
-// URL에서 [token] 부분을 위의 본 함수로 보내줌.
-ChangePassword.getInitialProps = ({query}) => {
-    return {
-        token: query.token as string
-    }
 }
 
 export default withUrqlClient(createUrqlClient)(ChangePassword);
