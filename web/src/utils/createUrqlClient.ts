@@ -1,7 +1,27 @@
 import { cacheExchange } from '@urql/exchange-graphcache'
-import { dedupExchange, fetchExchange } from "urql"
+import { dedupExchange, Exchange, fetchExchange } from "urql"
 import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql'
 import { betterUpdateQuery } from './betterUpdateQuery';
+import { pipe, tap } from "wonka"
+import Router from "next/router"
+
+// 글로벌 에러 핸들링
+const errorExchange: Exchange = ({ forward }) => ops$ => {
+  return pipe(
+    forward(ops$),
+    tap(({error}) => {
+       // 로그인이 안 됐을때,
+       if (error?.message.includes("로그인")) {
+        alert(error.message);
+        Router.replace("/nidlogin/login")
+      } 
+      // 구독한 서비스가 아닐 때,
+      else if (error?.message.includes("구독")) {
+        alert(error.message);
+      }
+    })
+  )
+}
 
 export const createUrqlClient = (ssrExchange: any) => ({
     url: "http://localhost:4000/graphql",
@@ -45,5 +65,5 @@ export const createUrqlClient = (ssrExchange: any) => ({
         }
       }
     }
-  }), ssrExchange, fetchExchange]
+  }), errorExchange, ssrExchange, fetchExchange]
 });
