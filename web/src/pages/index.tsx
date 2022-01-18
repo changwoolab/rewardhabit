@@ -4,7 +4,7 @@ import { createUrqlClient } from '../utils/createUrqlClient'
 import { Layout } from '../components/Layout'
 
 const Index = () => (
-  <Layout variant="large">
+  <Layout variant="large" height="100vh">
       <Center><Text>Next ❤️ Chakra</Text></Center>
   </Layout>
 )

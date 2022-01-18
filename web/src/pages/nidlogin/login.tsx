@@ -15,7 +15,7 @@ const Login: React.FC<loginProps> = ({}) => {
     const [,login] = useLoginMutation();
 
     return (
-      <Layout variant="small">
+      <Layout variant="small" height="100vh">
       <Formik initialValues={{ userId: "", password: "",}} onSubmit={async(values, {setErrors}) => {
           const res = await login(values);
           if (res.error) alert("서버 오류가 발생했습니다\n잠시 후 다시 실행해주세요");

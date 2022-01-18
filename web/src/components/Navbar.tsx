@@ -1,8 +1,8 @@
-import {  Button, Center, Flex, Link, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList, useColorMode, Text } from '@chakra-ui/react';
+import { Center, Flex, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import { UserMenu } from './UserMenu';
 
