@@ -44,6 +44,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         <Flex zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"}>
           <Center><Link href="/">보상습관</Link></Center>
           <Flex ml={"auto"}>
+          <Center><Link mr={4} href="/post/generalBoard">자유게시판</Link></Center>
             {body}
             <Center><DarkModeSwitch /></Center>
           </Flex>

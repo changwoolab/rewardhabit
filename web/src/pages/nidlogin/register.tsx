@@ -60,7 +60,7 @@ const Register: React.FC<registerProps> = () => {
   });
 
     return (
-      <Layout variant="small" height="120vh">
+      <Layout variant="small">
         <Formik
           initialValues={{ userId: "", password: "", confirmPassword: "", lastName: "", firstName: "", email: "", userName: "", bank: "", account: "" }}
           validationSchema={RegisterValidation}
