@@ -1,5 +1,5 @@
 import { ReqResContext } from "../types/ReqResContext"
-import {Resolver, Query, Ctx, Arg, Int, Mutation, InputType, Field, UseMiddleware} from "type-graphql"
+import {Resolver, Query, Ctx, Arg, Int, Mutation, InputType, Field, UseMiddleware, FieldResolver, Root} from "type-graphql"
 import { Post } from "../entities/Post"
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
@@ -14,8 +14,15 @@ class PostInput {
     type: number;
 }
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
+    @FieldResolver(() => String) // 내 Schema에서 한 Field를 처리할 수 있는 함수를 만들어줌. 여기서는 Post!
+    textsSnippet(
+        @Root() root: Post, // Post object를 쓸 때마다 FieldResolver를 통해 이걸 쓸 수 있음.
+    ) {
+        return root.texts.slice(0, 50);
+    }
+
     // 자유게시판 전용
     @Query(() => [Post])
     async posts(

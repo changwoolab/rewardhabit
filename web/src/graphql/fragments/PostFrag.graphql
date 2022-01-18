@@ -6,5 +6,4 @@ fragment PostFrag on Post{
     type
     likes
     title
-    texts
 }

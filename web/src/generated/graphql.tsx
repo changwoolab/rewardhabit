@@ -89,6 +89,7 @@ export type Post = {
   id: Scalars['Float'];
   likes: Scalars['Float'];
   texts: Scalars['String'];
+  textsSnippet: Scalars['String'];
   title: Scalars['String'];
   type: Scalars['Float'];
   updateDate: Scalars['DateTime'];
@@ -140,7 +141,7 @@ export type UserResponse = {
 
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, texts: string };
+export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -213,7 +214,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, texts: string }> };
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string }> };
 
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
@@ -230,7 +231,6 @@ export const PostFragFragmentDoc = gql`
   type
   likes
   title
-  texts
 }
     `;
 export const PartialUserFragFragmentDoc = gql`
@@ -351,6 +351,7 @@ export const PostsDocument = gql`
     query Posts($limit: Int!, $cursor: DateTime) {
   posts(limit: $limit, cursor: $cursor) {
     ...PostFrag
+    textsSnippet
   }
 }
     ${PostFragFragmentDoc}`;
