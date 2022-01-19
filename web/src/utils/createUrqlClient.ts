@@ -1,11 +1,11 @@
-import { cacheExchange } from '@urql/exchange-graphcache'
-import { dedupExchange, Exchange, fetchExchange } from "urql"
+import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
+import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql"
 import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql'
 import { betterUpdateQuery } from './betterUpdateQuery';
 import { pipe, tap } from "wonka"
 import Router from "next/router"
 
-// 글로벌 에러 핸들링
+/** 글로벌 에러 핸들링 */
 const errorExchange: Exchange = ({ forward }) => ops$ => {
   return pipe(
     forward(ops$),
@@ -23,12 +23,72 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
   )
 }
 
+/**
+ * 현재 CursorPagination 작동방식
+  1. "더 불러오기" 버튼이 눌릴 때마다 useState를 통해 만들어진 함수에 의해 limit과 cursor가 바뀜
+  2. 이 바뀐 variable을 가지고 새로 posts query 실행함.
+  3. 쿼리해서 데이터를 가져왔는데 posts field에 이미 캐시된 데이터가 있음 + Graphcache는 새로 들어온 데이터와 기존 데이터와의 연관성을 모름 -> 저장이 안됨
+  4. 하지만, 이를 방지하기 위해서 "내가 방금 쿼리한 데이터가 지금 캐시돼 있어?"를 물어봄
+  5. 방금 쿼리한 데이터가 없다면 partial = True가 됨.
+  6. 따라서 partial = true이므로 다시 쿼리를 해서 캐시에 저장을 시킴
+  7. 이 캐시에 저장된 쿼리 데이터를 concatenate해서 return해줌.
+
+  * Graphcache는 Graphql API를 통해 받을 데이터 타입 및 저장 구조 (a.k.a.Schema)를 미리 정의함으로써 데이터를 Normalize하여 저장함.
+  Graphcache 작동 과정
+  1. 쿼리를 함.
+  2. 쿼리 데이터를 Normalize ( [Key - Field - Value] table로 )
+  3. 이 Normalized Data를 저장
+  문제는, 내가 넣으려는 Field에 다른 쿼리에 의해 이미 캐시된 데이터가 있다면, 
+  지금 새로운 쿼리에 의해 들어온 캐시할 데이터가 기존의 데이터와 어떤 연관성을 가지는지 모름.
+      -> 이미 있으므로 그 데이터를 쓰고 캐시가 안 됨X, Implicit Changes 발생!
+  따라서 Resolver를 정의하여 어떤 데이터와 어떤 연관성을 가지는지를 정의해야 함.
+*/
+export const simpleCursorPagination = (): Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info;
+    // Cache에서 EntityKey(여기선 Query) 내에 있는 모든 Field를 가져옴. (Cache에 있는 모든 쿼리들을 가져옴)
+    const allFields = cache.inspectFields(entityKey);
+    // allField 중에서 내가 필요한 Info만 골라내기 (posts 쿼리만 골라내기)
+    const fieldInfos = allFields.filter(info => info.fieldName === fieldName);
+    const size = fieldInfos.length;
+    if (size === 0) {
+      return undefined;
+    }
+
+    // 방금 쿼리한 부분 Key
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    // 방금 쿼리한 데이터가 캐시에 저장되어있니...?를 물어봄, 캐시를 뒤져서 방금 쿼리한 데이터가 있는지 검색
+    const isItInTheCache = cache.resolve(entityKey, fieldKey);
+    // 안돼있어!! -> partial = True -> Cache Update!!!
+    info.partial = !isItInTheCache;
+
+    // fieldInfos에 있는 정보를 이용하여 cache로부터 data 읽어와서 concatenate
+    const results: string[] = []
+    fieldInfos.forEach(fi => {
+      /* Cache에 있는 EntityKey(여기서는 Query)에 접근하여 
+      fieldName(여기서는 fi.fieldKey) 이름을 가진 모든 데이터 가져오기*/
+      const data = cache.resolve(entityKey, fi.fieldKey) as string[];
+      results.push(...data);
+    })
+    
+    // concatenate 된 쿼리 데이터를 cache에 저장
+    return results;
+  };
+};
+
+/** UrqlClient를 정의하고 제작함 */
 export const createUrqlClient = (ssrExchange: any) => ({
     url: "http://localhost:4000/graphql",
   fetchOptions: {
     credentials: "include" as const // Cookie를 받기 위함
   },
   exchanges: [dedupExchange, cacheExchange({
+    resolvers: { // cache에 관한 client-side resolver 정의
+      Query: {
+        // posts query가 실행될 때마다 cursorPagination을 실행하여 cache에 저장
+        posts: simpleCursorPagination()
+      }
+    },
     // cache를 업데이트할 조건
     updates: {
       Mutation: {

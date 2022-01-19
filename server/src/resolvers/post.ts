@@ -23,7 +23,7 @@ export class PostResolver {
         return root.texts.slice(0, 50);
     }
 
-    // 자유게시판 전용
+    // 자유게시판 전용, Cursor Pagination
     @Query(() => [Post])
     async posts(
         @Arg("limit", () => Int) limit: number,
