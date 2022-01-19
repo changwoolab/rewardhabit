@@ -1,4 +1,4 @@
-import {Resolver, Arg, Mutation, Query, Ctx} from "type-graphql"
+import {Resolver, Arg, Mutation, Query, Ctx, FieldResolver, Root} from "type-graphql"
 import {User} from "../entities/User"
 import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
@@ -18,8 +18,96 @@ import { emailForm } from "../utils/email/emailForm";
 import { v4 } from "uuid"
 
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+    /** 
+    이메일을 볼 때, 자신만 볼 수 있도록 해줌.
+
+    이런 방법이 있다는걸 진작 알았더라면 PartialUser같은건 안만들어도 됐는데....
+    근데 뭐 어떤 데이터타입이 있는지도 모르게 해줄라믄 있는것도 나쁘진 않겠다!
+     */
+    @FieldResolver(() => String)
+    email(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ): string {
+        // 현재 로그인된 유저와 이메일을 가진 유저가 같다면, return될 수 있도록!
+        if (req.session.userId === user.id) return user.email;
+        // 다른 사람이 어떤 사람의 이메일을 보려 한다면..
+        return "";
+    }
+    /** 은행을 다른 사람이 보는 것을 막음, 나중에 수정 필요(아마 Decrypt 필요할듯) */
+    @FieldResolver(() => String)
+    bank(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.bank;
+        return "";
+    }
+    @FieldResolver(() => String)
+    id(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.id;
+        return "";
+    }
+    @FieldResolver(() => String)
+    lastName(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.lastName;
+        return "";
+    }
+    @FieldResolver(() => String)
+    firstName(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.firstName;
+        return "";
+    }
+    @FieldResolver(() => String)
+    account(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.account;
+        return "";
+    }
+    @FieldResolver(() => String)
+    registerDate(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.registerDate;
+        return "";
+    }
+    @FieldResolver(() => String)
+    subscripts(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.subscripts;
+        return "";
+    }
+    @FieldResolver(() => String)
+    userId(
+        @Root() user: User,
+        @Ctx() { req }: ReqResContext
+    ) {
+        if (req.session.userId === user.id) return user.userId;
+        return "";
+    }
+
+
+    ////////////////////////////////////////////////////////////////////
+    ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////
+    ///////////////////////////////////////////////////////////////////
+
+
     @Query(() => UserResponse, { nullable: true })
     async me(
         @Ctx() {req}: ReqResContext
@@ -33,6 +121,7 @@ export class UserResolver {
     }
 
     // Register try-catch 문으로 수정하기! (모든 Error를 처리할 수 있도록..)
+    /** 회원가입 */
     @Mutation(() => UserResponse)
     async register(
         @Arg("inputs") inputs: UserRegisterInput,
@@ -61,7 +150,7 @@ export class UserResolver {
         return { partialUser };
     }
 
-    // 로그인
+    /** 로그인 */
     @Mutation(() => UserResponse, {nullable: true})
     async login (
         @Arg("userId") userId: string,
@@ -87,6 +176,7 @@ export class UserResolver {
     // 회원가입 시 userId, userName, Email, Account Field를 입력했을 때 즉시 중복검사를 해주는 Query
     // Query로 할 시, urql useQuery할 때 Variable 속성을 Reexecute로 바꿀 수 없는 문제점이 발생함.
     // 따라서, Mutation으로 하는 수 없이 구현했음.
+    /** 즉시 회원가입 인풋 중복 검사 */
     @Mutation(() => Boolean)
     async checkImmediateDuplicate(
         @Arg("mode") mode: string,
@@ -129,7 +219,7 @@ export class UserResolver {
     }
 
 
-    // 로그아웃
+    /** 로그아웃 */
     @Mutation(() => Boolean)
     async logout(
         @Ctx() { req, res }: ReqResContext
@@ -148,7 +238,7 @@ export class UserResolver {
         }))
     }
 
-    // 아이디 찾기
+    /** 아이디 찾기 */
     @Mutation(() => Boolean)
     async forgotUserId(
         @Arg("email") email: string,
@@ -174,7 +264,7 @@ export class UserResolver {
         return false;
     }
 
-    // 비밀번호 찾기
+    /** 비밀번호 찾기 */
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg("userId") userId: string,
@@ -207,7 +297,7 @@ export class UserResolver {
         }
         return false;
     }
-
+    /** 비밀번호 변경 */
     @Mutation(() => Boolean)
     async changePassword(
         @Arg("token") token: string,
