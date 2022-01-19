@@ -34,21 +34,104 @@ __decorate([
 PostInput = __decorate([
     (0, type_graphql_1.InputType)()
 ], PostInput);
+let PaginatedPosts = class PaginatedPosts {
+};
+__decorate([
+    (0, type_graphql_1.Field)(() => [Post_1.Post]),
+    __metadata("design:type", Array)
+], PaginatedPosts.prototype, "posts", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", Boolean)
+], PaginatedPosts.prototype, "hasMore", void 0);
+PaginatedPosts = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], PaginatedPosts);
 let PostResolver = class PostResolver {
     textsSnippet(root) {
         return root.texts.slice(0, 50);
     }
+    title(post, { req }) {
+        if (post.type === 3)
+            return post.title;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.title;
+        return "";
+    }
+    texts(post, { req }) {
+        if (post.type === 3)
+            return post.texts;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.texts;
+        return "";
+    }
+    writtenDate(post, { req }) {
+        if (post.type === 3)
+            return post.writtenDate;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.writtenDate;
+        return "";
+    }
+    updateDate(post, { req }) {
+        if (post.type === 3)
+            return post.updateDate;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.updateDate;
+        return "";
+    }
+    type(post, { req }) {
+        if (post.type === 3)
+            return post.type;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.type;
+        return "";
+    }
+    likes(post, { req }) {
+        if (post.type === 3)
+            return post.likes;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.likes;
+        return "";
+    }
+    user(post, { req }) {
+        if (post.type === 3)
+            return post.user;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.user;
+        return "";
+    }
+    id(post, { req }) {
+        if (post.type === 3)
+            return post.id;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.id;
+        return "";
+    }
+    userId(post, { req }) {
+        if (post.type === 3)
+            return post.userId;
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return post.userId;
+        return "";
+    }
     async posts(limit, cursor, { req }) {
         const realLimit = Math.min(50, limit);
+        const realLimitPlusOne = realLimit + 1;
         const realCursor = cursor ? cursor : new Date;
-        return (0, typeorm_1.getConnection)()
+        const posts = await (0, typeorm_1.getConnection)()
             .getRepository(Post_1.Post)
             .createQueryBuilder("post")
+            .innerJoinAndSelect("post.user", "user", "user.id = post.userId")
+            .select(["post", "user.userName", "user.level"])
             .where("type = :type", { type: 3 })
-            .andWhere("writtenDate < :cursor", { cursor: realCursor })
-            .orderBy("writtenDate", "DESC")
-            .take(realLimit)
+            .andWhere("post.writtenDate < :cursor", { cursor: realCursor })
+            .orderBy("post.writtenDate", "DESC")
+            .take(realLimitPlusOne)
             .getMany();
+        return {
+            posts: posts.slice(0, realLimit),
+            hasMore: posts.length === realLimitPlusOne,
+        };
     }
     async post(id, { req }) {
         const post = await Post_1.Post.findOne({ where: { postId: id } });
@@ -66,7 +149,79 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "textsSnippet", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => [Post_1.Post]),
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "title", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "texts", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "writtenDate", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "updateDate", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "type", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "likes", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "user", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "id", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "userId", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => PaginatedPosts),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)("cursor", () => Date, { nullable: true })),
     __param(2, (0, type_graphql_1.Ctx)()),
