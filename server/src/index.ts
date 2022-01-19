@@ -34,7 +34,6 @@ const main = async() => {
         migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
         multipleStatements: true // 여러개의 mock data를 넣을 것이므로
     });
-    console.log(new Date);
     await conn.runMigrations();
     // Express
     const app = express();

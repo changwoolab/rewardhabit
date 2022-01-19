@@ -74,6 +74,12 @@ export type MutationRegisterArgs = {
   inputs: UserRegisterInput;
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  hasMore: Scalars['Boolean'];
+  posts: Array<Post>;
+};
+
 export type PartialUser = {
   __typename?: 'PartialUser';
   exp: Scalars['Float'];
@@ -107,7 +113,7 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<UserResponse>;
   post: Post;
-  posts: Array<Post>;
+  posts: PaginatedPosts;
   test: Scalars['Boolean'];
 };
 
@@ -214,7 +220,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string }> };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string }> } };
 
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
@@ -350,8 +356,11 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
 export const PostsDocument = gql`
     query Posts($limit: Int!, $cursor: DateTime) {
   posts(limit: $limit, cursor: $cursor) {
-    ...PostFrag
-    textsSnippet
+    posts {
+      ...PostFrag
+      textsSnippet
+    }
+    hasMore
   }
 }
     ${PostFragFragmentDoc}`;

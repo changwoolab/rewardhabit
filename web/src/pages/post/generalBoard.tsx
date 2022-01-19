@@ -30,7 +30,7 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
           </Center>
           {!data && fetching ? (<div>loading...</div>) : (
               <Stack spacing={8}>
-                {data!.posts.map((p) => (
+                {data!.posts.posts.map((p) => (
                   <Box key={p.id} p={5} shadow="md" borderwidth="1px">
                     <Heading fontSize="xl">{p.title}</Heading>
                     <Text mt={4}>{p.textsSnippet}</Text>
@@ -38,14 +38,14 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
                 ))}
               </Stack>
             )}
-            {data ? (
+            {data && data.posts.hasMore ? (
                 <Center mt={8} mb={8}>
                   <Button onClick={() => {
                       /* 버튼이 클릭될 때마다 State를 변환
                       limit은 그대로 10으로 유지, cursor는 가장 마지막으로 불러온 post의 writtendate가 되어야 함. */
                       setVariables({
                           limit: variables.limit,
-                          cursor: data.posts[data.posts.length - 1].writtenDate,
+                          cursor: data.posts.posts[data.posts.posts.length - 1].writtenDate,
                       });
                   }} isLoading={fetching}>
                     더 불러오기

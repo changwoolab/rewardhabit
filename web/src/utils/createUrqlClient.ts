@@ -61,21 +61,34 @@ export const simpleCursorPagination = (): Resolver => {
     // 방금 쿼리한 부분 Key
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
     // 방금 쿼리한 데이터가 캐시에 저장되어있니...?를 물어봄, 캐시를 뒤져서 방금 쿼리한 데이터가 있는지 검색
-    const isItInTheCache = cache.resolve(entityKey, fieldKey);
+    const isItInTheCache = cache.resolve(
+      cache.resolve(entityKey, fieldKey) as string,
+      "posts"
+    );
     // 안돼있어!! -> partial = True -> Cache Update!!!
     info.partial = !isItInTheCache;
 
     // fieldInfos에 있는 정보를 이용하여 cache로부터 data 읽어와서 concatenate
     const results: string[] = []
+    let hasMore = true;
     fieldInfos.forEach(fi => {
-      /* Cache에 있는 EntityKey(여기서는 Query)에 접근하여 
-      fieldName(여기서는 fi.fieldKey) 이름을 가진 모든 데이터 가져오기*/
-      const data = cache.resolve(entityKey, fi.fieldKey) as string[];
+      // Query Entity에서 fieldKey 가진 친구 찾기
+      const key = cache.resolve(entityKey, fi.fieldKey) as string;
+      // Query Entity 내의 key를 가진 친구에서 "post" 및 "hasMore" 필드 찾기
+      const data = cache.resolve(key, "posts") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      if(!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
       results.push(...data);
     })
     
     // concatenate 된 쿼리 데이터를 cache에 저장
-    return results;
+    return {
+      __typename: "PaginatedPosts", // Full Object를 반환해야 에러가 안남.
+      hasMore,
+      posts: results
+    };
   };
 };
 
@@ -86,6 +99,9 @@ export const createUrqlClient = (ssrExchange: any) => ({
     credentials: "include" as const // Cookie를 받기 위함
   },
   exchanges: [dedupExchange, cacheExchange({
+    keys: {
+      PaginatedPosts: () => null,
+    },
     resolvers: { // cache에 관한 client-side resolver 정의
       Query: {
         // posts query가 실행될 때마다 cursorPagination을 실행하여 cache에 저장

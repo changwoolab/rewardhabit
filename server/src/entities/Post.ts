@@ -13,6 +13,7 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     @Column()
     userId: number;
 
+    @Field()
     @ManyToOne(() => User, user => user.posts)
     user: User;
 
