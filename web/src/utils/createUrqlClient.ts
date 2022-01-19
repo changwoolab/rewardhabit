@@ -25,12 +25,15 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
 
 /**
  * 현재 CursorPagination 작동방식
-  1. "더 불러오기" 버튼이 눌릴 때마다 useState를 통해 만들어진 함수에 의해 limit과 cursor가 바뀜
+  1. "더 불러오기" 버튼이 눌릴 때마다 useState를 통해 만들어진 함수에 의해 cursor가 바뀜
   2. 이 바뀐 variable을 가지고 새로 posts query 실행함.
-  3. 쿼리해서 데이터를 가져왔는데 posts field에 이미 캐시된 데이터가 있음 + Graphcache는 새로 들어온 데이터와 기존 데이터와의 연관성을 모름 -> 저장이 안됨
+  3. + 쿼리해서 데이터를 가져왔는데 posts field에 이미 캐시된 데이터가 있음 
+      + Graphcache는 새로 들어온 데이터와 기존 데이터와의 연관성을 모름
+      + info.partial = false여서 이미 있는 데이터가 완벽한줄 앎 
+      --> 저장이 안됨
   4. 하지만, 이를 방지하기 위해서 "내가 방금 쿼리한 데이터가 지금 캐시돼 있어?"를 물어봄
-  5. 방금 쿼리한 데이터가 없다면 partial = True가 됨.
-  6. 따라서 partial = true이므로 다시 쿼리를 해서 캐시에 저장을 시킴
+  5. 방금 쿼리한 데이터가 없다면 info.partial = True가 됨.
+  6. 따라서 info.partial = true이므로 다시 쿼리를 해서 캐시에 저장을 시킴
   7. 이 캐시에 저장된 쿼리 데이터를 concatenate해서 return해줌.
 
   * Graphcache는 Graphql API를 통해 받을 데이터 타입 및 저장 구조 (a.k.a.Schema)를 미리 정의함으로써 데이터를 Normalize하여 저장함.
@@ -40,7 +43,7 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
   3. 이 Normalized Data를 저장
   문제는, 내가 넣으려는 Field에 다른 쿼리에 의해 이미 캐시된 데이터가 있다면, 
   지금 새로운 쿼리에 의해 들어온 캐시할 데이터가 기존의 데이터와 어떤 연관성을 가지는지 모름.
-      -> 이미 있으므로 그 데이터를 쓰고 캐시가 안 됨X, Implicit Changes 발생!
+      -> 이미 있으므로 그 데이터를 쓰고 캐시가 안 됨, Implicit Changes 발생!
   따라서 Resolver를 정의하여 어떤 데이터와 어떤 연관성을 가지는지를 정의해야 함.
 */
 export const simpleCursorPagination = (): Resolver => {
