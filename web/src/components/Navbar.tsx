@@ -1,4 +1,4 @@
-import { Center, Flex, Link } from '@chakra-ui/react';
+import { Center, Flex, Heading, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from "next/link"
 import { DarkModeSwitch } from './DarkModeSwitch';
@@ -23,12 +23,15 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     } else if (!data?.me?.partialUser) {
         body = (
             <>
-            <NextLink href="/nidlogin/login">
-              <Link>로그인</Link>
-            </NextLink>
-            <NextLink href="/nidlogin/register">
-              <Link ml={2}>회원가입</Link>
-            </NextLink>
+            <Center>
+              <NextLink href="/nidlogin/login">
+                <Link>로그인</Link>
+              </NextLink>
+            
+              <NextLink href="/nidlogin/register">
+                <Link ml={2}>회원가입</Link>
+              </NextLink>
+            </Center>
             </>
         )
       // Logged in
@@ -42,7 +45,7 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     }
     return (
         <Flex zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"}>
-          <Center><Link href="/">보상습관</Link></Center>
+          <Center><Heading fontSize="xl"><Link href="/">Rewardable Habit</Link></Heading></Center>
           <Flex ml={"auto"}>
           <Center><Link mr={4} href="/post/generalBoard">자유게시판</Link></Center>
             {body}

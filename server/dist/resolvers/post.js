@@ -35,6 +35,9 @@ PostInput = __decorate([
     (0, type_graphql_1.InputType)()
 ], PostInput);
 let PostResolver = class PostResolver {
+    textsSnippet(root) {
+        return root.texts.slice(0, 50);
+    }
     async posts(limit, cursor, { req }) {
         const realLimit = Math.min(50, limit);
         const realCursor = cursor ? cursor : new Date;
@@ -55,6 +58,13 @@ let PostResolver = class PostResolver {
         return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId })).save();
     }
 };
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "textsSnippet", null);
 __decorate([
     (0, type_graphql_1.Query)(() => [Post_1.Post]),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
@@ -82,7 +92,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 PostResolver = __decorate([
-    (0, type_graphql_1.Resolver)()
+    (0, type_graphql_1.Resolver)(Post_1.Post)
 ], PostResolver);
 exports.PostResolver = PostResolver;
 //# sourceMappingURL=post.js.map

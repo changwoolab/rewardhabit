@@ -16,14 +16,15 @@ class PostInput {
 
 @Resolver(Post)
 export class PostResolver {
+    /** Post object를 쓸 때마다 FieldResolver를 통해 이걸 쓸 수 있음. */
     @FieldResolver(() => String) // 내 Schema에서 한 Field를 처리할 수 있는 함수를 만들어줌. 여기서는 Post!
     textsSnippet(
-        @Root() root: Post, // Post object를 쓸 때마다 FieldResolver를 통해 이걸 쓸 수 있음.
+        @Root() root: Post,
     ) {
         return root.texts.slice(0, 50);
     }
 
-    // 자유게시판 전용, Cursor Pagination
+    /** 자유게시판 전용, Cursor Pagination */
     @Query(() => [Post])
     async posts(
         @Arg("limit", () => Int) limit: number,
@@ -45,6 +46,7 @@ export class PostResolver {
                 .getMany()
     }
 
+
     @Query(() => Post)
     async post(
         @Arg('id', () => Int) id: number, 
@@ -54,7 +56,7 @@ export class PostResolver {
         return post;
     }
 
-    // Post 업로드
+    /** Post 업로드 */
     @Mutation(() => Post)
     @UseMiddleware(isAuth)
     async createPost(

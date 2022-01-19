@@ -19,8 +19,6 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
         variables,
     });
 
-   // console.log("data: ", data)
-
     if (!data && !fetching) {
         return <Center><div>서버에 오류가 발생했습니다. 잠시 후 다시 실행해주세요</div></Center>
     }
