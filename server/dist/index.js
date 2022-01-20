@@ -22,6 +22,7 @@ const connect_redis_1 = __importDefault(require("connect-redis"));
 const test_1 = require("./resolvers/test");
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
+const Updoot_1 = require("./entities/Updoot");
 const main = async () => {
     const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -32,7 +33,7 @@ const main = async () => {
         password: constants_1.DB_PASSWORD,
         logging: true,
         synchronize: true,
-        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV],
+        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV, Updoot_1.Updoot],
         migrations: [path_1.default.join(__dirname, "./migrations/*")],
         multipleStatements: true
     });

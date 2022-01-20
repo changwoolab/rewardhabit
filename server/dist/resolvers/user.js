@@ -44,11 +44,6 @@ let UserResolver = class UserResolver {
             return user.bank;
         return "";
     }
-    id(user, { req }) {
-        if (req.session.userId === user.id)
-            return user.id;
-        return "";
-    }
     lastName(user, { req }) {
         if (req.session.userId === user.id)
             return user.lastName;
@@ -72,11 +67,6 @@ let UserResolver = class UserResolver {
     subscripts(user, { req }) {
         if (req.session.userId === user.id)
             return user.subscripts;
-        return "";
-    }
-    userId(user, { req }) {
-        if (req.session.userId === user.id)
-            return user.userId;
         return "";
     }
     async me({ req }) {
@@ -251,14 +241,6 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [User_1.User, Object]),
     __metadata("design:returntype", void 0)
-], UserResolver.prototype, "id", null);
-__decorate([
-    (0, type_graphql_1.FieldResolver)(() => String),
-    __param(0, (0, type_graphql_1.Root)()),
-    __param(1, (0, type_graphql_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User_1.User, Object]),
-    __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "lastName", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -292,14 +274,6 @@ __decorate([
     __metadata("design:paramtypes", [User_1.User, Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "subscripts", null);
-__decorate([
-    (0, type_graphql_1.FieldResolver)(() => String),
-    __param(0, (0, type_graphql_1.Root)()),
-    __param(1, (0, type_graphql_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User_1.User, Object]),
-    __metadata("design:returntype", void 0)
-], UserResolver.prototype, "userId", null);
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
     __param(0, (0, type_graphql_1.Ctx)()),
