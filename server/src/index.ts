@@ -18,6 +18,7 @@ import { ReqResContext } from "./types/ReqResContext"
 import { TestResolver } from "./resolvers/test";
 import cors from "cors";
 import path from "path";
+import { Updoot } from "./entities/Updoot";
 
 const main = async() => {
     // Typeorm Connection
@@ -30,7 +31,7 @@ const main = async() => {
         password: DB_PASSWORD,
         logging: true,
         synchronize: true, // migration 없이 자동 synchronize
-        entities: [User, Post, Subscript, User_IV],
+        entities: [User, Post, Subscript, User_IV, Updoot],
         migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
         multipleStatements: true // 여러개의 mock data를 넣을 것이므로
     });
