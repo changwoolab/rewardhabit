@@ -161,7 +161,8 @@ export class PostResolver {
                 `, [2*realValue, postId]);
             });
         } 
-        // 2. 한번도 like표시 안했을 때
+        // 2. 투표 취소하기 기능 구현하기
+        // 3. 한번도 like표시 안했을 때
         else if (!updoot) {
         /*
             START TRANSACTION;
