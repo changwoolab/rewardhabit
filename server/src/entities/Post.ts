@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, CreateDateColumn, OneToMany} from "typeorm";
 import { Updoot } from "./Updoot";
 import { User } from "./User";
@@ -18,10 +18,18 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     @ManyToOne(() => User, user => user.posts)
     user: User;
 
+    @Field(() => [Updoot])
     @OneToMany(() => Updoot, updoot => updoot.post, {
         cascade: true
     })
     updoots: Updoot[]; 
+
+    /** 
+    페이지에서 무한대로 vote할 수 없게 만들어 줌.
+    Column이 아니어서 Post에 따로 저장되지는 않음. 그냥 graphql 전용
+    */
+    @Field(() => Int, {nullable: true})
+    voteStatus: number | null; // 1 or -1 or null
 
     @Field()
     @CreateDateColumn()
