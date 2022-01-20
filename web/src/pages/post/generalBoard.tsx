@@ -1,7 +1,9 @@
-import { Box, Button, Center, Heading, Stack, Text } from '@chakra-ui/react';
+import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { Box, Button, Center, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { Layout } from '../../components/Layout';
+import { UpdootSection } from '../../components/UpdootSection';
 import { usePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 
@@ -32,9 +34,14 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
               <Stack spacing={8}>
                 {data!.posts.posts.map((p) => (
                   <Box key={p.id} p={5} shadow="md" borderwidth="1px">
-                    <Heading fontSize="xl">{p.title}</Heading>
-                    <Text>작성자: {p.user.userName}</Text>
-                    <Text mt={4}>{p.textsSnippet}</Text>
+                    <Flex>
+                      <UpdootSection post={p}/>
+                      <Box>
+                        <Heading fontSize="xl">{p.title}</Heading>
+                        <Text>작성자: {p.user.userName}</Text>
+                        <Text mt={4}>{p.textsSnippet}</Text>
+                      </Box>
+                    </Flex>
                   </Box>
                 ))}
               </Stack>
@@ -57,4 +64,4 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
     );
 }
 
-export default withUrqlClient(createUrqlClient, {ssr: true})(generalBoard);
+export default withUrqlClient(createUrqlClient)(generalBoard);

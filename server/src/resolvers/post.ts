@@ -120,12 +120,24 @@ export class PostResolver {
         if (post.type !== 3 && req.session.userId === post.userId) return post.userId;
         return "";
     }
+    @FieldResolver(() => String) 
+    updoots (
+        @Root() post: Post,
+        @Ctx() { req }: ReqResContext
+    ) {
+        // 로그인 되어있을 때만 updoots 돌려주기
+        if (req.session.userId) {
+            return post.updoots;
+        }
+        return [];
+    }
     
 
     ////////////////////////////////////////////////////////////////////
     ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////
     ///////////////////////////////////////////////////////////////////
 
+    /** Likes 투표 함수 */
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async vote (
@@ -136,17 +148,36 @@ export class PostResolver {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
-        await getConnection().query(`
-        START TRANSACTION;
-
-        insert into updoot (userId, postId, value) values (?, ?, ?);
-
-        update post
-        set likes = likes + ?
-        where id = ?;
-
-        COMMIT;
-        `, [userId, postId, realValue, realValue, postId]);
+        const updoot = await Updoot.findOne({ where: {postId, userId} });
+        // 1. 유저가 해당 게시물에 (Updoot 후 지금 Downdoot) or (Downdoot 후 지금 Updoot)
+        if (updoot && updoot.value !== realValue) {
+            await getConnection().transaction(async tm => {
+                await tm.query(`
+                update updoot set value = ? where postId = ? and userId = ?;
+                `, [realValue, postId, userId]);
+                // 1 -> -1, -1 -> 1 이어야 하므로 2*realValue
+                await tm.query(`
+                update post set likes = likes + ? where id = ?;
+                `, [2*realValue, postId]);
+            });
+        } 
+        // 2. 한번도 like표시 안했을 때
+        else if (!updoot) {
+        /*
+            START TRANSACTION;
+            insert into updoot (userId, postId, value) values (?, ?, ?);
+            update post set likes = likes + ? where id = ?;
+            COMMIT;
+        */
+            await getConnection().transaction(async tm => {
+                await tm.query(`
+                insert into updoot (userId, postId, value) values (?, ?, ?);
+                `, [userId, postId, realValue]);
+                await tm.query(`
+                update post set likes = likes + ? where id = ?;
+                `, [realValue, postId])
+            });
+        }
         return true;
     }
 
@@ -161,6 +192,7 @@ export class PostResolver {
         // 10개를 요청했을 때, 11개를 가져올것임. 이 때 11개보다 적게 오면 더 이상의 데이터는 없다는 뜻
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
+        const { userId } = req.session;
 
         // cursor가 null일 때도 쿼리는 실행되어야 하므로 값 지정해주기
         const realCursor = cursor ? cursor : new Date;
@@ -177,6 +209,31 @@ export class PostResolver {
         .take(realLimitPlusOne)
         .getMany();
 
+        // voteStatus 추가해주기
+        for (let i in posts) {
+            const voteStatus = await getConnection().query(
+                `select value from updoot where updoot.userId = ? and updoot.postId = ?`,
+                [userId, posts[i].id]
+            );
+            posts[i].voteStatus = voteStatus[0] ? voteStatus[0].value : null;
+        }
+        // const replacements = [userId, realCursor, realLimitPlusOne]
+        // const post = await getConnection().query(
+        //     `
+        // select post.*,
+        // json_object(
+        //     "id", user.id,
+        //     "userName", user.userName,
+        //     "level", user.level
+        // ) user,
+        // (select value from updoot where updoot.userId = ? and updoot.postId = post.id) voteStatus
+        // from post inner join user on user.id = post.userId
+        // ${cursor ? `where post.writtenDate < ?` : ``}
+        // order by post.writtenDate DESC
+        // limit ?
+        //     `
+        //     , replacements
+        // )
         return {
             posts: posts.slice(0, realLimit),
             hasMore: posts.length === realLimitPlusOne,

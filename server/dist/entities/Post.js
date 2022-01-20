@@ -32,11 +32,16 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], Post.prototype, "user", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(() => [Updoot_1.Updoot]),
     (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.post, {
         cascade: true
     }),
     __metadata("design:type", Array)
 ], Post.prototype, "updoots", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true }),
+    __metadata("design:type", Object)
+], Post.prototype, "voteStatus", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.CreateDateColumn)(),

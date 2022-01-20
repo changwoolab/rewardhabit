@@ -6,4 +6,10 @@ fragment PostFrag on Post{
     type
     likes
     title
+    voteStatus
+    user {
+        id
+        userName
+        level
+    }
 }

@@ -1,9 +1,10 @@
 import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
 import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql"
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql'
+import { LoginMutation, MeDocument, MeQuery, RegisterMutation, VoteMutationVariables } from '../generated/graphql'
 import { betterUpdateQuery } from './betterUpdateQuery';
 import { pipe, tap } from "wonka"
 import Router from "next/router"
+import gql from "graphql-tag"
 
 /** 글로벌 에러 핸들링 */
 const errorExchange: Exchange = ({ forward }) => ops$ => {
@@ -101,6 +102,8 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [dedupExchange, cacheExchange({
     keys: {
       PaginatedPosts: () => null,
+      Updoot: () => null,
+      UserResponse: () => null,
     },
     resolvers: { // cache에 관한 client-side resolver 정의
       Query: {
@@ -125,19 +128,47 @@ export const createUrqlClient = (ssrExchange: any) => ({
             }
           })
         },
-        // 포스트 올렸을 때, 새로고침해서 내가 올린 포스트가 보이도록
-        createPost:(result, args, cache, info) => {
-          cache.invalidate("Query", "posts", {
-            variables: {
-              limit: 10,
-              cursor: null,
-            }
-          })
-        },
+        // 로그아웃
         logout: (result, args, cache, info) => {
           cache.updateQuery({query: MeDocument}, () => {
             return {me: null}
           })
+        },
+        // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
+        createPost:(result, args, cache, info) => {
+          const allFields = cache.inspectFields("Query");
+          const fieldInfos = allFields.filter(info => info.fieldName === "posts");
+          fieldInfos.forEach((fi) => {
+            cache.invalidate("Query", "posts", fi.arguments || {});
+          })
+        },
+        // Updoot 눌렀을 때 즉시 반영, 이 때 캐시 전체를 refresh할 필요는 없으니 fragment만 바꾼다.
+        vote:(result, args, cache, info) => {
+          const { postId, value } = args as VoteMutationVariables;
+          const data = cache.readFragment(
+            gql`
+              fragment _ on Post {
+                id
+                likes
+                voteStatus
+              }
+            `, { id: postId } as any
+          );
+          if (data) {
+            // 이미 투표했다면 아무것도 안함.
+            if (data.voteStatus === value) {
+              return;
+            }
+            const newLikes = (data.likes as number) + ((!data.voteStatus ? 1 : 2)*value);
+            cache.writeFragment(
+              gql`
+              fragment __ on Post {
+                likes
+                voteStatus
+              }
+            `, { id: postId, likes: newLikes, voteStatus: value } as any
+            );
+          }
         }
       }
     }

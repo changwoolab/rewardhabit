@@ -6,11 +6,6 @@ query Posts($limit: Int!, $cursor: DateTime) {
     posts {
       ...PostFrag
       textsSnippet
-      user {
-        id
-        userName
-        level
-      }
     }
     hasMore
   }

@@ -106,8 +106,10 @@ export type Post = {
   title: Scalars['String'];
   type: Scalars['Float'];
   updateDate: Scalars['DateTime'];
+  updoots: Array<Updoot>;
   user: User;
   userId: Scalars['Float'];
+  voteStatus?: Maybe<Scalars['Int']>;
   writtenDate: Scalars['DateTime'];
 };
 
@@ -134,6 +136,15 @@ export type QueryPostArgs = {
 export type QueryPostsArgs = {
   cursor?: InputMaybe<Scalars['DateTime']>;
   limit: Scalars['Int'];
+};
+
+export type Updoot = {
+  __typename?: 'Updoot';
+  post: Post;
+  postId: Scalars['Float'];
+  user: User;
+  userId: Scalars['Float'];
+  value: Scalars['Float'];
 };
 
 export type User = {
@@ -172,7 +183,7 @@ export type UserResponse = {
 
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string };
+export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -226,6 +237,14 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
 
+export type VoteMutationVariables = Exact<{
+  value: Scalars['Int'];
+  postId: Scalars['Int'];
+}>;
+
+
+export type VoteMutation = { __typename?: 'Mutation', vote: boolean };
+
 export type CheckImmediateDuplicateMutationVariables = Exact<{
   mode: Scalars['String'];
   input: Scalars['String'];
@@ -245,7 +264,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, user: { __typename?: 'User', id: number, userName: string, level: number } }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } }> } };
 
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
@@ -262,6 +281,12 @@ export const PostFragFragmentDoc = gql`
   type
   likes
   title
+  voteStatus
+  user {
+    id
+    userName
+    level
+  }
 }
     `;
 export const PartialUserFragFragmentDoc = gql`
@@ -356,6 +381,15 @@ ${PartialUserFragFragmentDoc}`;
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const VoteDocument = gql`
+    mutation Vote($value: Int!, $postId: Int!) {
+  vote(value: $value, postId: $postId)
+}
+    `;
+
+export function useVoteMutation() {
+  return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+};
 export const CheckImmediateDuplicateDocument = gql`
     mutation CheckImmediateDuplicate($mode: String!, $input: String!) {
   checkImmediateDuplicate(mode: $mode, input: $input)
@@ -384,11 +418,6 @@ export const PostsDocument = gql`
     posts {
       ...PostFrag
       textsSnippet
-      user {
-        id
-        userName
-        level
-      }
     }
     hasMore
   }

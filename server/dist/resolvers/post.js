@@ -17,6 +17,7 @@ const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
+const Updoot_1 = require("../entities/Updoot");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -114,26 +115,43 @@ let PostResolver = class PostResolver {
             return post.userId;
         return "";
     }
+    updoots(post, { req }) {
+        if (req.session.userId) {
+            return post.updoots;
+        }
+        return [];
+    }
     async vote(postId, value, { req }) {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
-        await (0, typeorm_1.getConnection)().query(`
-        START TRANSACTION;
-
-        insert into updoot (userId, postId, value) values (?, ?, ?);
-
-        update post
-        set likes = likes + ?
-        where id = ?;
-
-        COMMIT;
-        `, [userId, postId, realValue, realValue, postId]);
+        const updoot = await Updoot_1.Updoot.findOne({ where: { postId, userId } });
+        if (updoot && updoot.value !== realValue) {
+            await (0, typeorm_1.getConnection)().transaction(async (tm) => {
+                await tm.query(`
+                update updoot set value = ? where postId = ? and userId = ?;
+                `, [realValue, postId, userId]);
+                await tm.query(`
+                update post set likes = likes + ? where id = ?;
+                `, [2 * realValue, postId]);
+            });
+        }
+        else if (!updoot) {
+            await (0, typeorm_1.getConnection)().transaction(async (tm) => {
+                await tm.query(`
+                insert into updoot (userId, postId, value) values (?, ?, ?);
+                `, [userId, postId, realValue]);
+                await tm.query(`
+                update post set likes = likes + ? where id = ?;
+                `, [realValue, postId]);
+            });
+        }
         return true;
     }
     async posts(limit, cursor, { req }) {
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
+        const { userId } = req.session;
         const realCursor = cursor ? cursor : new Date;
         const posts = await (0, typeorm_1.getConnection)()
             .getRepository(Post_1.Post)
@@ -145,6 +163,10 @@ let PostResolver = class PostResolver {
             .orderBy("post.writtenDate", "DESC")
             .take(realLimitPlusOne)
             .getMany();
+        for (let i in posts) {
+            const voteStatus = await (0, typeorm_1.getConnection)().query(`select value from updoot where updoot.userId = ? and updoot.postId = ?`, [userId, posts[i].id]);
+            posts[i].voteStatus = voteStatus[0] ? voteStatus[0].value : null;
+        }
         return {
             posts: posts.slice(0, realLimit),
             hasMore: posts.length === realLimitPlusOne,
@@ -237,6 +259,14 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "userId", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "updoots", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
