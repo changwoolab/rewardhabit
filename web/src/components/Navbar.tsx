@@ -15,7 +15,6 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
       pause: isServer()
     });
 
-
     let body = null;
     // 로딩중...
     if (fetching) {

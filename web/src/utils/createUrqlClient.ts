@@ -5,6 +5,7 @@ import { betterUpdateQuery } from './betterUpdateQuery';
 import { pipe, tap } from "wonka"
 import Router from "next/router"
 import gql from "graphql-tag"
+import { isServer } from './isServer';
 
 /** 글로벌 에러 핸들링 */
 const errorExchange: Exchange = ({ forward }) => ops$ => {
@@ -94,83 +95,91 @@ export const simpleCursorPagination = (): Resolver => {
 };
 
 /** UrqlClient를 정의하고 제작함 */
-export const createUrqlClient = (ssrExchange: any) => ({
+export const createUrqlClient = (ssrExchange: any, ctx: any) => { 
+  let cookie = "";
+  if (isServer()) {
+    cookie = ctx.req.headers.cookie;
+  }
+  
+  return ({
     url: "http://localhost:4000/graphql",
-  fetchOptions: {
-    credentials: "include" as const // Cookie를 받기 위함
-  },
-  exchanges: [dedupExchange, cacheExchange({
-    keys: {
-      PaginatedPosts: () => null,
-      Updoot: () => null,
-      UserResponse: () => null,
+    fetchOptions: {
+      credentials: "include" as const, // Cookie를 받기 위함
+      headers: cookie ? {cookie} : undefined
     },
-    resolvers: { // cache에 관한 client-side resolver 정의
-      Query: {
-        // posts query가 실행될 때마다 cursorPagination을 실행하여 cache에 저장
-        posts: simpleCursorPagination()
-      }
-    },
-    // cache를 업데이트할 조건
-    updates: {
-      Mutation: {
-        // result: 지금 cache에 저장되고 있는 모든 API 결과(즉, 방금 막 변한 따끈따끈한 데이터), args: Field가(아래의 login 등이) call될 때 함께 오는 arguments
-        // cache: local cache에 접근할 수 있는 방법 제공, info: query document 탐색 정보
-        login: (result, args, cache, info) => {
-          // Login Mutation이 진행됐을 때 MeQuery Cache Update 진행 (유저 정보가 떠야 하므로..)
-          betterUpdateQuery<LoginMutation, MeQuery>(cache, {query: MeDocument}, result, (_result, query) => {
-            if (!_result.login) {
-              return query; // 로그인 실패... MeQuery는 그대로 유지
-            } else {
-              return {
-                me: _result.login // 로그인 성공! MeQuery 바꿔주기
+    exchanges: [dedupExchange, cacheExchange({
+      keys: {
+        PaginatedPosts: () => null,
+        Updoot: () => null,
+        UserResponse: () => null,
+      },
+      resolvers: { // cache에 관한 client-side resolver 정의
+        Query: {
+          // posts query가 실행될 때마다 cursorPagination을 실행하여 cache에 저장
+          posts: simpleCursorPagination()
+        }
+      },
+      // cache를 업데이트할 조건
+      updates: {
+        Mutation: {
+          // result: 지금 cache에 저장되고 있는 모든 API 결과(즉, 방금 막 변한 따끈따끈한 데이터), args: Field가(아래의 login 등이) call될 때 함께 오는 arguments
+          // cache: local cache에 접근할 수 있는 방법 제공, info: query document 탐색 정보
+          login: (result, args, cache, info) => {
+            // Login Mutation이 진행됐을 때 MeQuery Cache Update 진행 (유저 정보가 떠야 하므로..)
+            betterUpdateQuery<LoginMutation, MeQuery>(cache, {query: MeDocument}, result, (_result, query) => {
+              if (!_result.login) {
+                return query; // 로그인 실패... MeQuery는 그대로 유지
+              } else {
+                return {
+                  me: _result.login // 로그인 성공! MeQuery 바꿔주기
+                }
               }
-            }
-          })
-        },
-        // 로그아웃
-        logout: (result, args, cache, info) => {
-          cache.updateQuery({query: MeDocument}, () => {
-            return {me: null}
-          })
-        },
-        // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
-        createPost:(result, args, cache, info) => {
-          const allFields = cache.inspectFields("Query");
-          const fieldInfos = allFields.filter(info => info.fieldName === "posts");
-          fieldInfos.forEach((fi) => {
-            cache.invalidate("Query", "posts", fi.arguments || {});
-          })
-        },
-        // Updoot 눌렀을 때 즉시 반영, 이 때 캐시 전체를 refresh할 필요는 없으니 fragment만 바꾼다.
-        vote:(result, args, cache, info) => {
-          const { postId, value } = args as VoteMutationVariables;
-          const data = cache.readFragment(
-            gql`
-              fragment _ on Post {
-                id
-                likes
-                voteStatus
-              }
-            `, { id: postId } as any
-          );
-          if (data) {
-            // 이미 투표했다면 아무것도 안함.
-            if (data.voteStatus === value) {
-              return;
-            }
-            const newLikes = (data.likes as number) + ((!data.voteStatus ? 1 : 2)*value);
-            cache.writeFragment(
+            })
+          },
+          // 로그아웃
+          logout: (result, args, cache, info) => {
+            cache.updateQuery({query: MeDocument}, () => {
+              return {me: null}
+            })
+          },
+          // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
+          createPost:(result, args, cache, info) => {
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(info => info.fieldName === "posts");
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || {});
+            })
+          },
+          // Updoot 눌렀을 때 즉시 반영, 이 때 캐시 전체를 refresh할 필요는 없으니 fragment만 바꾼다.
+          vote:(result, args, cache, info) => {
+            const { postId, value } = args as VoteMutationVariables;
+            const data = cache.readFragment(
               gql`
-              fragment __ on Post {
-                likes
-                voteStatus
-              }
-            `, { id: postId, likes: newLikes, voteStatus: value } as any
+                fragment _ on Post {
+                  id
+                  likes
+                  voteStatus
+                }
+              `, { id: postId } as any
             );
+            if (data) {
+              // 이미 투표했다면 아무것도 안함.
+              if (data.voteStatus === value) {
+                return;
+              }
+              const newLikes = (data.likes as number) + ((!data.voteStatus ? 1 : 2)*value);
+              cache.writeFragment(
+                gql`
+                fragment __ on Post {
+                  likes
+                  voteStatus
+                }
+              `, { id: postId, likes: newLikes, voteStatus: value } as any
+              );
+            }
           }
         }
       }
-    }
-  }), errorExchange, ssrExchange, fetchExchange]
-});
+    }), errorExchange, ssrExchange, fetchExchange]
+  });
+}

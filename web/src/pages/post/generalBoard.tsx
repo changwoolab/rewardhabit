@@ -64,4 +64,4 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
     );
 }
 
-export default withUrqlClient(createUrqlClient)(generalBoard);
+export default withUrqlClient(createUrqlClient, {ssr: true})(generalBoard);
