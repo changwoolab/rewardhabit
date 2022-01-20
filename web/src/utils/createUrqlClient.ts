@@ -125,15 +125,12 @@ export const createUrqlClient = (ssrExchange: any) => ({
             }
           })
         },
-        register: (result, args, cache, info) => {
-          // Login Mutation이 진행됐을 때 MeQuery Cache Update 진행 (유저 정보가 떠야 하므로..)
-          betterUpdateQuery<RegisterMutation, MeQuery>(cache, {query: MeDocument}, result, (_result, query) => {
-            if (!_result.register) {
-              return query; // 회원가입 실패... MeQuery는 그대로 유지
-            } else {
-              return {
-                me: _result.register // 회원가입 성공! MeQuery 바꿔주기
-              }
+        // 포스트 올렸을 때, 새로고침해서 내가 올린 포스트가 보이도록
+        createPost:(result, args, cache, info) => {
+          cache.invalidate("Query", "posts", {
+            variables: {
+              limit: 10,
+              cursor: null,
             }
           })
         },

@@ -3,6 +3,7 @@ import {Resolver, Query, Ctx, Arg, Int, Mutation, InputType, Field, UseMiddlewar
 import { Post } from "../entities/Post"
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Updoot } from "../entities/Updoot";
 
 @InputType()
 class PostInput {
@@ -125,6 +126,30 @@ export class PostResolver {
     ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////
     ///////////////////////////////////////////////////////////////////
 
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async vote (
+        @Arg("postId", () => Int) postId: number,
+        @Arg("value", () => Int) value: number,
+        @Ctx() { req }: ReqResContext
+    ) {
+        const isUpdoot = value !== -1;
+        const realValue = isUpdoot ? 1 : -1;
+        const { userId } = req.session;
+        await getConnection().query(`
+        START TRANSACTION;
+
+        insert into updoot (userId, postId, value) values (?, ?, ?);
+
+        update post
+        set likes = likes + ?
+        where id = ?;
+
+        COMMIT;
+        `, [userId, postId, realValue, realValue, postId]);
+        return true;
+    }
+
 
     /** 자유게시판 전용, Cursor Pagination */
     @Query(() => PaginatedPosts)
@@ -145,7 +170,7 @@ export class PostResolver {
         .getRepository(Post)
         .createQueryBuilder("post")
         .innerJoinAndSelect("post.user", "user", "user.id = post.userId")
-        .select(["post", "user.userName", "user.level"])
+        .select(["post", "user.userName", "user.level", "user.id"])
         .where("type = :type", {type: 3})
         .andWhere("post.writtenDate < :cursor", { cursor: realCursor })
         .orderBy("post.writtenDate", "DESC")

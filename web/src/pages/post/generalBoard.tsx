@@ -33,6 +33,7 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
                 {data!.posts.posts.map((p) => (
                   <Box key={p.id} p={5} shadow="md" borderwidth="1px">
                     <Heading fontSize="xl">{p.title}</Heading>
+                    <Text>작성자: {p.user.userName}</Text>
                     <Text mt={4}>{p.textsSnippet}</Text>
                   </Box>
                 ))}

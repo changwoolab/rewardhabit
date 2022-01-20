@@ -33,6 +33,7 @@ export type Mutation = {
   login?: Maybe<UserResponse>;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  vote: Scalars['Boolean'];
 };
 
 
@@ -74,6 +75,12 @@ export type MutationRegisterArgs = {
   inputs: UserRegisterInput;
 };
 
+
+export type MutationVoteArgs = {
+  postId: Scalars['Int'];
+  value: Scalars['Int'];
+};
+
 export type PaginatedPosts = {
   __typename?: 'PaginatedPosts';
   hasMore: Scalars['Boolean'];
@@ -99,6 +106,7 @@ export type Post = {
   title: Scalars['String'];
   type: Scalars['Float'];
   updateDate: Scalars['DateTime'];
+  user: User;
   userId: Scalars['Float'];
   writtenDate: Scalars['DateTime'];
 };
@@ -126,6 +134,23 @@ export type QueryPostArgs = {
 export type QueryPostsArgs = {
   cursor?: InputMaybe<Scalars['DateTime']>;
   limit: Scalars['Int'];
+};
+
+export type User = {
+  __typename?: 'User';
+  account: Scalars['String'];
+  bank: Scalars['String'];
+  email: Scalars['String'];
+  exp: Scalars['Float'];
+  firstName: Scalars['String'];
+  id: Scalars['Float'];
+  lastName: Scalars['String'];
+  level: Scalars['Float'];
+  point: Scalars['Float'];
+  registerDate: Scalars['DateTime'];
+  subscripts: Scalars['String'];
+  userId: Scalars['String'];
+  userName: Scalars['String'];
 };
 
 export type UserRegisterInput = {
@@ -220,7 +245,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, user: { __typename?: 'User', id: number, userName: string, level: number } }> } };
 
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
@@ -359,6 +384,11 @@ export const PostsDocument = gql`
     posts {
       ...PostFrag
       textsSnippet
+      user {
+        id
+        userName
+        level
+      }
     }
     hasMore
   }

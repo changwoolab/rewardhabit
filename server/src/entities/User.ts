@@ -2,6 +2,7 @@ import { Field, ObjectType } from "type-graphql";
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany} from "typeorm";
 import { Post } from "./Post";
 import { Subscript } from "./Subscript";
+import { Updoot } from "./Updoot";
 
 @ObjectType() // Graphql Type으로 Change
 @Entity()
@@ -19,6 +20,11 @@ export class User extends BaseEntity { // BaseEntity로 Active Record를 가능�
         cascade: true
     })
     subscripts: Subscript[]; // Subscript에 대한 OneToMany Relation 설정
+
+    @OneToMany(() => Updoot, updoot => updoot.user, {
+        cascade: true
+    })
+    updoots: Updoot[]; 
 
     @Field()
     @Column({unique: true})

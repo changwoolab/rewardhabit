@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, CreateDateColumn} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, CreateDateColumn, OneToMany} from "typeorm";
+import { Updoot } from "./Updoot";
 import { User } from "./User";
 
 @ObjectType() // Graphql Type으로 Change
@@ -16,6 +17,11 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     @Field()
     @ManyToOne(() => User, user => user.posts)
     user: User;
+
+    @OneToMany(() => Updoot, updoot => updoot.post, {
+        cascade: true
+    })
+    updoots: Updoot[]; 
 
     @Field()
     @CreateDateColumn()

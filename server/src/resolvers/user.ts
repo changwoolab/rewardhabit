@@ -46,14 +46,6 @@ export class UserResolver {
         return "";
     }
     @FieldResolver(() => String)
-    id(
-        @Root() user: User,
-        @Ctx() { req }: ReqResContext
-    ) {
-        if (req.session.userId === user.id) return user.id;
-        return "";
-    }
-    @FieldResolver(() => String)
     lastName(
         @Root() user: User,
         @Ctx() { req }: ReqResContext
@@ -91,14 +83,6 @@ export class UserResolver {
         @Ctx() { req }: ReqResContext
     ) {
         if (req.session.userId === user.id) return user.subscripts;
-        return "";
-    }
-    @FieldResolver(() => String)
-    userId(
-        @Root() user: User,
-        @Ctx() { req }: ReqResContext
-    ) {
-        if (req.session.userId === user.id) return user.userId;
         return "";
     }
 
