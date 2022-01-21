@@ -97,7 +97,10 @@ export const simpleCursorPagination = (): Resolver => {
 /** UrqlClient를 정의하고 제작함 */
 export const createUrqlClient = (ssrExchange: any, ctx: any) => { 
   let cookie = "";
-  if (isServer()) {
+  if (isServer() && ctx && ctx.req) {
+    // SSR 모드일 때는 Nextjs는 ctx를 만들어준다. 아닐때는 안만들어줌
+    // 따라서 ctx로 SSR인지 한번 더 확인해줄 수 있다.
+    // Next.js는 먼저 랜더링 해준 후, 클라이언트에게 보내주기 때문에 isServer가 항상 true임
     cookie = ctx.req.headers.cookie;
   }
   

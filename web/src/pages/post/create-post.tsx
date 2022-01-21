@@ -39,7 +39,7 @@ const CreatePost: React.FC<createPostProps> = ({}) => {
     useIsLogin();
 
     return (
-      <Layout variant="regular">
+      <Layout variant="regular" height='100vh'>
         <Formik initialValues={{ title: "", texts: "", type: 0}} 
           validationSchema={createPostValidation}
           onSubmit={async(values) => {

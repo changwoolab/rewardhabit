@@ -258,6 +258,13 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
 
+export type PostQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PostQuery = { __typename?: 'Query', post: { __typename?: 'Post', texts: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } } };
+
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: InputMaybe<Scalars['DateTime']>;
@@ -411,6 +418,18 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const PostDocument = gql`
+    query Post($id: Int!) {
+  post(id: $id) {
+    ...PostFrag
+    texts
+  }
+}
+    ${PostFragFragmentDoc}`;
+
+export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
 };
 export const PostsDocument = gql`
     query Posts($limit: Int!, $cursor: DateTime) {

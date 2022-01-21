@@ -37,7 +37,9 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     } else {
         body = (
           <>
-            <Link alignSelf={"center"} mr={4} href="/post/create-post">글쓰기</Link>
+           <NextLink href="/post/create-post">
+              <Link alignSelf={"center"} mr={4}>글쓰기</Link>
+            </NextLink>
             <UserMenu data={data}/>
           </>
         )

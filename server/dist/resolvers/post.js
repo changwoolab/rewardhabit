@@ -173,7 +173,10 @@ let PostResolver = class PostResolver {
         };
     }
     async post(id, { req }) {
-        const post = await Post_1.Post.findOne({ where: { postId: id } });
+        const post = await Post_1.Post.findOne({
+            where: { id },
+            relations: ["user"]
+        });
         return post;
     }
     async createPost(input, { req }) {

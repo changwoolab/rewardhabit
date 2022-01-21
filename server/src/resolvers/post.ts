@@ -247,7 +247,10 @@ export class PostResolver {
         @Arg('id', () => Int) id: number, 
         @Ctx() { req }: ReqResContext
     ): Promise<Post | undefined> {
-        const post = await Post.findOne({ where: {postId:id} });
+        const post = await Post.findOne({ 
+            where: {id},
+            relations: ["user"]
+        });
         return post;
     }
 

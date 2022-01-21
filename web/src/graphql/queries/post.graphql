@@ -1,0 +1,8 @@
+query Post($id: Int!) {
+  post(
+      id: $id
+  ) {
+    ...PostFrag
+    texts
+  }
+}

@@ -1,11 +1,12 @@
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { Box, Button, Center, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { Layout } from '../../components/Layout';
 import { UpdootSection } from '../../components/UpdootSection';
 import { usePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
+import NextLink from "next/link"
 
 interface myPostProps {}
 
@@ -37,7 +38,11 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
                     <Flex>
                       <UpdootSection post={p}/>
                       <Box>
-                        <Heading fontSize="xl">{p.title}</Heading>
+                        <NextLink href="/post/post_details/[id]" as={`/post/post_details/${p.id}`}>
+                          <Link>
+                            <Heading fontSize="xl">{p.title}</Heading>
+                          </Link>
+                        </NextLink>
                         <Text>작성자: {p.user.userName}</Text>
                         <Text mt={4}>{p.textsSnippet}</Text>
                       </Box>
