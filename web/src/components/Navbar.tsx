@@ -46,11 +46,13 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     }
     return (
         <Flex zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"}>
-          <Center><Heading fontSize="xl"><Link href="/">Rewardable Habit</Link></Heading></Center>
+          <Flex flex={1} m="auto" align="center" maxW={1000}>
+          <Center><Heading fontSize="2xl" margin={1}><Link href="/">보상습관</Link></Heading></Center>
           <Flex ml={"auto"}>
           <Center><Link mr={4} href="/post/generalBoard">자유게시판</Link></Center>
             {body}
             <Center><DarkModeSwitch /></Center>
+          </Flex>
           </Flex>
         </Flex>
     );

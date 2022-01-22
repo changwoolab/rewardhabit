@@ -29,15 +29,11 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Subscript_1.Subscript, subscript => subscript.user, {
-        cascade: true
-    }),
+    (0, typeorm_1.OneToMany)(() => Subscript_1.Subscript, subscript => subscript.user),
     __metadata("design:type", Array)
 ], User.prototype, "subscripts", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.user, {
-        cascade: true
-    }),
+    (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.user),
     __metadata("design:type", Array)
 ], User.prototype, "updoots", void 0);
 __decorate([

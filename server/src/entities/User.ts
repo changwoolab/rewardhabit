@@ -16,14 +16,10 @@ export class User extends BaseEntity { // BaseEntity로 Active Record를 가능�
     })
     posts: Post[]; // Post에 대한 OneToMany Relation 설정
 
-    @OneToMany(() => Subscript, subscript => subscript.user, {
-        cascade: true
-    })
+    @OneToMany(() => Subscript, subscript => subscript.user)
     subscripts: Subscript[]; // Subscript에 대한 OneToMany Relation 설정
 
-    @OneToMany(() => Updoot, updoot => updoot.user, {
-        cascade: true
-    })
+    @OneToMany(() => Updoot, updoot => updoot.user)
     updoots: Updoot[]; 
 
     @Field()

@@ -267,4 +267,20 @@ export class PostResolver {
             userId: req.session.userId,
         }).save();
     }
+
+    /** Post 삭제 */
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async deletePost(
+        @Arg("id", () => Int) id: number,
+        @Ctx() { req }: ReqResContext,
+    ) {
+        const { userId } = req.session;
+        const res = await Post.delete({id, userId});
+        console.log(res);
+        if (res.affected === 1) {
+            return true;
+        }
+        return false;
+    }
 }

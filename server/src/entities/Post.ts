@@ -19,9 +19,7 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     user: User;
 
     @Field(() => [Updoot])
-    @OneToMany(() => Updoot, updoot => updoot.post, {
-        cascade: true
-    })
+    @OneToMany(() => Updoot, updoot => updoot.post)
     updoots: Updoot[]; 
 
     /** 

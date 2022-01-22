@@ -21,7 +21,9 @@ __decorate([
     __metadata("design:type", Number)
 ], Subscript.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.subscripts),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.subscripts, {
+        onDelete: "CASCADE"
+    }),
     __metadata("design:type", User_1.User)
 ], Subscript.prototype, "user", void 0);
 __decorate([

@@ -1,6 +1,6 @@
 import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
 import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql"
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation, VoteMutationVariables } from '../generated/graphql'
+import { DeletePostMutationVariables, LoginMutation, MeDocument, MeQuery, RegisterMutation, VoteMutationVariables } from '../generated/graphql'
 import { betterUpdateQuery } from './betterUpdateQuery';
 import { pipe, tap } from "wonka"
 import Router from "next/router"
@@ -125,6 +125,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       // cache를 업데이트할 조건
       updates: {
         Mutation: {
+          // 포스트 삭제 시 캐시 업데이트
+          deletePost: (result, args, cache, info) => {
+            cache.invalidate({ __typename: "Post", id: (args as DeletePostMutationVariables).id })
+          },
           // result: 지금 cache에 저장되고 있는 모든 API 결과(즉, 방금 막 변한 따끈따끈한 데이터), args: Field가(아래의 login 등이) call될 때 함께 오는 arguments
           // cache: local cache에 접근할 수 있는 방법 제공, info: query document 탐색 정보
           login: (result, args, cache, info) => {

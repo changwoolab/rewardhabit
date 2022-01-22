@@ -1,10 +1,10 @@
-import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronUpIcon, ChevronDownIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Box, Button, Center, Flex, Heading, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { Layout } from '../../components/Layout';
 import { UpdootSection } from '../../components/UpdootSection';
-import { usePostsQuery } from '../../generated/graphql';
+import { useDeletePostMutation, usePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import NextLink from "next/link"
 
@@ -22,6 +22,8 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
         variables,
     });
 
+    const [, deletePost] = useDeletePostMutation();
+
     if (!data && !fetching) {
         return <Center><div>서버에 오류가 발생했습니다. 잠시 후 다시 실행해주세요</div></Center>
     }
@@ -33,18 +35,30 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
           </Center>
           {!data && fetching ? (<div>loading...</div>) : (
               <Stack spacing={8}>
-                {data!.posts.posts.map((p) => (
+                {data!.posts.posts.map((p) => !p ? null : (
                   <Box key={p.id} p={5} shadow="md" borderwidth="1px">
                     <Flex>
                       <UpdootSection post={p}/>
-                      <Box>
+                      <Box flex={1}>
                         <NextLink href="/post/post_details/[id]" as={`/post/post_details/${p.id}`}>
                           <Link>
                             <Heading fontSize="xl">{p.title}</Heading>
                           </Link>
                         </NextLink>
                         <Text>작성자: {p.user.userName}</Text>
+                        <Flex>
                         <Text mt={4}>{p.textsSnippet}</Text>
+                          <IconButton ml="auto" aria-label="Delete Post" icon={<DeleteIcon />} onClick={async () => {
+                            const really = confirm("정말 삭제하시겠습니까?");
+                            if (!really) {
+                            } else {
+                              const res = await deletePost({ id: p.id });
+                              if (!res.data?.deletePost) {
+                                alert("오류가 발생했습니다")
+                              }
+                            }
+                          }}/>
+                        </Flex>
                       </Box>
                     </Flex>
                   </Box>

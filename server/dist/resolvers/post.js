@@ -182,6 +182,15 @@ let PostResolver = class PostResolver {
     async createPost(input, { req }) {
         return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId })).save();
     }
+    async deletePost(id, { req }) {
+        const { userId } = req.session;
+        const res = await Post_1.Post.delete({ id, userId });
+        console.log(res);
+        if (res.affected === 1) {
+            return true;
+        }
+        return false;
+    }
 };
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -306,6 +315,15 @@ __decorate([
     __metadata("design:paramtypes", [PostInput, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Boolean),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([
     (0, type_graphql_1.Resolver)(Post_1.Post)
 ], PostResolver);

@@ -33,9 +33,7 @@ __decorate([
 ], Post.prototype, "user", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => [Updoot_1.Updoot]),
-    (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.post, {
-        cascade: true
-    }),
+    (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.post),
     __metadata("design:type", Array)
 ], Post.prototype, "updoots", void 0);
 __decorate([

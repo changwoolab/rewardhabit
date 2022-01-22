@@ -10,7 +10,9 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, user => user.subscripts)
+    @ManyToOne(() => User, user => user.subscripts, {
+        onDelete: "CASCADE"
+    })
     user: User;
 
     @Field()

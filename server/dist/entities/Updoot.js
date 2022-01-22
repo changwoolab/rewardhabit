@@ -28,7 +28,9 @@ __decorate([
 ], Updoot.prototype, "userId", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => User_1.User),
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.updoots),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.updoots, {
+        onDelete: "CASCADE",
+    }),
     __metadata("design:type", User_1.User)
 ], Updoot.prototype, "user", void 0);
 __decorate([
@@ -38,7 +40,9 @@ __decorate([
 ], Updoot.prototype, "postId", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => Post_1.Post),
-    (0, typeorm_1.ManyToOne)(() => Post_1.Post, post => post.updoots),
+    (0, typeorm_1.ManyToOne)(() => Post_1.Post, post => post.updoots, {
+        onDelete: "CASCADE",
+    }),
     __metadata("design:type", Post_1.Post)
 ], Updoot.prototype, "post", void 0);
 Updoot = __decorate([

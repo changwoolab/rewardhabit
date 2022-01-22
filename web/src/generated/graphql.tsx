@@ -28,6 +28,7 @@ export type Mutation = {
   changePassword: Scalars['Boolean'];
   checkImmediateDuplicate: Scalars['Boolean'];
   createPost: Post;
+  deletePost: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
   forgotUserId: Scalars['Boolean'];
   login?: Maybe<UserResponse>;
@@ -51,6 +52,11 @@ export type MutationCheckImmediateDuplicateArgs = {
 
 export type MutationCreatePostArgs = {
   input: PostInput;
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -202,6 +208,13 @@ export type CreatePostMutationVariables = Exact<{
 
 export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', id: number, userId: number, writtenDate: any, type: number, title: string, texts: string } };
 
+export type DeletePostMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DeletePostMutation = { __typename?: 'Mutation', deletePost: boolean };
+
 export type ForgotPasswordMutationVariables = Exact<{
   userId: Scalars['String'];
   email: Scalars['String'];
@@ -330,6 +343,15 @@ export const CreatePostDocument = gql`
 
 export function useCreatePostMutation() {
   return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
+};
+export const DeletePostDocument = gql`
+    mutation DeletePost($id: Int!) {
+  deletePost(id: $id)
+}
+    `;
+
+export function useDeletePostMutation() {
+  return Urql.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($userId: String!, $email: String!) {
