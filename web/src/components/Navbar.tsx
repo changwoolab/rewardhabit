@@ -22,15 +22,13 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
     } else if (!data?.me?.partialUser) {
         body = (
             <>
-            <Center>
               <NextLink href="/nidlogin/login">
-                <Link>로그인</Link>
+                <Link alignSelf={"center"}>로그인</Link>
               </NextLink>
             
               <NextLink href="/nidlogin/register">
-                <Link ml={2}>회원가입</Link>
+                <Link alignSelf={"center"} ml={2}>회원가입</Link>
               </NextLink>
-            </Center>
             </>
         )
       // Logged in
@@ -38,21 +36,21 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
         body = (
           <>
            <NextLink href="/post/create-post">
-              <Link alignSelf={"center"} mr={4}>글쓰기</Link>
+              <Link alignSelf={"center"}>글쓰기</Link>
             </NextLink>
             <UserMenu data={data}/>
           </>
         )
     }
     return (
-        <Flex zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"}>
-          <Flex flex={1} m="auto" align="center" maxW={1000}>
-          <Center><Heading fontSize="2xl" margin={1}><Link href="/">보상습관</Link></Heading></Center>
-          <Flex ml={"auto"}>
-          <Center><Link mr={4} href="/post/generalBoard">자유게시판</Link></Center>
-            {body}
-            <Center><DarkModeSwitch /></Center>
-          </Flex>
+        <Flex alignSelf={"center"} zIndex={1} position="sticky" top={0} bg="gray" p={4} ml={"auto"} h={70}>
+          <Flex alignSelf={"center"} flex={1} m={"auto"} align="center" maxW={1000}>
+            <Heading alignSelf={"center"} fontSize="2xl"><Link href="/">보상습관</Link></Heading>
+            <Flex alignSelf={"center"} ml={"auto"}>
+              <Link alignSelf={"center"} mr={4} href="/post/generalBoard">자유게시판</Link>
+                {body}
+              <DarkModeSwitch />
+            </Flex>
           </Flex>
         </Flex>
     );

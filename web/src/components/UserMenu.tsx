@@ -15,7 +15,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ data }) => {
 
     return (
         <Menu>
-            <MenuButton as={Button} colorScheme='blue'>
+            <MenuButton ml={4} as={Button} colorScheme='blue'>
               {data.me?.partialUser?.userName}
             </MenuButton>
             <MenuList>
