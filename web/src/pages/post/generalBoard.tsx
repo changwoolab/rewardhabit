@@ -1,12 +1,12 @@
-import { ChevronUpIcon, ChevronDownIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import { Box, Button, Center, Flex, Heading, IconButton, Link, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { Layout } from '../../components/Layout';
 import { UpdootSection } from '../../components/UpdootSection';
-import { useDeletePostMutation, useMeQuery, usePostsQuery } from '../../generated/graphql';
+import { usePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import NextLink from "next/link"
+import { EditDeletePostButton } from '../../components/EditDeletePostButton';
 
 interface myPostProps {}
 
@@ -17,14 +17,9 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
     const [variables, setVariables] = useState({ 
         limit: 10, cursor: null 
     });
-
     const [{data, fetching}] = usePostsQuery({
         variables,
     });
-
-    const [, deletePost] = useDeletePostMutation();
-
-    const [{data: meData}] = useMeQuery();
 
     if (!data && !fetching) {
         return <Center><div>서버에 오류가 발생했습니다. 잠시 후 다시 실행해주세요</div></Center>
@@ -48,27 +43,11 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
                           </Link>
                         </NextLink>
                         <Text>작성자: {p.user.userName}</Text>
-                        
                         <Flex>
-                        <Text mt={4}>{p.textsSnippet}</Text>
-                        {meData?.me?.partialUser?.id !== p.userId ? null : (
-                          <Box ml={"auto"}>
-                            <NextLink href="/post/edit/[id]" as={`/post/edit/${p.id}`}>
-                              <IconButton mr={1} aria-label="Edit Post" icon={<EditIcon />} as={Link} onClick={async () => {
-                                  
-                              }}/>
-                            </NextLink>
-                            <IconButton aria-label="Delete Post" icon={<DeleteIcon />} onClick={async () => {
-                              const really = confirm("정말 삭제하시겠습니까?");
-                              if (!really) {
-                              } else {
-                                const res = await deletePost({ id: p.id });
-                                if (!res.data?.deletePost) {
-                                  alert("오류가 발생했습니다")
-                                }
-                              }
-                            }}/>
-                          </Box>)}
+                          <Text mt={4}>{p.textsSnippet}</Text>
+                          <Box ml="auto">
+                            <EditDeletePostButton post={p} />
+                          </Box>
                         </Flex>
                       </Box>
                     </Flex>

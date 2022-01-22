@@ -34,6 +34,7 @@ export type Mutation = {
   login?: Maybe<UserResponse>;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  updatePost?: Maybe<Post>;
   vote: Scalars['Boolean'];
 };
 
@@ -79,6 +80,13 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   inputs: UserRegisterInput;
+};
+
+
+export type MutationUpdatePostArgs = {
+  id: Scalars['Int'];
+  texts: Scalars['String'];
+  title: Scalars['String'];
 };
 
 
@@ -250,6 +258,15 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
 
+export type UpdatePostMutationVariables = Exact<{
+  id: Scalars['Int'];
+  title: Scalars['String'];
+  texts: Scalars['String'];
+}>;
+
+
+export type UpdatePostMutation = { __typename?: 'Mutation', updatePost?: { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, texts: string } | null | undefined };
+
 export type VoteMutationVariables = Exact<{
   value: Scalars['Int'];
   postId: Scalars['Int'];
@@ -409,6 +426,24 @@ ${PartialUserFragFragmentDoc}`;
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const UpdatePostDocument = gql`
+    mutation UpdatePost($id: Int!, $title: String!, $texts: String!) {
+  updatePost(id: $id, title: $title, texts: $texts) {
+    id
+    userId
+    writtenDate
+    updateDate
+    type
+    likes
+    title
+    texts
+  }
+}
+    `;
+
+export function useUpdatePostMutation() {
+  return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument);
 };
 export const VoteDocument = gql`
     mutation Vote($value: Int!, $postId: Int!) {

@@ -180,16 +180,32 @@ let PostResolver = class PostResolver {
         return post;
     }
     async createPost(input, { req }) {
+        if (input.type > 3 || input.type <= 0) {
+            throw new Error("적절하지 않은 종류를 입력하셨습니다.");
+        }
         return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId })).save();
     }
     async deletePost(id, { req }) {
         const { userId } = req.session;
         const res = await Post_1.Post.delete({ id, userId });
-        console.log(res);
         if (res.affected === 1) {
             return true;
         }
         return false;
+    }
+    async updatePost(id, title, texts, { req }) {
+        const { userId } = req.session;
+        const result = await (0, typeorm_1.getConnection)()
+            .createQueryBuilder()
+            .update(Post_1.Post)
+            .set({ title, texts })
+            .where("id = :id and userId = :userId", { id, userId })
+            .execute();
+        if (result.affected === 1) {
+            const post = await Post_1.Post.findOne({ id, userId });
+            return post ? post : null;
+        }
+        return null;
     }
 };
 __decorate([
@@ -324,6 +340,17 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("id", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("title")),
+    __param(2, (0, type_graphql_1.Arg)("texts")),
+    __param(3, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "updatePost", null);
 PostResolver = __decorate([
     (0, type_graphql_1.Resolver)(Post_1.Post)
 ], PostResolver);

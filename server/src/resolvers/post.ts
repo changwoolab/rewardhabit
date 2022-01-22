@@ -260,7 +260,11 @@ export class PostResolver {
     async createPost(
         @Arg("input") input: PostInput,
         @Ctx() { req }: ReqResContext
-    ): Promise<Post> {
+    ): Promise<Post | null> {
+        // 이상한 타입이 들어오면 throw Err
+        if (input.type > 3 || input.type <= 0) {
+            throw new Error("적절하지 않은 종류를 입력하셨습니다.")
+        }
         // 포스트 올리기.
         return Post.create({
             ...input,
@@ -274,13 +278,35 @@ export class PostResolver {
     async deletePost(
         @Arg("id", () => Int) id: number,
         @Ctx() { req }: ReqResContext,
-    ) {
+    ):Promise<Boolean> {
         const { userId } = req.session;
         const res = await Post.delete({id, userId});
-        console.log(res);
         if (res.affected === 1) {
             return true;
         }
         return false;
+    }
+
+    /** Post 수정 */
+    @Mutation(() => Post, {nullable: true})
+    @UseMiddleware(isAuth)
+    async updatePost(
+        @Arg("id", () => Int) id: number,
+        @Arg("title") title: string,
+        @Arg("texts") texts: string,
+        @Ctx() { req }: ReqResContext
+    ):Promise<Post | null> {
+        const { userId } = req.session;
+        const result = await getConnection()
+        .createQueryBuilder()
+        .update(Post)
+        .set({title, texts})
+        .where("id = :id and userId = :userId", {id, userId})
+        .execute();
+        if (result.affected === 1) {
+            const post = await Post.findOne({id, userId});
+            return post ? post : null;
+        }
+        return null;
     }
 }

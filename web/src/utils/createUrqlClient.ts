@@ -14,12 +14,16 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
     tap(({error}) => {
        // 로그인이 안 됐을때,
        if (error?.message.includes("로그인")) {
-        alert(error.message);
+        alert(error.message.slice(10));
         Router.replace("/nidlogin/login")
       } 
-      // 구독한 서비스가 아닐 때,
+      // 구독한 서비스가 아닐 때
       else if (error?.message.includes("구독")) {
-        alert(error.message);
+        alert(error.message.slice(10));
+      }
+      // 그냥 일반적인 에러들은 alert 해주기
+      else if (error?.message) {
+        alert(error.message.slice(10));
       }
     })
   )
