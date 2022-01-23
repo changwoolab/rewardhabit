@@ -19,8 +19,9 @@ import { TestResolver } from "./resolvers/test";
 import cors from "cors";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
-import { createUserLoader } from "./utils/createUserLoader";
-import { createUpdootLoader } from "./utils/createUpdootLoader";
+import { createUserLoader } from "./utils/dataLoader/createUserLoader";
+import { createUpdootLoader } from "./utils/dataLoader/createUpdootLoader";
+import { Comment } from "./entities/Comment";
 
 const main = async() => {
     // Typeorm Connection
@@ -33,7 +34,7 @@ const main = async() => {
         password: DB_PASSWORD,
         logging: true,
         synchronize: true, // migration 없이 자동 synchronize
-        entities: [User, Post, Subscript, User_IV, Updoot],
+        entities: [User, Post, Subscript, User_IV, Updoot, Comment],
         migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
         multipleStatements: true // 여러개의 mock data를 넣을 것이므로
     });
@@ -85,7 +86,7 @@ const main = async() => {
             res, 
             redis, 
             userLoader: createUserLoader(),
-            updootLoader: createUpdootLoader()
+            updootLoader: createUpdootLoader(),
         }),
         plugins: [
             ApolloServerPluginLandingPageGraphQLPlayground({}),

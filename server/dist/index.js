@@ -23,8 +23,9 @@ const test_1 = require("./resolvers/test");
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const Updoot_1 = require("./entities/Updoot");
-const createUserLoader_1 = require("./utils/createUserLoader");
-const createUpdootLoader_1 = require("./utils/createUpdootLoader");
+const createUserLoader_1 = require("./utils/dataLoader/createUserLoader");
+const createUpdootLoader_1 = require("./utils/dataLoader/createUpdootLoader");
+const Comment_1 = require("./entities/Comment");
 const main = async () => {
     const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -35,7 +36,7 @@ const main = async () => {
         password: constants_1.DB_PASSWORD,
         logging: true,
         synchronize: true,
-        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV, Updoot_1.Updoot],
+        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV, Updoot_1.Updoot, Comment_1.Comment],
         migrations: [path_1.default.join(__dirname, "./migrations/*")],
         multipleStatements: true
     });
@@ -72,7 +73,7 @@ const main = async () => {
             res,
             redis,
             userLoader: (0, createUserLoader_1.createUserLoader)(),
-            updootLoader: (0, createUpdootLoader_1.createUpdootLoader)()
+            updootLoader: (0, createUpdootLoader_1.createUpdootLoader)(),
         }),
         plugins: [
             (0, apollo_server_core_1.ApolloServerPluginLandingPageGraphQLPlayground)({}),

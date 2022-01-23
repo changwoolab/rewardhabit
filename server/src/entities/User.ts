@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany} from "typeorm";
+import { Comment } from "./Comment";
 import { Post } from "./Post";
 import { Subscript } from "./Subscript";
 import { Updoot } from "./Updoot";
@@ -21,6 +22,9 @@ export class User extends BaseEntity { // BaseEntity로 Active Record를 가능�
 
     @OneToMany(() => Updoot, updoot => updoot.user)
     updoots: Updoot[]; 
+
+    @OneToMany(() => Comment, comment => comment.user)
+    comments: Comment[]; // for 내가 쓴 댓글
 
     @Field()
     @Column({unique: true})

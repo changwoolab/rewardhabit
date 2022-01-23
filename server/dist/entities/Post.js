@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Post = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Comment_1 = require("./Comment");
 const Updoot_1 = require("./Updoot");
 const User_1 = require("./User");
 let Post = class Post extends typeorm_1.BaseEntity {
@@ -28,7 +29,9 @@ __decorate([
 ], Post.prototype, "userId", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts, {
+        onDelete: "CASCADE"
+    }),
     __metadata("design:type", User_1.User)
 ], Post.prototype, "user", void 0);
 __decorate([
@@ -36,6 +39,16 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.post),
     __metadata("design:type", Array)
 ], Post.prototype, "updoots", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => [Comment_1.Comment], { nullable: true }),
+    (0, typeorm_1.OneToMany)(() => Comment_1.Comment, comment => comment.post),
+    __metadata("design:type", Array)
+], Post.prototype, "comments", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], Post.prototype, "commentCount", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true }),
     __metadata("design:type", Object)

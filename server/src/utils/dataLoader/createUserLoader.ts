@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { User } from "../entities/User";
+import { User } from "../../entities/User";
 
 
 // [1, 7] => [user[id:1], user[id:7]]

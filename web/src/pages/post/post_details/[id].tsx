@@ -1,4 +1,4 @@
-import { Box, Flex, Heading } from '@chakra-ui/react';
+import { Box, Text, Flex, Heading, Container, Stack } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React from 'react';
 import { EditDeletePostButton } from '../../../components/EditDeletePostButton';
@@ -20,16 +20,25 @@ const Post: React.FC = ({}) => {
     }
     return (
         <Layout variant='regular' height="120vh">
-          <Flex>
+          <Flex flex={1}>
             <Heading mb={4}>{data.post.title}</Heading>
             <Box ml="auto">
              <EditDeletePostButton post={data.post} />
             </Box>
           </Flex>
 
-          <Box mb={4}>
-            {data.post.texts}
-          </Box>
+
+          <Stack spacing={8}>
+            <Box p={5} shadow='md' borderWidth='1px'>
+              <Text mt={4}>{data.post.texts}</Text>
+            </Box>
+            <Box>
+              {data.post.comments ? data.post.comments[0].userName : null}
+              <Box>
+                {data.post.comments ? data.post.comments[0].texts : null}
+              </Box>
+            </Box>
+          </Stack>
         </Layout>
     );
 }

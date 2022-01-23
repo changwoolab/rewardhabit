@@ -19,6 +19,7 @@ const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
 const User_1 = require("../entities/User");
+const Comment_1 = require("../entities/Comment");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -70,6 +71,10 @@ let PostResolver = class PostResolver {
             userId,
         });
         return updoot ? updoot.value : null;
+    }
+    async comments(post) {
+        const comments = await Comment_1.Comment.find({ postId: post.id });
+        return comments;
     }
     title(post, { req }) {
         if (post.type === 3)
@@ -209,6 +214,24 @@ let PostResolver = class PostResolver {
         }
         return null;
     }
+    async createComment(postId, texts, { req }) {
+        const { userId } = req.session;
+        if (!userId)
+            return null;
+        const user = await User_1.User.findOne({ id: userId });
+        if (!user)
+            return null;
+        await (0, typeorm_1.getConnection)().transaction(async (tm) => {
+            await tm.query(`
+            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+            `, [userId, postId, user.userName, texts]);
+            await tm.query(`
+            update post set commentCount = commentCount + 1 where id = ?;
+            `, [postId]);
+        });
+        const post = await Post_1.Post.findOne({ id: postId });
+        return post ? post : null;
+    }
 };
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -233,6 +256,13 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "voteStatus", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => [Comment_1.Comment]),
+    __param(0, (0, type_graphql_1.Root)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "comments", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
     __param(0, (0, type_graphql_1.Root)()),
@@ -360,6 +390,16 @@ __decorate([
     __metadata("design:paramtypes", [Number, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
+__decorate([
+    (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("postId", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("texts")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "createComment", null);
 PostResolver = __decorate([
     (0, type_graphql_1.Resolver)(Post_1.Post)
 ], PostResolver);

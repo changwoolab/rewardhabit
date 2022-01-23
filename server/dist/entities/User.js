@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Comment_1 = require("./Comment");
 const Post_1 = require("./Post");
 const Subscript_1 = require("./Subscript");
 const Updoot_1 = require("./Updoot");
@@ -36,6 +37,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Updoot_1.Updoot, updoot => updoot.user),
     __metadata("design:type", Array)
 ], User.prototype, "updoots", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Comment_1.Comment, comment => comment.user),
+    __metadata("design:type", Array)
+], User.prototype, "comments", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
     (0, typeorm_1.Column)({ unique: true }),

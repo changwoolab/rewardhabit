@@ -5,6 +5,7 @@ import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
+import { Comment } from "../entities/Comment";
 
 @InputType()
 class PostInput {
@@ -59,6 +60,14 @@ export class PostResolver {
             userId,
         })
         return updoot ? updoot.value : null;
+    }
+    @FieldResolver(() => [Comment]) 
+    async comments (
+        @Root() post: Post,
+    ) {
+        // postId를 기반으로 댓글들을 찾아서 return
+        const comments = await Comment.find({postId: post.id})
+        return comments;
     }
     @FieldResolver(() => String) 
     title (
@@ -292,4 +301,32 @@ export class PostResolver {
         }
         return null;
     }
+
+     /** 댓글 달기 */
+     @Mutation(() => Post, {nullable: true})
+     @UseMiddleware(isAuth)
+     async createComment(
+        @Arg("postId", () => Int) postId: number, // for postId
+        @Arg("texts") texts: string, // for Comment 내용
+        @Ctx() { req }: ReqResContext // for User
+     ):Promise<Post|null> {
+        const { userId } = req.session;
+        if (!userId) return null;
+
+        const user = await User.findOne({id: userId});
+        if(!user) return null;
+
+        // Transaction, 댓글 Insert + Post comment개수 업데이트
+        await getConnection().transaction(async tm => {
+            await tm.query(`
+            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+            `, [userId, postId, user.userName, texts]);
+            await tm.query(`
+            update post set commentCount = commentCount + 1 where id = ?;
+            `, [postId])
+        });
+        // Post를 넘겨줘서 캐시 업데이트
+        const post = await Post.findOne({ id: postId });
+        return post ? post : null;
+     }
 }

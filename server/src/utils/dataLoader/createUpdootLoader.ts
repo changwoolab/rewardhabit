@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { Updoot } from "../entities/Updoot";
+import { Updoot } from "../../entities/Updoot";
 
 
 /** 

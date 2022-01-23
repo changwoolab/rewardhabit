@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from "type-graphql";
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, CreateDateColumn, OneToMany} from "typeorm";
+import { Comment } from "./Comment";
 import { Updoot } from "./Updoot";
 import { User } from "./User";
 
@@ -15,12 +16,22 @@ export class Post extends BaseEntity { // BaseEntity로 Active Record를 가능�
     userId: number;
 
     @Field()
-    @ManyToOne(() => User, user => user.posts)
+    @ManyToOne(() => User, user => user.posts, {
+        onDelete: "CASCADE"
+    })
     user: User;
 
     @Field(() => [Updoot])
     @OneToMany(() => Updoot, updoot => updoot.post)
     updoots: Updoot[]; 
+
+    @Field(() => [Comment], {nullable: true})
+    @OneToMany(() => Comment, comment => comment.post)
+    comments: Comment[];
+
+    @Field()
+    @Column({ type: "int", default: 0})
+    commentCount: number
 
     /** 
     페이지에서 무한대로 vote할 수 없게 만들어 줌.

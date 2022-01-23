@@ -17,6 +17,16 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  id: Scalars['Float'];
+  postId: Scalars['Float'];
+  texts: Scalars['String'];
+  userId: Scalars['Float'];
+  userName: Scalars['String'];
+  writtenDate: Scalars['DateTime'];
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -27,6 +37,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   changePassword: Scalars['Boolean'];
   checkImmediateDuplicate: Scalars['Boolean'];
+  createComment?: Maybe<Post>;
   createPost: Post;
   deletePost: Scalars['Boolean'];
   forgotPassword: Scalars['Boolean'];
@@ -48,6 +59,12 @@ export type MutationChangePasswordArgs = {
 export type MutationCheckImmediateDuplicateArgs = {
   input: Scalars['String'];
   mode: Scalars['String'];
+};
+
+
+export type MutationCreateCommentArgs = {
+  postId: Scalars['Int'];
+  texts: Scalars['String'];
 };
 
 
@@ -113,6 +130,8 @@ export type PartialUser = {
 
 export type Post = {
   __typename?: 'Post';
+  commentCount: Scalars['Float'];
+  comments?: Maybe<Array<Comment>>;
   id: Scalars['Float'];
   likes: Scalars['Float'];
   texts: Scalars['String'];
@@ -197,7 +216,7 @@ export type UserResponse = {
 
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } };
+export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -293,7 +312,7 @@ export type PostQueryVariables = Exact<{
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename?: 'Post', texts: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } } };
+export type PostQuery = { __typename?: 'Query', post: { __typename?: 'Post', texts: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined } };
 
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
@@ -301,7 +320,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number } }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PaginatedPosts', hasMore: boolean, posts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined }> } };
 
 export const ErrorsFragFragmentDoc = gql`
     fragment ErrorsFrag on FieldError {
@@ -323,6 +342,12 @@ export const PostFragFragmentDoc = gql`
     id
     userName
     level
+  }
+  comments {
+    id
+    userName
+    texts
+    writtenDate
   }
 }
     `;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Redis } from "ioredis";
-import { createUpdootLoader } from "../utils/createUpdootLoader";
-import { createUserLoader } from "../utils/createUserLoader";
+import { createUpdootLoader } from "../utils/dataLoader/createUpdootLoader";
+import { createUserLoader } from "../utils/dataLoader/createUserLoader";
 
 export type ReqResContext = {
     req: Request;

@@ -12,4 +12,10 @@ fragment PostFrag on Post{
         userName
         level
     }
+    comments {
+        id
+        userName
+        texts
+        writtenDate
+    }
 }
