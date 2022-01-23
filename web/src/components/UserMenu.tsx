@@ -30,7 +30,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ data }) => {
               <MenuGroup color={bgColor} title='독서록/일기'>
                 <MenuItem color={bgColor}><Link href="/post/myPost">내가 쓴 글</Link></MenuItem>
               </MenuGroup>
-              <MenuItem><Link color={bgColor} onClick={() => logout()} isLoading={logoutFetching}>로그아웃</Link></MenuItem>
+              <MenuItem><Link color={bgColor} onClick={async () => {
+                  await logout()
+                }} isLoading={logoutFetching}>로그아웃</Link></MenuItem>
             </MenuList>
           </Menu>
     );

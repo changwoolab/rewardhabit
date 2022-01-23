@@ -1,4 +1,4 @@
-import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
+import { Cache, cacheExchange, Resolver } from '@urql/exchange-graphcache'
 import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from "urql"
 import { DeletePostMutationVariables, LoginMutation, MeDocument, MeQuery, RegisterMutation, VoteMutationVariables } from '../generated/graphql'
 import { betterUpdateQuery } from './betterUpdateQuery';
@@ -29,6 +29,15 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
   )
 }
 
+/** Post query 모두 삭제 */
+const invalidateAllPosts = (cache: Cache) => {
+    const allFields = cache.inspectFields("Query");
+    const fieldInfos = allFields.filter(info => info.fieldName === "posts");
+    fieldInfos.forEach((fi) => {
+      cache.invalidate("Query", "posts", fi.arguments || {});
+    });
+}
+
 /**
  * 현재 CursorPagination 작동방식
   1. "더 불러오기" 버튼이 눌릴 때마다 useState를 통해 만들어진 함수에 의해 cursor가 바뀜
@@ -52,7 +61,7 @@ const errorExchange: Exchange = ({ forward }) => ops$ => {
       -> 이미 있으므로 그 데이터를 쓰고 캐시가 안 됨, Implicit Changes 발생!
   따라서 Resolver를 정의하여 어떤 데이터와 어떤 연관성을 가지는지를 정의해야 함.
 */
-export const simpleCursorPagination = (): Resolver => {
+const simpleCursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
     // Cache에서 EntityKey(여기선 Query) 내에 있는 모든 Field를 가져옴. (Cache에 있는 모든 쿼리들을 가져옴)
@@ -145,21 +154,19 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   me: _result.login // 로그인 성공! MeQuery 바꿔주기
                 }
               }
-            })
+            });
+            invalidateAllPosts(cache);
           },
           // 로그아웃
           logout: (result, args, cache, info) => {
             cache.updateQuery({query: MeDocument}, () => {
               return {me: null}
             })
+            invalidateAllPosts(cache);
           },
           // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
           createPost:(result, args, cache, info) => {
-            const allFields = cache.inspectFields("Query");
-            const fieldInfos = allFields.filter(info => info.fieldName === "posts");
-            fieldInfos.forEach((fi) => {
-              cache.invalidate("Query", "posts", fi.arguments || {});
-            })
+            invalidateAllPosts(cache);
           },
           // Updoot 눌렀을 때 즉시 반영, 이 때 캐시 전체를 refresh할 필요는 없으니 fragment만 바꾼다.
           vote:(result, args, cache, info) => {
