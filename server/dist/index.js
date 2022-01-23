@@ -23,6 +23,8 @@ const test_1 = require("./resolvers/test");
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const Updoot_1 = require("./entities/Updoot");
+const createUserLoader_1 = require("./utils/createUserLoader");
+const createUpdootLoader_1 = require("./utils/createUpdootLoader");
 const main = async () => {
     const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -65,7 +67,13 @@ const main = async () => {
             resolvers: [test_1.TestResolver, post_1.PostResolver, user_1.UserResolver],
             validate: false
         }),
-        context: ({ req, res }) => ({ req, res, redis }),
+        context: ({ req, res }) => ({
+            req,
+            res,
+            redis,
+            userLoader: (0, createUserLoader_1.createUserLoader)(),
+            updootLoader: (0, createUpdootLoader_1.createUpdootLoader)()
+        }),
         plugins: [
             (0, apollo_server_core_1.ApolloServerPluginLandingPageGraphQLPlayground)({}),
         ],

@@ -18,6 +18,7 @@ const Post_1 = require("../entities/Post");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
+const User_1 = require("../entities/User");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -51,6 +52,24 @@ PaginatedPosts = __decorate([
 let PostResolver = class PostResolver {
     textsSnippet(root) {
         return root.texts.slice(0, 50);
+    }
+    user(post, { req, userLoader }) {
+        if (post.type === 3)
+            return userLoader.load(post.userId);
+        if (post.type !== 3 && req.session.userId === post.userId)
+            return userLoader.load(post.userId);
+        return null;
+    }
+    async voteStatus(post, { req, updootLoader }) {
+        const { userId } = req.session;
+        if (!userId) {
+            return null;
+        }
+        const updoot = await updootLoader.load({
+            postId: post.id,
+            userId,
+        });
+        return updoot ? updoot.value : null;
     }
     title(post, { req }) {
         if (post.type === 3)
@@ -92,13 +111,6 @@ let PostResolver = class PostResolver {
             return post.likes;
         if (post.type !== 3 && req.session.userId === post.userId)
             return post.likes;
-        return "";
-    }
-    user(post, { req }) {
-        if (post.type === 3)
-            return post.user;
-        if (post.type !== 3 && req.session.userId === post.userId)
-            return post.user;
         return "";
     }
     id(post, { req }) {
@@ -148,35 +160,25 @@ let PostResolver = class PostResolver {
         }
         return true;
     }
-    async posts(limit, cursor, { req }) {
+    async posts(limit, cursor) {
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
-        const { userId } = req.session;
         const realCursor = cursor ? cursor : new Date;
         const posts = await (0, typeorm_1.getConnection)()
             .getRepository(Post_1.Post)
             .createQueryBuilder("post")
-            .innerJoinAndSelect("post.user", "user", "user.id = post.userId")
-            .select(["post", "user.userName", "user.level", "user.id"])
             .where("type = :type", { type: 3 })
             .andWhere("post.writtenDate < :cursor", { cursor: realCursor })
             .orderBy("post.writtenDate", "DESC")
             .take(realLimitPlusOne)
             .getMany();
-        for (let i in posts) {
-            const voteStatus = await (0, typeorm_1.getConnection)().query(`select value from updoot where updoot.userId = ? and updoot.postId = ?`, [userId, posts[i].id]);
-            posts[i].voteStatus = voteStatus[0] ? voteStatus[0].value : null;
-        }
         return {
             posts: posts.slice(0, realLimit),
             hasMore: posts.length === realLimitPlusOne,
         };
     }
     async post(id, { req }) {
-        const post = await Post_1.Post.findOne({
-            where: { id },
-            relations: ["user"]
-        });
+        const post = await Post_1.Post.findOne(id);
         return post;
     }
     async createPost(input, { req }) {
@@ -215,6 +217,22 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post]),
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "textsSnippet", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => User_1.User, { nullable: true }),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "user", null);
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => type_graphql_1.Int, { nullable: true }),
+    __param(0, (0, type_graphql_1.Root)()),
+    __param(1, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "voteStatus", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
     __param(0, (0, type_graphql_1.Root)()),
@@ -270,14 +288,6 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", void 0)
-], PostResolver.prototype, "user", null);
-__decorate([
-    (0, type_graphql_1.FieldResolver)(() => String),
-    __param(0, (0, type_graphql_1.Root)()),
-    __param(1, (0, type_graphql_1.Ctx)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Post_1.Post, Object]),
-    __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "id", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -309,9 +319,8 @@ __decorate([
     (0, type_graphql_1.Query)(() => PaginatedPosts),
     __param(0, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)("cursor", () => Date, { nullable: true })),
-    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([

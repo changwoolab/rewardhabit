@@ -4,6 +4,7 @@ import { Post } from "../entities/Post"
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
+import { User } from "../entities/User";
 
 @InputType()
 class PostInput {
@@ -34,8 +35,31 @@ export class PostResolver {
     ) {
         return root.texts.slice(0, 50);
     }
-
     /* 다른 사람이 내 독서록/일기 못보게 함 */
+    @FieldResolver(() => User, {nullable: true}) 
+    user (
+        @Root() post: Post,
+        @Ctx() { req, userLoader }: ReqResContext
+    ) {
+        if (post.type === 3) return userLoader.load(post.userId);
+        if (post.type !== 3 && req.session.userId === post.userId) return userLoader.load(post.userId);
+        return null;
+    }
+    @FieldResolver(() => Int, {nullable: true}) 
+    async voteStatus (
+        @Root() post: Post,
+        @Ctx() { req, updootLoader }: ReqResContext
+    ) {
+        const { userId } = req.session;
+        if (!userId) {
+            return null;
+        }
+        const updoot = await updootLoader.load({
+            postId: post.id,
+            userId,
+        })
+        return updoot ? updoot.value : null;
+    }
     @FieldResolver(() => String) 
     title (
         @Root() post: Post,
@@ -91,15 +115,6 @@ export class PostResolver {
     ) {
         if (post.type === 3) return post.likes
         if (post.type !== 3 && req.session.userId === post.userId) return post.likes;
-        return "";
-    }
-    @FieldResolver(() => String) 
-    user (
-        @Root() post: Post,
-        @Ctx() { req }: ReqResContext
-    ) {
-        if (post.type === 3) return post.user
-        if (post.type !== 3 && req.session.userId === post.userId) return post.user;
         return "";
     }
     @FieldResolver(() => String) 
@@ -188,69 +203,37 @@ export class PostResolver {
     async posts(
         @Arg("limit", () => Int) limit: number,
         @Arg("cursor", () => Date, {nullable: true}) cursor: Date | null,
-        @Ctx() { req }: ReqResContext
     ): Promise<PaginatedPosts> {
         // 10개를 요청했을 때, 11개를 가져올것임. 이 때 11개보다 적게 오면 더 이상의 데이터는 없다는 뜻
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
-        const { userId } = req.session;
 
-        // cursor가 null일 때도 쿼리는 실행되어야 하므로 값 지정해주기
+        // cursor가 null일 때도 쿼리는 실행되어야 하므로값 지정해주기
         const realCursor = cursor ? cursor : new Date;
 
         // 자유게시판에 적힌 posts들 가져오기 (유저정보는 제한적으로만 가져온다)
         const posts = await getConnection()
         .getRepository(Post)
         .createQueryBuilder("post")
-        .innerJoinAndSelect("post.user", "user", "user.id = post.userId")
-        .select(["post", "user.userName", "user.level", "user.id"])
         .where("type = :type", {type: 3})
         .andWhere("post.writtenDate < :cursor", { cursor: realCursor })
         .orderBy("post.writtenDate", "DESC")
         .take(realLimitPlusOne)
         .getMany();
 
-        // voteStatus 추가해주기
-        for (let i in posts) {
-            const voteStatus = await getConnection().query(
-                `select value from updoot where updoot.userId = ? and updoot.postId = ?`,
-                [userId, posts[i].id]
-            );
-            posts[i].voteStatus = voteStatus[0] ? voteStatus[0].value : null;
-        }
-        // const replacements = [userId, realCursor, realLimitPlusOne]
-        // const post = await getConnection().query(
-        //     `
-        // select post.*,
-        // json_object(
-        //     "id", user.id,
-        //     "userName", user.userName,
-        //     "level", user.level
-        // ) user,
-        // (select value from updoot where updoot.userId = ? and updoot.postId = post.id) voteStatus
-        // from post inner join user on user.id = post.userId
-        // ${cursor ? `where post.writtenDate < ?` : ``}
-        // order by post.writtenDate DESC
-        // limit ?
-        //     `
-        //     , replacements
-        // )
         return {
             posts: posts.slice(0, realLimit),
             hasMore: posts.length === realLimitPlusOne,
         }
     }
 
-
+ 
     @Query(() => Post)
     async post(
         @Arg('id', () => Int) id: number, 
         @Ctx() { req }: ReqResContext
     ): Promise<Post | undefined> {
-        const post = await Post.findOne({ 
-            where: {id},
-            relations: ["user"]
-        });
+        const post = await Post.findOne(id);
         return post;
     }
 

@@ -19,6 +19,8 @@ import { TestResolver } from "./resolvers/test";
 import cors from "cors";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createUpdootLoader } from "./utils/createUpdootLoader";
 
 const main = async() => {
     // Typeorm Connection
@@ -78,7 +80,13 @@ const main = async() => {
             validate: false
         }),
         // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요 (cookie 정보는 req, res에 담겨있다~)
-        context: ({ req, res }): ReqResContext => ({ req, res, redis }),
+        context: ({ req, res }): ReqResContext => ({ 
+            req, 
+            res, 
+            redis, 
+            userLoader: createUserLoader(),
+            updootLoader: createUpdootLoader()
+        }),
         plugins: [
             ApolloServerPluginLandingPageGraphQLPlayground({}),
         ],
