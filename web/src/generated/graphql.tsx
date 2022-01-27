@@ -214,6 +214,8 @@ export type UserResponse = {
   partialUser?: Maybe<PartialUser>;
 };
 
+export type CommentFragFragment = { __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any };
+
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined };
@@ -328,6 +330,14 @@ export const ErrorsFragFragmentDoc = gql`
   message
 }
     `;
+export const CommentFragFragmentDoc = gql`
+    fragment CommentFrag on Comment {
+  id
+  userName
+  texts
+  writtenDate
+}
+    `;
 export const PostFragFragmentDoc = gql`
     fragment PostFrag on Post {
   id
@@ -344,13 +354,10 @@ export const PostFragFragmentDoc = gql`
     level
   }
   comments {
-    id
-    userName
-    texts
-    writtenDate
+    ...CommentFrag
   }
 }
-    `;
+    ${CommentFragFragmentDoc}`;
 export const PartialUserFragFragmentDoc = gql`
     fragment PartialUserFrag on PartialUser {
   id

@@ -13,9 +13,6 @@ fragment PostFrag on Post{
         level
     }
     comments {
-        id
-        userName
-        texts
-        writtenDate
+        ...CommentFrag
     }
 }

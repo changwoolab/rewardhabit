@@ -1,10 +1,11 @@
-import { Box, Text, Flex, Heading, Container, Stack } from '@chakra-ui/react';
+import { Box, Text, Flex, Heading, Image, Stack } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React from 'react';
 import { EditDeletePostButton } from '../../../components/EditDeletePostButton';
 import { Layout } from '../../../components/Layout';
 import { createUrqlClient } from '../../../utils/createUrqlClient';
 import { useGetPostFromUrl } from '../../../utils/useGetPostFromUrl';
+import { CommentContainer } from '../../../components/CommentContainer';
 
 const Post: React.FC = ({}) => {
     const [{data, error, fetching}] = useGetPostFromUrl();
@@ -23,6 +24,7 @@ const Post: React.FC = ({}) => {
           <Flex flex={1}>
             <Heading mb={4}>{data.post.title}</Heading>
             <Box ml="auto">
+              작성자: {data.post.user.userName}
              <EditDeletePostButton post={data.post} />
             </Box>
           </Flex>
@@ -32,12 +34,9 @@ const Post: React.FC = ({}) => {
             <Box p={5} shadow='md' borderWidth='1px'>
               <Text mt={4}>{data.post.texts}</Text>
             </Box>
-            <Box>
-              {data.post.comments ? data.post.comments[0].userName : null}
-              <Box>
-                {data.post.comments ? data.post.comments[0].texts : null}
-              </Box>
-            </Box>
+              <CommentContainer
+              imgSrc="/open_ai_logo.jpg"
+              comment={data.post.comments} />
           </Stack>
         </Layout>
     );

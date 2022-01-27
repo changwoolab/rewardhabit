@@ -1,0 +1,6 @@
+fragment CommentFrag on Comment{
+    id
+    userName
+    texts
+    writtenDate
+}
