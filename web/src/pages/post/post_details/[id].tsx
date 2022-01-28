@@ -1,7 +1,7 @@
 import { Box, Text, Flex, Heading, Image, Stack } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React from 'react';
-import { EditDeletePostButton } from '../../../components/EditDeletePostButton';
+import { EditDeleteButton } from '../../../components/CEDButton';
 import { Layout } from '../../../components/Layout';
 import { createUrqlClient } from '../../../utils/createUrqlClient';
 import { useGetPostFromUrl } from '../../../utils/useGetPostFromUrl';
@@ -25,7 +25,7 @@ const Post: React.FC = ({}) => {
             <Heading mb={4}>{data.post.title}</Heading>
             <Box ml="auto">
               작성자: {data.post.user.userName}
-             <EditDeletePostButton post={data.post} />
+             <EditDeleteButton post={data.post} />
             </Box>
           </Flex>
 

@@ -4,17 +4,19 @@ import React from 'react';
 import NextLink from "next/link";
 import { PostFragFragment, useDeletePostMutation, useMeQuery } from '../generated/graphql';
 
-interface EditDeletePostButtonProps {
+interface EditDeleteButtonProps {
     post: PostFragFragment
 }
 
 /** 수정/삭제 버튼 */
-export const EditDeletePostButton: React.FC<EditDeletePostButtonProps> = ({post}) => {
+export const EditDeleteButton: React.FC<EditDeleteButtonProps> = ({post}) => {
     const [{data: meData}] = useMeQuery();
     const [, deletePost] = useDeletePostMutation();
 
+    
     // 로그인 되어있지 않다면 수정/삭제 버튼 안보여줌
     return meData?.me?.partialUser?.id !== post.userId ? null : (
+      <>
       <Box>
         <NextLink href="/post/edit/[id]" as={`/post/edit/${post.id}`}>
         <IconButton as={Link} mr={1} aria-label="Edit Post" icon={<EditIcon />}/>
@@ -25,9 +27,11 @@ export const EditDeletePostButton: React.FC<EditDeletePostButtonProps> = ({post}
         } else {
             const res = await deletePost({ id: post.id });
             if (!res.data?.deletePost) {
-            alert("오류가 발생했습니다")
+                alert("오류가 발생했습니다")
             }
         }
         }}/>
-      </Box>);
+      </Box>
+      </>
+      );
 }

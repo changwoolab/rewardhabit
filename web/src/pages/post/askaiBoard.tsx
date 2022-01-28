@@ -6,7 +6,8 @@ import { UpdootSection } from '../../components/UpdootSection';
 import { usePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import NextLink from "next/link"
-import { EditDeletePostButton } from '../../components/EditDeletePostButton';
+import { EditDeleteButton } from '../../components/CEDButton';
+import { CommentButton } from '../../components/CommentButton';
 
 interface myPostProps {}
 
@@ -28,7 +29,7 @@ const askaiBoard: React.FC<myPostProps> = ({}) => {
     return (
         <Layout variant="regular">
           <Center>
-            <Text>자유게시판</Text>
+            <Text>인공지능에게 물어봐요!</Text>
           </Center>
           {!data && fetching ? (<div>loading...</div>) : (
               <Stack spacing={8}>
@@ -46,11 +47,12 @@ const askaiBoard: React.FC<myPostProps> = ({}) => {
                         <Flex>
                           <Text mt={4}>{p.textsSnippet}</Text>
                           <Box ml="auto">
-                            <EditDeletePostButton post={p} />
+                            <EditDeleteButton post={p} />
                           </Box>
                         </Flex>
                       </Box>
                     </Flex>
+                    <CommentButton post={p}/>
                   </Box>
                 ))}
               </Stack>
