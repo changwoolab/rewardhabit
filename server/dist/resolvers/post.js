@@ -198,15 +198,17 @@ let PostResolver = class PostResolver {
         const post = await Post_1.Post.create(Object.assign(Object.assign({}, input), { userId })).save();
         if (!post)
             return null;
-        const ans = await (0, openaiAPI_1.askOpenAi)(input.texts);
-        (0, typeorm_1.getConnection)().transaction(async (tm) => {
-            await tm.query(`
-            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
-            `, [userId, post.id, "OpenAI", ans]);
-            await tm.query(`
-            update post set commentCount = commentCount + 1 where id = ?;
-            `, [post.id]);
-        });
+        if (input.type == 3) {
+            const ans = await (0, openaiAPI_1.askOpenAi)(input.texts);
+            (0, typeorm_1.getConnection)().transaction(async (tm) => {
+                await tm.query(`
+                insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+                `, [userId, post.id, "OpenAI", ans]);
+                await tm.query(`
+                update post set commentCount = commentCount + 1 where id = ?;
+                `, [post.id]);
+            });
+        }
         return post;
     }
     async deletePost(id, { req }) {

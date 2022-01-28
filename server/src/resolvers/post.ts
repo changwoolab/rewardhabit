@@ -208,7 +208,7 @@ export class PostResolver {
     }
 
 
-    /** 자유게시판 전용, Cursor Pagination */
+    /** AI 질문게시판 전용, Cursor Pagination */
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
@@ -270,16 +270,19 @@ export class PostResolver {
         }).save();
         if (!post) return null;
 
-        // OPEN AI API 사용하여 답변
-        const ans = await askOpenAi(input.texts);
-        getConnection().transaction(async tm => {
-            await tm.query(`
-            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
-            `, [userId, post.id, "OpenAI", ans]); // 회원탈퇴할 때 포스트들 및 댓글도 사라지므로 userId는 올린 사람으로 해도 됨.
-            await tm.query(`
-            update post set commentCount = commentCount + 1 where id = ?;
-            `, [post.id])
-        });
+        // AI 질문게시판일 때만 답변 달아주기
+        if (input.type == 3) {
+            // OPEN AI API 사용하여 답변
+            const ans = await askOpenAi(input.texts);
+            getConnection().transaction(async tm => {
+                await tm.query(`
+                insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+                `, [userId, post.id, "OpenAI", ans]); // 회원탈퇴할 때 포스트들 및 댓글도 사라지므로 userId는 올린 사람으로 해도 됨.
+                await tm.query(`
+                update post set commentCount = commentCount + 1 where id = ?;
+                `, [post.id])
+            });
+        }
         return post;
     }
 

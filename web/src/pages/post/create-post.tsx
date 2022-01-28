@@ -30,7 +30,7 @@ const CreatePost: React.FC<createPostProps> = ({}) => {
             const { error } = await createPost({input: values});
             if (!error) {
               if (values.type === 3) {
-                router.push("/post/generalBoard")
+                router.push("/post/askaiBoard")
               } else {
                 // 나중에 "내 일기/독서록" 페이지 만들면 거기로 이동하게 만들기
                 router.push("/");

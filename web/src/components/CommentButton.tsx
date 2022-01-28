@@ -1,8 +1,7 @@
-import { EditIcon, DeleteIcon, ChatIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, IconButton, Link } from '@chakra-ui/react';
+import { ChatIcon } from '@chakra-ui/icons';
+import { Flex, IconButton } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import NextLink from "next/link";
-import { PostFragFragment, useDeletePostMutation, useMeQuery } from '../generated/graphql';
+import { PostFragFragment } from '../generated/graphql';
 import { CommentContainer } from './CommentContainer';
 
 interface CommentButtonProps {
