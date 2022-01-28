@@ -20,6 +20,7 @@ const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
 const User_1 = require("../entities/User");
 const Comment_1 = require("../entities/Comment");
+const openaiAPI_1 = require("../utils/openaiAPI");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -182,7 +183,7 @@ let PostResolver = class PostResolver {
             hasMore: posts.length === realLimitPlusOne,
         };
     }
-    async post(id, { req }) {
+    async post(id) {
         const post = await Post_1.Post.findOne(id);
         return post;
     }
@@ -190,7 +191,23 @@ let PostResolver = class PostResolver {
         if (input.type > 3 || input.type <= 0) {
             throw new Error("적절하지 않은 종류를 입력하셨습니다.");
         }
-        return Post_1.Post.create(Object.assign(Object.assign({}, input), { userId: req.session.userId })).save();
+        const { userId } = req.session;
+        const user = await User_1.User.findOne({ id: userId });
+        if (!user)
+            return null;
+        const post = await Post_1.Post.create(Object.assign(Object.assign({}, input), { userId })).save();
+        if (!post)
+            return null;
+        const ans = await (0, openaiAPI_1.askOpenAi)(input.texts);
+        (0, typeorm_1.getConnection)().transaction(async (tm) => {
+            await tm.query(`
+            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+            `, [userId, post.id, "OpenAI", ans]);
+            await tm.query(`
+            update post set commentCount = commentCount + 1 where id = ?;
+            `, [post.id]);
+        });
+        return post;
     }
     async deletePost(id, { req }) {
         const { userId } = req.session;
@@ -356,9 +373,8 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Query)(() => Post_1.Post),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
 __decorate([

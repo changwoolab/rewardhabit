@@ -11,9 +11,9 @@ import { EditDeletePostButton } from '../../components/EditDeletePostButton';
 interface myPostProps {}
 
 /**
- 일반게시판
+  인공지능에게 물어보세요 게시판
  */
-const generalBoard: React.FC<myPostProps> = ({}) => {
+const askaiBoard: React.FC<myPostProps> = ({}) => {
     const [variables, setVariables] = useState({ 
         limit: 10, cursor: null 
     });
@@ -73,4 +73,4 @@ const generalBoard: React.FC<myPostProps> = ({}) => {
     );
 }
 
-export default withUrqlClient(createUrqlClient, {ssr: true})(generalBoard);
+export default withUrqlClient(createUrqlClient, {ssr: true})(askaiBoard);

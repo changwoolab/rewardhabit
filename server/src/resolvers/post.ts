@@ -6,6 +6,7 @@ import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { Comment } from "../entities/Comment";
+import { askOpenAi } from "../utils/openaiAPI";
 
 @InputType()
 class PostInput {
@@ -240,13 +241,12 @@ export class PostResolver {
     @Query(() => Post)
     async post(
         @Arg('id', () => Int) id: number, 
-        @Ctx() { req }: ReqResContext
     ): Promise<Post | undefined> {
         const post = await Post.findOne(id);
         return post;
     }
 
-    /** Post 업로드 */
+    /** Post 업로드 및 OpenAI 답변 */
     @Mutation(() => Post)
     @UseMiddleware(isAuth)
     async createPost(
@@ -257,11 +257,30 @@ export class PostResolver {
         if (input.type > 3 || input.type <= 0) {
             throw new Error("적절하지 않은 종류를 입력하셨습니다.")
         }
+
+        // 유저 찾기
+        const { userId } = req.session;
+        const user = await User.findOne({id: userId});
+        if (!user) return null;
+
         // 포스트 올리기.
-        return Post.create({
+        const post = await Post.create({
             ...input,
-            userId: req.session.userId,
+            userId,
         }).save();
+        if (!post) return null;
+
+        // OPEN AI API 사용하여 답변
+        const ans = await askOpenAi(input.texts);
+        getConnection().transaction(async tm => {
+            await tm.query(`
+            insert into comment (userId, postId, userName, texts) values (?, ?, ?, ?);
+            `, [userId, post.id, "OpenAI", ans]); // 회원탈퇴할 때 포스트들 및 댓글도 사라지므로 userId는 올린 사람으로 해도 됨.
+            await tm.query(`
+            update post set commentCount = commentCount + 1 where id = ?;
+            `, [post.id])
+        });
+        return post;
     }
 
     /** Post 삭제 */
