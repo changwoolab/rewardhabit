@@ -132,7 +132,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       resolvers: { // cache에 관한 client-side resolver 정의
         Query: {
           // posts query가 실행될 때마다 cursorPagination을 실행하여 cache에 저장
-          posts: simpleCursorPagination()
+          posts: simpleCursorPagination(),
         }
       },
       // cache를 업데이트할 조건

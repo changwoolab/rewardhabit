@@ -1,0 +1,14 @@
+query OffsetBasePosts(
+    $type: Int!,
+    $limit: Int!,
+    $page: Int!
+) {
+    offsetBasePosts(
+        type: $type,
+        limit: $limit,
+        page: $page,
+    ) {
+        ...PostFrag
+        textsSnippet
+    }
+}

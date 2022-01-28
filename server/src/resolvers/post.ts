@@ -221,7 +221,7 @@ export class PostResolver {
         // cursor가 null일 때도 쿼리는 실행되어야 하므로값 지정해주기
         const realCursor = cursor ? cursor : new Date;
 
-        // 자유게시판에 적힌 posts들 가져오기 (유저정보는 제한적으로만 가져온다)
+        // AI 질문게시판에 적힌 posts들 가져오기 (유저정보는 제한적으로만 가져온다)
         const posts = await getConnection()
         .getRepository(Post)
         .createQueryBuilder("post")
@@ -237,6 +237,64 @@ export class PostResolver {
         }
     }
 
+    /** Mypost 전용, Offset Pagination */
+    @Query(() => [Post])
+    @UseMiddleware(isAuth)
+    async offsetBasePosts(
+        @Arg("type", () => Int) type: number,
+        @Arg("limit", () => Int) limit: number,
+        @Arg("page", () => Int) page: number,
+        @Ctx() { req }: ReqResContext
+    ): Promise<Post[]> {
+        if (page <= 0) throw new Error("존재하지 않는 페이지입니다.");
+
+        const { userId } = req.session;
+        const offset = (page - 1) * limit + 1;
+
+        // My posts 가져오기
+        let tm = getConnection()
+        .getRepository(Post)
+        .createQueryBuilder("post")
+        .where("userId = :userId", { userId })
+
+        // 0일 때는 모든 타입을 가져옴.
+        if (type !== 0) {
+            tm.andWhere("type = :type", { type })
+        }
+
+        const posts = await tm.orderBy("post.writtenDate", "DESC")
+        .skip(offset)
+        .take(limit)
+        .getMany();
+
+        return posts;
+    }
+
+    /** Mypost 전용, Page 개수 가져오기 */
+    @Query(() => Int)
+    @UseMiddleware(isAuth)
+    async pagesCount(
+        @Arg("type", () => Int) type: number,
+        @Arg("limit", () => Int) limit: number,
+        @Ctx() { req }: ReqResContext
+    ): Promise<Number> {
+        const { userId } = req.session;
+
+        // My posts 개수 가져오기
+        let tm = getConnection()
+        .getRepository(Post)
+        .createQueryBuilder("post")
+        .where("userId = :userId", { userId })
+
+        // 0일 때는 모든 타입을 가져옴.
+        if (type !== 0) {
+            tm.andWhere("type = :type", { type })
+        }
+
+        const pagesCount = await tm.getCount();
+
+        return Math.ceil(pagesCount/limit);
+    }
  
     @Query(() => Post)
     async post(
@@ -350,5 +408,5 @@ export class PostResolver {
         // Post를 넘겨줘서 캐시 업데이트
         const post = await Post.findOne({ id: postId });
         return post ? post : null;
-     }
+    }
 }

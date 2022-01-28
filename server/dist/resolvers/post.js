@@ -183,6 +183,36 @@ let PostResolver = class PostResolver {
             hasMore: posts.length === realLimitPlusOne,
         };
     }
+    async offsetBasePosts(type, limit, page, { req }) {
+        if (page <= 0)
+            throw new Error("존재하지 않는 페이지입니다.");
+        const { userId } = req.session;
+        const offset = (page - 1) * limit + 1;
+        let tm = (0, typeorm_1.getConnection)()
+            .getRepository(Post_1.Post)
+            .createQueryBuilder("post")
+            .where("userId = :userId", { userId });
+        if (type !== 0) {
+            tm.andWhere("type = :type", { type });
+        }
+        const posts = await tm.orderBy("post.writtenDate", "DESC")
+            .skip(offset)
+            .take(limit)
+            .getMany();
+        return posts;
+    }
+    async pagesCount(type, limit, { req }) {
+        const { userId } = req.session;
+        let tm = (0, typeorm_1.getConnection)()
+            .getRepository(Post_1.Post)
+            .createQueryBuilder("post")
+            .where("userId = :userId", { userId });
+        if (type !== 0) {
+            tm.andWhere("type = :type", { type });
+        }
+        const pagesCount = await tm.getCount();
+        return Math.ceil(pagesCount / limit);
+    }
     async post(id) {
         const post = await Post_1.Post.findOne(id);
         return post;
@@ -372,6 +402,27 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => [Post_1.Post]),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("type", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Arg)("page", () => type_graphql_1.Int)),
+    __param(3, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "offsetBasePosts", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => type_graphql_1.Int),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)("type", () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)("limit", () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "pagesCount", null);
 __decorate([
     (0, type_graphql_1.Query)(() => Post_1.Post),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),

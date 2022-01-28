@@ -155,9 +155,24 @@ export type PostInput = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<UserResponse>;
+  offsetBasePosts: Array<Post>;
+  pagesCount: Scalars['Int'];
   post: Post;
   posts: PaginatedPosts;
   test: Scalars['Boolean'];
+};
+
+
+export type QueryOffsetBasePostsArgs = {
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+  type: Scalars['Int'];
+};
+
+
+export type QueryPagesCountArgs = {
+  limit: Scalars['Int'];
+  type: Scalars['Int'];
 };
 
 
@@ -308,6 +323,23 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
+
+export type OffsetBasePostsQueryVariables = Exact<{
+  type: Scalars['Int'];
+  limit: Scalars['Int'];
+  page: Scalars['Int'];
+}>;
+
+
+export type OffsetBasePostsQuery = { __typename?: 'Query', offsetBasePosts: Array<{ __typename?: 'Post', textsSnippet: string, id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined }> };
+
+export type PagesCountQueryVariables = Exact<{
+  type: Scalars['Int'];
+  limit: Scalars['Int'];
+}>;
+
+
+export type PagesCountQuery = { __typename?: 'Query', pagesCount: number };
 
 export type PostQueryVariables = Exact<{
   id: Scalars['Int'];
@@ -507,6 +539,27 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const OffsetBasePostsDocument = gql`
+    query OffsetBasePosts($type: Int!, $limit: Int!, $page: Int!) {
+  offsetBasePosts(type: $type, limit: $limit, page: $page) {
+    ...PostFrag
+    textsSnippet
+  }
+}
+    ${PostFragFragmentDoc}`;
+
+export function useOffsetBasePostsQuery(options: Omit<Urql.UseQueryArgs<OffsetBasePostsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<OffsetBasePostsQuery>({ query: OffsetBasePostsDocument, ...options });
+};
+export const PagesCountDocument = gql`
+    query PagesCount($type: Int!, $limit: Int!) {
+  pagesCount(type: $type, limit: $limit)
+}
+    `;
+
+export function usePagesCountQuery(options: Omit<Urql.UseQueryArgs<PagesCountQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PagesCountQuery>({ query: PagesCountDocument, ...options });
 };
 export const PostDocument = gql`
     query Post($id: Int!) {
