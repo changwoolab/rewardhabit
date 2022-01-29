@@ -1,33 +1,86 @@
-import { Box, Button, Center, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Checkbox, CheckboxGroup, Flex, Heading, Link, Select, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Layout } from '../../components/Layout';
-import { useOffsetBasePostsQuery, usePagesCountQuery } from '../../generated/graphql';
+import { useOffsetBasePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import NextLink from "next/link"
 import { PageButtons } from '../../components/pageButtons';
 import { EditDeleteButton } from '../../components/CEDButton';
-import { CommentButton } from '../../components/CommentButton';
-import { UpdootSection } from '../../components/UpdootSection';
+import { Formik, Form, Field } from 'formik';
 
 
 interface myPostProps {}
 
 const myPost: React.FC<myPostProps> = ({}) => {
     const router = useRouter();
+    const [optionState, setOptionState] = useState<"show-option" | "hide-option">("hide-option");
+
+    // Query 가져오기 (String이어서 하나하나 따로 받음)
     let page = Number(router.query.page);
     let limit = Number(router.query.limit);
     let type = Number(router.query.type);
     if (!page) page = 1;
     if (!limit) limit = 10;
     if (!type) type = 3;
+
+
     const [{data, fetching}] = useOffsetBasePostsQuery({variables: { type, limit, page }});
+    if (!data || !data.offsetBasePosts) {
+        return (
+        <Layout variant="regular" height={"120vh"}>
+            <Center>Loading...</Center>
+        </Layout>);
+    }
 
-    console.log("posts:", data);
-
+    // height 설정해주기
+    let height = "100%"
+    if (data.offsetBasePosts.length < 6) {
+        height = "120vh"
+    };
+    
     return (
-        <Layout variant="regular" height="100%">
+        <Layout variant="regular" height={height}>
+          <Box textAlign={"center"} flex={1}>
+            <Button mb={4} onClick={() => {
+                if (optionState === "hide-option") {
+                    setOptionState("show-option");
+                } else {
+                    setOptionState("hide-option")
+                }
+            }}>옵션</Button>
+            {optionState === "hide-option" ? null : (
+              <Box>
+                <Formik initialValues={{ type1: "", type2: "", type3: ""}}
+                    onSubmit={(value) => {
+                        let typeInfo = "";
+                        for (let i in value) {
+                            typeInfo += value[i]
+                        }
+                        console.log(typeInfo);
+                    }}
+                >
+                {({isSubmitting}) => (
+                  <Form>
+                    <Field name="type1">
+                        {({field}: any) => (<Checkbox {...field} key="1" value="1">일기</Checkbox>)}
+                    </Field>
+                    <Field name="type2">
+                        {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="2">독서록</Checkbox>)}
+                    </Field>
+                    <Field name="type3">
+                        {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="3">AI질문게시판</Checkbox>)}
+                    </Field>
+                    <Box mt={4}>
+                      <Button type="submit">검색</Button>
+                    </Box>
+                  </Form>
+                )}
+                </Formik>
+              </Box>
+            )}
+          </Box>
           {!data && fetching ? (<div>loading...</div>) : (
               <Stack spacing={8}>
                 {data?.offsetBasePosts.map((p) => !p ? null : (
@@ -51,7 +104,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
                 ))}
               </Stack>
           )}
-          <Box mb={12} textAlign={"center"}>
+          <Box m={12} textAlign={"center"}>
             <PageButtons limit={limit} type={type} />
           </Box>
         </Layout>
