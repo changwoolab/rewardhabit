@@ -22,7 +22,7 @@ const Post: React.FC = ({}) => {
     return (
         <Layout variant='regular' height="120vh">
           <Flex flex={1}>
-            <Heading mb={4}>{data.post.title}</Heading>
+            <Heading maxW={700} mb={4}>{data.post.title}</Heading>
             <Box ml="auto">
               작성자: {data.post.user.userName}
              <EditDeleteButton post={data.post} />

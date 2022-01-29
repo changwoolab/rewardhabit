@@ -47,7 +47,9 @@ export const Navbar: React.FC<navBarProps> = ({}) => {
           <Flex alignSelf={"center"} flex={1} m={"auto"} align="center" maxW={1000}>
             <Heading alignSelf={"center"} fontSize="2xl"><Link href="/">보상습관</Link></Heading>
             <Flex alignSelf={"center"} ml={"auto"}>
-              <Link alignSelf={"center"} mr={4} href="/post/askaiBoard">AI 질문게시판</Link>
+              <NextLink href="/post/askaiBoard">
+                <Link alignSelf={"center"} mr={4}>AI 질문게시판</Link>
+              </NextLink>
                 {body}
               <DarkModeSwitch />
             </Flex>
