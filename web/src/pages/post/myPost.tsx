@@ -1,4 +1,4 @@
-import { Box, Button, Center, Checkbox, CheckboxGroup, Flex, Heading, Link, Select, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Checkbox, CheckboxGroup, Flex, Heading, Input, Link, Select, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -52,13 +52,13 @@ const myPost: React.FC<myPostProps> = ({}) => {
             }}>옵션</Button>
             {optionState === "hide-option" ? null : (
               <Box>
-                <Formik initialValues={{ type1: "", type2: "", type3: ""}}
+                <Formik initialValues={{ type1: "", type2: "", type3: "", limit: 10}}
                     onSubmit={(value) => {
                         let typeInfo = "";
                         for (let i in value) {
                             typeInfo += value[i]
                         }
-                        console.log(typeInfo);
+                        router.push(`/post/myPost?page=1&limit=${limit}&type=${typeInfo}`)
                     }}
                 >
                 {({isSubmitting}) => (
@@ -72,6 +72,9 @@ const myPost: React.FC<myPostProps> = ({}) => {
                     <Field name="type3">
                         {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="3">AI질문게시판</Checkbox>)}
                     </Field>
+                    {/* <Field name="limit">
+                        {({field}: any) => (<Input ml={4} {...field} key="1" label="페이지 당 개수 (최대 30개)"/>)}
+                    </Field> */}
                     <Box mt={4}>
                       <Button type="submit">검색</Button>
                     </Box>
@@ -104,7 +107,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
                 ))}
               </Stack>
           )}
-          <Box m={12} textAlign={"center"}>
+          <Box m={12} justifyContent={"center"}>
             <PageButtons limit={limit} type={type} />
           </Box>
         </Layout>

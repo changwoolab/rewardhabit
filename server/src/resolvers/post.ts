@@ -250,6 +250,13 @@ export class PostResolver {
 
         const { userId } = req.session;
         const offset = (page - 1) * limit + 1;
+        
+        // Parse Type
+        let types = [];
+        while (type > 0) {
+            types.push(type%10);
+            type = parseInt(`${type/10}`);
+        }
 
         // My posts 가져오기
         let tm = getConnection()
@@ -257,16 +264,16 @@ export class PostResolver {
         .createQueryBuilder("post")
         .where("userId = :userId", { userId })
 
-        // 0일 때는 모든 타입을 가져옴.
-        if (type !== 0) {
-            tm.andWhere("type = :type", { type })
-        }
+        // 쿼리한 타입 모두 가져오기 (0 or 123이면 전부 다 가져옴) 이 코드는 다 안가져옴. 고치자
+        types.forEach((value) => {
+            tm.andWhere("type = :type", { type: value })
+        })
 
         const posts = await tm.orderBy("post.writtenDate", "DESC")
         .skip(offset)
         .take(limit)
         .getMany();
-
+        console.log(types, limit, page, posts);
         return posts;
     }
 

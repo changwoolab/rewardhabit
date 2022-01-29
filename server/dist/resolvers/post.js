@@ -188,17 +188,23 @@ let PostResolver = class PostResolver {
             throw new Error("존재하지 않는 페이지입니다.");
         const { userId } = req.session;
         const offset = (page - 1) * limit + 1;
+        let types = [];
+        while (type > 0) {
+            types.push(type % 10);
+            type = parseInt(`${type / 10}`);
+        }
         let tm = (0, typeorm_1.getConnection)()
             .getRepository(Post_1.Post)
             .createQueryBuilder("post")
             .where("userId = :userId", { userId });
-        if (type !== 0) {
-            tm.andWhere("type = :type", { type });
-        }
+        types.forEach((value) => {
+            tm.andWhere("type = :type", { type: value });
+        });
         const posts = await tm.orderBy("post.writtenDate", "DESC")
             .skip(offset)
             .take(limit)
             .getMany();
+        console.log(types, limit, page, posts);
         return posts;
     }
     async pagesCount(type, limit, { req }) {
