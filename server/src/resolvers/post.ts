@@ -257,7 +257,6 @@ export class PostResolver {
             types.push(type%10);
             type = parseInt(`${type/10}`);
         }
-        console.log(types, limit, page);
 
         // My posts 가져오기
         const posts = await getConnection()
@@ -276,7 +275,6 @@ export class PostResolver {
         .skip(offset)
         .take(limit)
         .getRawMany() as Post[];
-        console.log(types, limit, page, posts);
         return posts;
     }
 

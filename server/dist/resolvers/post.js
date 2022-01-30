@@ -193,7 +193,6 @@ let PostResolver = class PostResolver {
             types.push(type % 10);
             type = parseInt(`${type / 10}`);
         }
-        console.log(types, limit, page);
         const posts = await (0, typeorm_1.getConnection)()
             .createQueryBuilder()
             .from(subQuery => {
@@ -209,7 +208,6 @@ let PostResolver = class PostResolver {
             .skip(offset)
             .take(limit)
             .getRawMany();
-        console.log(types, limit, page, posts);
         return posts;
     }
     async pagesCount(type, limit, { req }) {
