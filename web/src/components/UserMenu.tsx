@@ -23,21 +23,27 @@ export const UserMenu: React.FC<UserMenuProps> = ({ data }) => {
             <Center>
               <Text color={bgColor}>포인트</Text>
             </Center>
-              <MenuGroup color={bgColor} title='프로필'>
-                <MenuItem color={bgColor}>내 습관</MenuItem>
-                <MenuItem color={bgColor}>회원정보 수정</MenuItem>
+              <MenuGroup color={bgColor} title='계정'>
+                <NextLink href="/myAccount/edit">
+                  <MenuItem color={bgColor}>내 계정</MenuItem>
+                </NextLink>
               </MenuGroup>
               <MenuDivider />
-              <MenuGroup color={bgColor} title='독서록/일기'>
-                <MenuItem color={bgColor}>
-                  <NextLink href="/myAccount/myPost?page=1&limit=10&type=0">
-                   <Link>내가 쓴 글</Link>
-                  </NextLink>
-                </MenuItem>
+              <MenuGroup color={bgColor} title='습관'>
+                <NextLink href="/myAccount/habit">
+                  <MenuItem color={bgColor}>내 습관</MenuItem>
+                </NextLink>
+                <NextLink href="/myAccount/subscript">
+                  <MenuItem color={bgColor}>내 구독</MenuItem>
+                </NextLink>
+                <NextLink href="/myAccount/myPost?page=1&limit=10&type=0">
+                  <MenuItem color={bgColor}>내가 쓴 글</MenuItem>
+                </NextLink>
               </MenuGroup>
-              <MenuItem><Link color={bgColor} onClick={async () => {
+              <MenuDivider />
+              <MenuItem color={bgColor} onClick={async () => {
                   await logout()
-                }} isLoading={logoutFetching}>로그아웃</Link></MenuItem>
+                }} isLoading={logoutFetching}>로그아웃</MenuItem>
             </MenuList>
           </Menu>
     );
