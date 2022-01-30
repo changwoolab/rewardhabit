@@ -12,7 +12,7 @@ interface forgotUserIdProps {}
 const forgotUserId: React.FC<forgotUserIdProps> = ({}) => {
     const [, findUserIdAndSendEmail] = useForgotUserIdMutation();
     return (
-      <Layout variant="small">
+      <Layout variant="small" height="100vh">
           <Formik initialValues={{ email: "" }} onSubmit={async(values, {setErrors}) => {
               // 가입할 때 쓴 이메일 주소를 바탕으로 아이디를 찾고, 그 아이디를 이메일로 보내기
               const res = await findUserIdAndSendEmail(values);
