@@ -187,36 +187,52 @@ let PostResolver = class PostResolver {
         if (page <= 0)
             throw new Error("존재하지 않는 페이지입니다.");
         const { userId } = req.session;
-        const offset = (page - 1) * limit + 1;
+        const offset = (page - 1) * limit;
         let types = [];
         while (type > 0) {
             types.push(type % 10);
             type = parseInt(`${type / 10}`);
         }
-        let tm = (0, typeorm_1.getConnection)()
-            .getRepository(Post_1.Post)
-            .createQueryBuilder("post")
-            .where("userId = :userId", { userId });
-        types.forEach((value) => {
-            tm.andWhere("type = :type", { type: value });
-        });
-        const posts = await tm.orderBy("post.writtenDate", "DESC")
+        console.log(types, limit, page);
+        const posts = await (0, typeorm_1.getConnection)()
+            .createQueryBuilder()
+            .from(subQuery => {
+            subQuery.select("*")
+                .from(Post_1.Post, "post");
+            types.forEach((value, idx) => {
+                subQuery.orWhere(`type = :type${idx}`, { [`type${idx}`]: value });
+            });
+            return subQuery;
+        }, "p")
+            .where("p.userId = :userId", { userId })
+            .orderBy("p.writtenDate", "DESC")
             .skip(offset)
             .take(limit)
-            .getMany();
+            .getRawMany();
         console.log(types, limit, page, posts);
         return posts;
     }
     async pagesCount(type, limit, { req }) {
         const { userId } = req.session;
-        let tm = (0, typeorm_1.getConnection)()
-            .getRepository(Post_1.Post)
-            .createQueryBuilder("post")
-            .where("userId = :userId", { userId });
-        if (type !== 0) {
-            tm.andWhere("type = :type", { type });
+        let types = [];
+        while (type > 0) {
+            types.push(type % 10);
+            type = parseInt(`${type / 10}`);
         }
-        const pagesCount = await tm.getCount();
+        const pages = await (0, typeorm_1.getConnection)()
+            .createQueryBuilder()
+            .select("count(*)")
+            .from(subQuery => {
+            subQuery.select("*")
+                .from(Post_1.Post, "post");
+            types.forEach((value, idx) => {
+                subQuery.orWhere(`type = :type${idx}`, { [`type${idx}`]: value });
+            });
+            return subQuery;
+        }, "p")
+            .where("p.userId = :userId", { userId })
+            .getRawMany();
+        const pagesCount = pages[0]["count(*)"];
         return Math.ceil(pagesCount / limit);
     }
     async post(id) {

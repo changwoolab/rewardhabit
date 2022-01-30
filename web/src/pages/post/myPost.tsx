@@ -6,7 +6,7 @@ import { Layout } from '../../components/Layout';
 import { useOffsetBasePostsQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import NextLink from "next/link"
-import { PageButtons } from '../../components/pageButtons';
+import { PageButtons } from '../../components/PageButtons';
 import { EditDeleteButton } from '../../components/CEDButton';
 import { Formik, Form, Field } from 'formik';
 
@@ -23,7 +23,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
     let type = Number(router.query.type);
     if (!page) page = 1;
     if (!limit) limit = 10;
-    if (!type) type = 3;
+    if (!type) type = 0;
 
 
     const [{data, fetching}] = useOffsetBasePostsQuery({variables: { type, limit, page }});
@@ -52,29 +52,36 @@ const myPost: React.FC<myPostProps> = ({}) => {
             }}>옵션</Button>
             {optionState === "hide-option" ? null : (
               <Box>
-                <Formik initialValues={{ type1: "", type2: "", type3: "", limit: 10}}
+                <Formik initialValues={{ type1: "", type2: "", type3: "", limit: limit}}
                     onSubmit={(value) => {
-                        let typeInfo = "";
-                        for (let i in value) {
-                            typeInfo += value[i]
+                        let typeInfo = value.type1 + value.type2 + value.type3;
+                        if (!typeInfo) {
+                          typeInfo = "0";
                         }
-                        router.push(`/post/myPost?page=1&limit=${limit}&type=${typeInfo}`)
+                        router.push(`/post/myPost?page=1&limit=${value.limit}&type=${typeInfo}`)
                     }}
                 >
                 {({isSubmitting}) => (
                   <Form>
-                    <Field name="type1">
-                        {({field}: any) => (<Checkbox {...field} key="1" value="1">일기</Checkbox>)}
-                    </Field>
-                    <Field name="type2">
-                        {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="2">독서록</Checkbox>)}
-                    </Field>
-                    <Field name="type3">
-                        {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="3">AI질문게시판</Checkbox>)}
-                    </Field>
-                    {/* <Field name="limit">
-                        {({field}: any) => (<Input ml={4} {...field} key="1" label="페이지 당 개수 (최대 30개)"/>)}
-                    </Field> */}
+                    <Flex justifyContent={"center"}>
+                      <Field name="type1">
+                          {({field}: any) => (<Checkbox {...field} key="1" value="1">일기</Checkbox>)}
+                      </Field>
+                      <Field name="type2">
+                          {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="2">독서록</Checkbox>)}
+                      </Field>
+                      <Field name="type3">
+                          {({field}: any) => (<Checkbox ml={4} {...field} key="1" value="3">AI질문게시판</Checkbox>)}
+                      </Field>
+                      <Field name="limit">
+                          {({field}: any) => (
+                            <>
+                            <Text ml={4} alignSelf={"center"}>페이지 당 개수</Text>
+                            <Input type="number" ml={2} w={"55px"} h={"30px"} {...field} key="1" label="페이지 당 개수 (최대 30개)"/>
+                            </>
+                          )}
+                      </Field>
+                    </Flex>
                     <Box mt={4}>
                       <Button type="submit">검색</Button>
                     </Box>

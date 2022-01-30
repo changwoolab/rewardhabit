@@ -249,30 +249,33 @@ export class PostResolver {
         if (page <= 0) throw new Error("존재하지 않는 페이지입니다.");
 
         const { userId } = req.session;
-        const offset = (page - 1) * limit + 1;
+        const offset = (page - 1) * limit;
         
         // Parse Type
-        let types = [];
+        let types: number[] = [];
         while (type > 0) {
             types.push(type%10);
             type = parseInt(`${type/10}`);
         }
+        console.log(types, limit, page);
 
         // My posts 가져오기
-        let tm = getConnection()
-        .getRepository(Post)
-        .createQueryBuilder("post")
-        .where("userId = :userId", { userId })
-
-        // 쿼리한 타입 모두 가져오기 (0 or 123이면 전부 다 가져옴) 이 코드는 다 안가져옴. 고치자
-        types.forEach((value) => {
-            tm.andWhere("type = :type", { type: value })
-        })
-
-        const posts = await tm.orderBy("post.writtenDate", "DESC")
+        const posts = await getConnection()
+        .createQueryBuilder()
+        .from(subQuery => {
+            subQuery.select("*")
+                .from(Post, "post")
+            // 쿼리한 타입 모두 가져오기 (0 or 123이면 전부 다 가져옴)
+            types.forEach((value, idx) => {
+                subQuery.orWhere(`type = :type${idx}`, { [`type${idx}`]: value }) // parameter 이름이 각각 달라야 적용이 됨.
+            })
+            return subQuery;
+        }, "p")
+        .where("p.userId = :userId", { userId })
+        .orderBy("p.writtenDate", "DESC")
         .skip(offset)
         .take(limit)
-        .getMany();
+        .getRawMany() as Post[];
         console.log(types, limit, page, posts);
         return posts;
     }
@@ -287,18 +290,29 @@ export class PostResolver {
     ): Promise<Number> {
         const { userId } = req.session;
 
-        // My posts 개수 가져오기
-        let tm = getConnection()
-        .getRepository(Post)
-        .createQueryBuilder("post")
-        .where("userId = :userId", { userId })
-
-        // 0일 때는 모든 타입을 가져옴.
-        if (type !== 0) {
-            tm.andWhere("type = :type", { type })
+        // Parse Type
+        let types: number[] = [];
+        while (type > 0) {
+            types.push(type%10);
+            type = parseInt(`${type/10}`);
         }
 
-        const pagesCount = await tm.getCount();
+        const pages = await getConnection()
+        .createQueryBuilder()
+        .select("count(*)")
+        .from(subQuery => {
+            subQuery.select("*")
+                .from(Post, "post")
+            // 쿼리한 타입 모두 가져오기 (0 or 123이면 전부 다 가져옴)
+            types.forEach((value, idx) => {
+                subQuery.orWhere(`type = :type${idx}`, { [`type${idx}`]: value }) // parameter 이름이 각각 달라야 적용이 됨.
+            })
+            return subQuery;
+        }, "p")
+        .where("p.userId = :userId", { userId })
+        .getRawMany();
+
+        const pagesCount = pages[0]["count(*)"];
 
         return Math.ceil(pagesCount/limit);
     }
