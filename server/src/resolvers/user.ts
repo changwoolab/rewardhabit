@@ -1,4 +1,4 @@
-import {Resolver, Arg, Mutation, Query, Ctx, FieldResolver, Root} from "type-graphql"
+import {Resolver, Arg, Mutation, Query, Ctx, FieldResolver, Root, UseMiddleware} from "type-graphql"
 import {User} from "../entities/User"
 import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
@@ -16,6 +16,8 @@ import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from "../secret_modules/constants
 import { sendEmail } from "../utils/sendEmail";
 import { emailForm } from "../utils/email/emailForm";
 import { v4 } from "uuid"
+import { isAuth } from "../middleware/isAuth";
+import { decrypeUserInfo } from "../utils/forUserResolver/decryptUserInfo";
 
 
 @Resolver(User)
@@ -30,19 +32,19 @@ export class UserResolver {
     email(
         @Root() user: User,
         @Ctx() { req }: ReqResContext
-    ): string {
+    ) {
         // 현재 로그인된 유저와 이메일을 가진 유저가 같다면, return될 수 있도록!
-        if (req.session.userId === user.id) return user.email;
+        if (req.session.userId === user.id) return decrypeUserInfo(user, "email");
         // 다른 사람이 어떤 사람의 이메일을 보려 한다면..
         return "";
     }
     /** 은행을 다른 사람이 보는 것을 막음, 나중에 수정 필요(아마 Decrypt 필요할듯) */
     @FieldResolver(() => String)
-    bank(
+    async bank(
         @Root() user: User,
         @Ctx() { req }: ReqResContext
     ) {
-        if (req.session.userId === user.id) return user.bank;
+        if (req.session.userId === user.id) return decrypeUserInfo(user, "bank");
         return "";
     }
     @FieldResolver(() => String)
@@ -50,7 +52,7 @@ export class UserResolver {
         @Root() user: User,
         @Ctx() { req }: ReqResContext
     ) {
-        if (req.session.userId === user.id) return user.lastName;
+        if (req.session.userId === user.id) return decrypeUserInfo(user, "lastName");
         return "";
     }
     @FieldResolver(() => String)
@@ -58,7 +60,7 @@ export class UserResolver {
         @Root() user: User,
         @Ctx() { req }: ReqResContext
     ) {
-        if (req.session.userId === user.id) return user.firstName;
+        if (req.session.userId === user.id) return decrypeUserInfo(user, "firstName");
         return "";
     }
     @FieldResolver(() => String)
@@ -66,7 +68,7 @@ export class UserResolver {
         @Root() user: User,
         @Ctx() { req }: ReqResContext
     ) {
-        if (req.session.userId === user.id) return user.account;
+        if (req.session.userId === user.id) return decrypeUserInfo(user, "account");
         return "";
     }
     @FieldResolver(() => String)
@@ -91,6 +93,20 @@ export class UserResolver {
     ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////
     ///////////////////////////////////////////////////////////////////
 
+    @Query(() => UserResponse)
+    @UseMiddleware(isAuth)
+    async myAccount(
+        @Ctx() { req }: ReqResContext
+    ) {
+        const { userId } = req.session;
+        if (!userId) return null;
+
+        const user = await User.findOne({id: userId});
+        if (!user) return null;
+        return {user};
+    }
+    
+    
 
     @Query(() => UserResponse, { nullable: true })
     async me(

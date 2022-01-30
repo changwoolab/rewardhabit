@@ -22,20 +22,20 @@ const EditPost: React.FC = ({}) => {
     const [,updatePost] = useUpdatePostMutation();
     if (fetching) {
         return (
-            <Layout variant="regular" height="100vh">
+            <Layout variant="regular">
                 <div>loading...</div>
             </Layout>
         )
     }
     if (!data?.post) {
         return (
-            <Layout variant='regular'height="120vh">
+            <Layout variant='regular'>
               <Box>요청하신 포스트는 존재하지 않습니다</Box>
             </Layout>
         );
     }
     return (
-        <Layout variant="regular" height='100vh'>
+        <Layout variant="regular">
         <Formik initialValues={{ title: data.post.title, texts: data.post.texts, type: data.post.type}} 
           validationSchema={writePostValidation}
           onSubmit={async(values) => {

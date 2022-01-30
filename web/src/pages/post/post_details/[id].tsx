@@ -14,13 +14,13 @@ const Post: React.FC = ({}) => {
     }
     if (!data?.post) {
         return (
-            <Layout variant='regular'height="120vh">
+            <Layout variant='regular'>
               <Box>요청하신 포스트는 존재하지 않습니다</Box>
             </Layout>
         )
     }
     return (
-        <Layout variant='regular' height="120vh">
+        <Layout variant='regular'>
           <Flex flex={1}>
             <Heading maxW={700} mb={4}>{data.post.title}</Heading>
             <Box ml="auto">

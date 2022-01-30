@@ -1,4 +1,4 @@
-import { Box, Button, Center, Checkbox, CheckboxGroup, Flex, Heading, Input, Link, Select, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Checkbox, Flex, Grid, GridItem, Heading, Input, Link, Stack, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -9,6 +9,7 @@ import NextLink from "next/link"
 import { PageButtons } from '../../components/PageButtons';
 import { EditDeleteButton } from '../../components/CEDButton';
 import { Formik, Form, Field } from 'formik';
+import { SideBar } from '../../components/SideBar';
 
 
 interface myPostProps {}
@@ -29,7 +30,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
     const [{data, fetching}] = useOffsetBasePostsQuery({variables: { type, limit, page }});
     if (!data || !data.offsetBasePosts) {
         return (
-        <Layout variant="regular" height={"120vh"}>
+        <Layout variant="regular">
             <Center>Loading...</Center>
         </Layout>);
     }
@@ -41,7 +42,12 @@ const myPost: React.FC<myPostProps> = ({}) => {
     };
     
     return (
-        <Layout variant="regular" height={height}>
+      <Layout variant="large">
+      <Grid templateColumns="1fr 3fr" gap={1}>
+        <GridItem>
+          <SideBar />
+        </GridItem>
+        <GridItem>
           <Box textAlign={"center"} flex={1}>
             <Button mb={4} onClick={() => {
                 if (optionState === "hide-option") {
@@ -58,7 +64,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
                         if (!typeInfo) {
                           typeInfo = "0";
                         }
-                        router.push(`/post/myPost?page=1&limit=${value.limit}&type=${typeInfo}`)
+                        router.push(`/myAccount/myPost?page=1&limit=${value.limit}&type=${typeInfo}`)
                     }}
                 >
                 {({isSubmitting}) => (
@@ -117,6 +123,8 @@ const myPost: React.FC<myPostProps> = ({}) => {
           <Box m={12} justifyContent={"center"}>
             <PageButtons limit={limit} type={type} />
           </Box>
+          </GridItem>
+          </Grid>
         </Layout>
     );
 }

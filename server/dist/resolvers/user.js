@@ -33,30 +33,32 @@ const constants_1 = require("../secret_modules/constants");
 const sendEmail_1 = require("../utils/sendEmail");
 const emailForm_1 = require("../utils/email/emailForm");
 const uuid_1 = require("uuid");
+const isAuth_1 = require("../middleware/isAuth");
+const decryptUserInfo_1 = require("../utils/forUserResolver/decryptUserInfo");
 let UserResolver = class UserResolver {
     email(user, { req }) {
         if (req.session.userId === user.id)
-            return user.email;
+            return (0, decryptUserInfo_1.decrypeUserInfo)(user, "email");
         return "";
     }
-    bank(user, { req }) {
+    async bank(user, { req }) {
         if (req.session.userId === user.id)
-            return user.bank;
+            return (0, decryptUserInfo_1.decrypeUserInfo)(user, "bank");
         return "";
     }
     lastName(user, { req }) {
         if (req.session.userId === user.id)
-            return user.lastName;
+            return (0, decryptUserInfo_1.decrypeUserInfo)(user, "lastName");
         return "";
     }
     firstName(user, { req }) {
         if (req.session.userId === user.id)
-            return user.firstName;
+            return (0, decryptUserInfo_1.decrypeUserInfo)(user, "firstName");
         return "";
     }
     account(user, { req }) {
         if (req.session.userId === user.id)
-            return user.account;
+            return (0, decryptUserInfo_1.decrypeUserInfo)(user, "account");
         return "";
     }
     registerDate(user, { req }) {
@@ -68,6 +70,15 @@ let UserResolver = class UserResolver {
         if (req.session.userId === user.id)
             return user.subscripts;
         return "";
+    }
+    async myAccount({ req }) {
+        const { userId } = req.session;
+        if (!userId)
+            return null;
+        const user = await User_1.User.findOne({ id: userId });
+        if (!user)
+            return null;
+        return { user };
     }
     async me({ req }) {
         if (!req.session.userId)
@@ -224,7 +235,7 @@ __decorate([
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [User_1.User, Object]),
-    __metadata("design:returntype", String)
+    __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "email", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -232,7 +243,7 @@ __decorate([
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [User_1.User, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "bank", null);
 __decorate([
     (0, type_graphql_1.FieldResolver)(() => String),
@@ -274,6 +285,14 @@ __decorate([
     __metadata("design:paramtypes", [User_1.User, Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "subscripts", null);
+__decorate([
+    (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "myAccount", null);
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse, { nullable: true }),
     __param(0, (0, type_graphql_1.Ctx)()),

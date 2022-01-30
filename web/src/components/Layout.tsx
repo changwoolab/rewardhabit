@@ -6,18 +6,17 @@ import Wrapper, { WrapperVariant } from './Wrapper';
 
 interface LayoutProps {
     variant: WrapperVariant;
-    height?: string;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, variant, height }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, variant }) => {
     return (
         <>
           <Navbar />
-          <Container height={height}>
+          <Container>
             <Wrapper variant={variant}>
                 {children}
             </Wrapper>
-            <Footer variant={variant}/>
+            <Footer />
           </Container>
         </>
     );

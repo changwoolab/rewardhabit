@@ -23,7 +23,7 @@ const ChangePassword: NextPage = () => {
     const router = useRouter();
 
     return (
-        <Layout variant="small" height="100vh">
+        <Layout variant="small">
           <Formik validationSchema={ChangePasswordValidation} 
             initialValues={{ newPassword: "", confirmNewPassword: "" }} onSubmit={async(values, { setErrors }) => {
               // ChangePassword 요청 보내기
