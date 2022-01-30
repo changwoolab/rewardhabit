@@ -155,6 +155,7 @@ export type PostInput = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<UserResponse>;
+  myAccount: UserResponse;
   offsetBasePosts: Array<Post>;
   pagesCount: Scalars['Int'];
   post: Post;
@@ -227,6 +228,7 @@ export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   partialUser?: Maybe<PartialUser>;
+  user?: Maybe<User>;
 };
 
 export type CommentFragFragment = { __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any };
@@ -323,6 +325,11 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse', partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } | null | undefined };
+
+export type MyAccountQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, lastName: string, firstName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
 
 export type OffsetBasePostsQueryVariables = Exact<{
   type: Scalars['Int'];
@@ -539,6 +546,26 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const MyAccountDocument = gql`
+    query MyAccount {
+  myAccount {
+    user {
+      id
+      userId
+      lastName
+      firstName
+      email
+      userName
+      bank
+      account
+    }
+  }
+}
+    `;
+
+export function useMyAccountQuery(options: Omit<Urql.UseQueryArgs<MyAccountQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MyAccountQuery>({ query: MyAccountDocument, ...options });
 };
 export const OffsetBasePostsDocument = gql`
     query OffsetBasePosts($type: Int!, $limit: Int!, $page: Int!) {

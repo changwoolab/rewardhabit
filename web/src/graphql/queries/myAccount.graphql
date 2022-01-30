@@ -1,0 +1,14 @@
+query MyAccount {
+    myAccount {
+        user {
+            id
+            userId
+            lastName
+            firstName
+            email
+            userName
+            bank
+            account
+        } 
+    }
+}
