@@ -1,0 +1,9 @@
+.hr_light {
+    width: 100%;
+    border-color: black;
+};
+
+.hr_dark {
+    width: 100%;
+    border-color: white;
+};

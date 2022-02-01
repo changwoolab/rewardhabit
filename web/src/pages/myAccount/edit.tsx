@@ -6,6 +6,7 @@ import router from 'next/router';
 import React, { useState } from 'react';
 import { InputField } from '../../components/InputField';
 import { Layout } from '../../components/Layout';
+import { MyAccountLayout } from '../../components/myAccountLayout';
 import { SideBar } from '../../components/SideBar';
 import { useMyAccountQuery } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
@@ -26,12 +27,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
     console.log(accountInfo.data?.myAccount.user);
     return (
         <>
-        <Layout variant="large">
-        <Grid templateColumns="1fr 3fr" gap={1}>
-          <GridItem>
-            <SideBar />
-          </GridItem>
-          <GridItem>
+        <MyAccountLayout>
             <Formik
               initialValues={accountInfo.data?.myAccount.user}
               
@@ -94,9 +90,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
                 </Form>
               )}
             </Formik>
-          </GridItem>
-        </Grid>
-        </Layout>
+          </MyAccountLayout>
         </>
     );
 }

@@ -10,6 +10,7 @@ import { PageButtons } from '../../components/PageButtons';
 import { EditDeleteButton } from '../../components/CEDButton';
 import { Formik, Form, Field } from 'formik';
 import { SideBar } from '../../components/SideBar';
+import { MyAccountLayout } from '../../components/myAccountLayout';
 
 
 interface myPostProps {}
@@ -42,12 +43,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
     };
     
     return (
-      <Layout variant="large">
-      <Grid templateColumns="1fr 3fr" gap={1}>
-        <GridItem>
-          <SideBar />
-        </GridItem>
-        <GridItem>
+      <MyAccountLayout>
           <Box textAlign={"center"} flex={1}>
             <Button mb={4} onClick={() => {
                 if (optionState === "hide-option") {
@@ -123,9 +119,7 @@ const myPost: React.FC<myPostProps> = ({}) => {
           <Box m={12} justifyContent={"center"}>
             <PageButtons limit={limit} type={type} />
           </Box>
-          </GridItem>
-          </Grid>
-        </Layout>
+        </MyAccountLayout>
     );
 }
 

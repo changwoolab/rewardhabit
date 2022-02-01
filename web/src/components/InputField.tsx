@@ -4,20 +4,20 @@ import React, { InputHTMLAttributes } from 'react';
 
 
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
-    label: string;
+    label?: string;
     name: string;
     textarea?: boolean;
     select?: boolean;
     selectOptions?: {
         value: string,
         option: string,
-    }[]
+    }[];
 }
 
 
 export const InputField: React.FC<InputFieldProps> = ({label, size:_, textarea, select, selectOptions, ...props}) => {
     const [field, {touched, error}] = useField(props);
-    props.placeholder = label;
+    if (!props.placeholder) props.placeholder = label;
 
     // input or Textarea or Select를 결정하는 컴포넌트 형성
     let InputOrElse: any = Input;
