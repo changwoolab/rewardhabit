@@ -18,6 +18,7 @@ import { emailForm } from "../utils/email/emailForm";
 import { v4 } from "uuid"
 import { isAuth } from "../middleware/isAuth";
 import { decrypeUserInfo } from "../utils/forUserResolver/decryptUserInfo";
+import { Subscript } from "../entities/Subscript";
 
 
 @Resolver(User)
@@ -79,15 +80,17 @@ export class UserResolver {
         if (req.session.userId === user.id) return user.registerDate;
         return "";
     }
-    @FieldResolver(() => String)
-    subscripts(
+    @FieldResolver(() => Subscript, {nullable: true})
+    async subscripts(
         @Root() user: User,
         @Ctx() { req }: ReqResContext
     ) {
-        if (req.session.userId === user.id) return user.subscripts;
-        return "";
+        if (req.session.userId === user.id) {
+            const subscript = await Subscript.findOne({userId: req.session.userId});
+            return subscript;
+        }
+        return null;
     }
-
 
     ////////////////////////////////////////////////////////////////////
     ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////

@@ -187,6 +187,19 @@ export type QueryPostsArgs = {
   limit: Scalars['Int'];
 };
 
+export type Subscript = {
+  __typename?: 'Subscript';
+  daysRemain: Scalars['Float'];
+  expireAt: Scalars['DateTime'];
+  id: Scalars['Float'];
+  reward: Scalars['Float'];
+  rewardCount: Scalars['Float'];
+  startedAt: Scalars['DateTime'];
+  totalPayment: Scalars['Float'];
+  type: Scalars['Float'];
+  userId: Scalars['Float'];
+};
+
 export type Updoot = {
   __typename?: 'Updoot';
   post: Post;
@@ -208,7 +221,7 @@ export type User = {
   level: Scalars['Float'];
   point: Scalars['Float'];
   registerDate: Scalars['DateTime'];
-  subscripts: Scalars['String'];
+  subscripts?: Maybe<Subscript>;
   userId: Scalars['String'];
   userName: Scalars['String'];
 };
@@ -312,6 +325,11 @@ export type VoteMutationVariables = Exact<{
 
 
 export type VoteMutation = { __typename?: 'Mutation', vote: boolean };
+
+export type MySubscriptQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MySubscriptQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, lastName: string, firstName: string, subscripts?: { __typename?: 'Subscript', id: number, userId: number, type: number, startedAt: any, expireAt: any, reward: number, rewardCount: number, totalPayment: number, daysRemain: number } | null | undefined } | null | undefined } };
 
 export type CheckImmediateDuplicateMutationVariables = Exact<{
   mode: Scalars['String'];
@@ -524,6 +542,32 @@ export const VoteDocument = gql`
 
 export function useVoteMutation() {
   return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+};
+export const MySubscriptDocument = gql`
+    query MySubscript {
+  myAccount {
+    user {
+      id
+      lastName
+      firstName
+      subscripts {
+        id
+        userId
+        type
+        startedAt
+        expireAt
+        reward
+        rewardCount
+        totalPayment
+        daysRemain
+      }
+    }
+  }
+}
+    `;
+
+export function useMySubscriptQuery(options: Omit<Urql.UseQueryArgs<MySubscriptQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MySubscriptQuery>({ query: MySubscriptDocument, ...options });
 };
 export const CheckImmediateDuplicateDocument = gql`
     mutation CheckImmediateDuplicate($mode: String!, $input: String!) {

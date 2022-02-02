@@ -35,6 +35,7 @@ const emailForm_1 = require("../utils/email/emailForm");
 const uuid_1 = require("uuid");
 const isAuth_1 = require("../middleware/isAuth");
 const decryptUserInfo_1 = require("../utils/forUserResolver/decryptUserInfo");
+const Subscript_1 = require("../entities/Subscript");
 let UserResolver = class UserResolver {
     email(user, { req }) {
         if (req.session.userId === user.id)
@@ -66,10 +67,12 @@ let UserResolver = class UserResolver {
             return user.registerDate;
         return "";
     }
-    subscripts(user, { req }) {
-        if (req.session.userId === user.id)
-            return user.subscripts;
-        return "";
+    async subscripts(user, { req }) {
+        if (req.session.userId === user.id) {
+            const subscript = await Subscript_1.Subscript.findOne({ userId: req.session.userId });
+            return subscript;
+        }
+        return null;
     }
     async myAccount({ req }) {
         const { userId } = req.session;
@@ -278,12 +281,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "registerDate", null);
 __decorate([
-    (0, type_graphql_1.FieldResolver)(() => String),
+    (0, type_graphql_1.FieldResolver)(() => Subscript_1.Subscript, { nullable: true }),
     __param(0, (0, type_graphql_1.Root)()),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [User_1.User, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "subscripts", null);
 __decorate([
     (0, type_graphql_1.Query)(() => UserResponse_1.UserResponse),

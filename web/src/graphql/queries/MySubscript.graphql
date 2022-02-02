@@ -1,0 +1,20 @@
+query MySubscript {
+    myAccount {
+        user {
+            id
+            lastName
+            firstName
+            subscripts {
+                id
+                userId
+                type
+                startedAt
+                expireAt
+                reward
+                rewardCount
+                totalPayment
+                daysRemain
+            }
+        } 
+    }
+}

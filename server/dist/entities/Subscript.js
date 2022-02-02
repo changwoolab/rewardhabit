@@ -21,6 +21,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Subscript.prototype, "id", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Subscript.prototype, "userId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.subscripts, {
         onDelete: "CASCADE"
     }),
@@ -28,7 +33,7 @@ __decorate([
 ], Subscript.prototype, "user", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ default: 0 }),
     __metadata("design:type", Number)
 ], Subscript.prototype, "type", void 0);
 __decorate([
@@ -58,9 +63,8 @@ __decorate([
 ], Subscript.prototype, "totalPayment", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
-], Subscript.prototype, "interval", void 0);
+], Subscript.prototype, "daysRemain", void 0);
 Subscript = __decorate([
     (0, type_graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)()

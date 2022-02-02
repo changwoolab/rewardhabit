@@ -10,14 +10,18 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field()
+    @Column()
+    userId: number;
+
     @ManyToOne(() => User, user => user.subscripts, {
         onDelete: "CASCADE"
     })
     user: User;
 
     @Field()
-    @Column()
-    type: number; // 독서록/일기 여부
+    @Column({default: 0})
+    type: number; // 패키지타입, 0: 일반, 1~3: 패키지1~3
 
     @Field()
     @Column()
@@ -29,7 +33,7 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
 
     @Field()
     @Column()
-    reward: number; // 보상당환급액
+    reward: number; // 일일반환액
 
     @Field()
     @Column()
@@ -40,6 +44,5 @@ export class Subscript extends BaseEntity { // BaseEntity로 Active Record를 �
     totalPayment: number; // 총결제액
 
     @Field()
-    @Column()
-    interval: number; // 습관간격
+    daysRemain: number; // 얼마나 남았는지
 }

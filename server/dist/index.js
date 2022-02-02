@@ -26,6 +26,7 @@ const Updoot_1 = require("./entities/Updoot");
 const createUserLoader_1 = require("./utils/dataLoader/createUserLoader");
 const createUpdootLoader_1 = require("./utils/dataLoader/createUpdootLoader");
 const Comment_1 = require("./entities/Comment");
+const subscript_1 = require("./resolvers/subscript");
 const main = async () => {
     const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -65,7 +66,7 @@ const main = async () => {
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [test_1.TestResolver, post_1.PostResolver, user_1.UserResolver],
+            resolvers: [test_1.TestResolver, post_1.PostResolver, user_1.UserResolver, subscript_1.SubscriptResolver],
             validate: false
         }),
         context: ({ req, res }) => ({
