@@ -1,4 +1,4 @@
-import { Box, FormControl, FormLabel, Input, FormErrorMessage, Textarea, Select } from '@chakra-ui/react';
+import { Box, FormControl, FormLabel, Input, FormErrorMessage, Textarea, Select, useColorMode } from '@chakra-ui/react';
 import { useField } from 'formik';
 import React, { InputHTMLAttributes } from 'react';
 
@@ -12,11 +12,14 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
         value: string,
         option: string,
     }[];
+    borderColor?: string;
 }
 
 
-export const InputField: React.FC<InputFieldProps> = ({label, size:_, textarea, select, selectOptions, ...props}) => {
+export const InputField: React.FC<InputFieldProps> = ({label, borderColor, size:_, textarea, select, selectOptions, ...props}) => {
     const [field, {touched, error}] = useField(props);
+    const {colorMode} = useColorMode();
+    if (!borderColor) borderColor = colorMode === "dark" ? "white" : "black";
     if (!props.placeholder) props.placeholder = label;
 
     // input or Textarea or Select를 결정하는 컴포넌트 형성
@@ -36,7 +39,7 @@ export const InputField: React.FC<InputFieldProps> = ({label, size:_, textarea, 
         <Box mt={4}>
         <FormControl isInvalid={touched && !!error}>
             <FormLabel htmlFor={field.name}>{label}</FormLabel>
-            <InputOrElse {...field} {...props} id={field.name} >
+            <InputOrElse borderColor={borderColor} {...field} {...props} id={field.name} >
                 {body}
             </InputOrElse>
             { touched && !!error ? <FormErrorMessage>{error}</FormErrorMessage> : null }

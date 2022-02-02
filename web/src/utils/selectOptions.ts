@@ -4,8 +4,15 @@ export const selectOptions = [
     { value: "3", option: "인공지능에게 질문하기" }
 ];
 
+/** 패키지 선택 옵션 */
 export const packageSelectOptions = [
-    { value: "1", option: "패키지1" }, 
-    { value: "2", option: "패키지2" },
-    { value: "3", option: "패키지3" }
+    "선택안함",
+    "패키지1" , 
+    "패키지2" ,
+    "패키지3"
 ];
+
+/** 본인/자녀 선택 가능하도록 */
+export const targetSelectOptions = [
+    { value: "0", option: "본인" }, 
+]

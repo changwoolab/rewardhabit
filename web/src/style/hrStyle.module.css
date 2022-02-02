@@ -7,3 +7,9 @@
     width: 100%;
     border-color: white;
 };
+
+.updown {
+    border: 5px solid black;
+    width: 0.1px;
+    height: 1000px;
+}

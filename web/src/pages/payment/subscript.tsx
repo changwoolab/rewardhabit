@@ -6,7 +6,7 @@ import { createUrqlClient } from '../../utils/createUrqlClient';
 import styles from "../../style/hrStyle.module.css"
 import { InputField } from '../../components/InputField';
 import { Form, Formik } from 'formik';
-import { packageSelectOptions } from '../../utils/selectOptions';
+import { packageSelectOptions, targetSelectOptions } from '../../utils/selectOptions';
 
 interface subscriptProps {}
 
@@ -25,7 +25,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
     const hrStyle = colorMode === "dark" ? styles.hr_dark : styles.hr_light;
 
     // Values
-    const [values, setValues] = useState({
+    const [packageValues, setPackageValues] = useState({
         package: 0, target: 0, dailyRefund: 0, term: 0, payment: 0
     });
 
@@ -33,7 +33,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
         <Layout variant="large">
           <Flex justifyContent={"center"}>
             <Button h={"100%"} w={"100%"} flex={1} m={"2px"} colorScheme={"teal"} variant={"outline"} onClick={() => {
-                setValues({
+                setPackageValues({
                     package: 1, target: 0, dailyRefund: 10000, term: 31, payment: 299000
                 })
             }}>
@@ -62,7 +62,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
             </Button>
 
             <Button h={"100%"} w={"100%"} flex={1} m={"2px"} colorScheme={"teal"} variant={"outline"} onClick={() => {
-                setValues({
+                setPackageValues({
                     package: 2, target: 0, dailyRefund: 10000, term: 62, payment: 599000
                 })
             }}>
@@ -91,7 +91,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
             </Button>
             
             <Button h={"100%"} w={"100%"} flex={1} m={"2px"} colorScheme={"teal"} variant={"outline"} onClick={() => {
-                setValues({
+                setPackageValues({
                     package: 3, target: 0, dailyRefund: 10000, term: 93, payment: 899000
                 })
             }}>
@@ -119,36 +119,97 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                 </Box>
             </Button>
           </Flex>
-          <Formik initialValues={values} onSubmit={(value) => {
-            console.log(values);
-          }}>
-          {({ isSubmitting }) => (
+
+          <Formik initialValues={{target: 0}} onSubmit={(value) => {
+            console.log(value)
+          }}
+          >
+          {({ isSubmitting, values }) => {
+          return(
           <>
             <Form>
                 <Box mt={4} borderWidth='1px' borderRadius='lg' overflow='hidden' borderColor={color}>
                   <Flex m={4} justifyContent={"center"}>
-                    {/* 패키지, 대상 -> 본인(0)/자녀(id), 일일반환액, 총 기간, 결제 금액 */}
                     <Box flex={1} textAlign={"center"}>
-                      <Text>패키지</Text>
-                      <InputField width={"80%"} name="package" placeholder="패키지 선택" 
-                          select selectOptions={packageSelectOptions} />
+                      <Text mb={2}>선택한 패키지</Text>
+                      <hr className={hrStyle}/>
+                      <Box>
+                        <InputField width={"80%"} name="package" value={packageSelectOptions[packageValues.package]} readOnly/>
+                      </Box>
                     </Box>
                     <Box flex={1} textAlign={"center"}>
-                      <Text>대상</Text>
-                      <InputField width={"80%"} name="target" placeholder="대상 선택" 
-                          select selectOptions={packageSelectOptions} />
+                      <Text mb={2}>대상</Text>
+                      <hr className={hrStyle}/>
+                      <Box w="80%" m="auto">
+                      <InputField name="target" placeholder="대상 선택" 
+                          select selectOptions={targetSelectOptions} />
+                      </Box>
                     </Box>
                     <Box flex={1} textAlign={"center"}>
-                      <Text>일일반환액</Text>
+                      <Text mb={2}>일일반환액</Text>
+                      <hr className={hrStyle}/>
+                      <InputField width={"80%"} name="dailyRefund" placeholder="일일반환액 입력" type="number" 
+                       value={packageValues.dailyRefund} readOnly />
+                    </Box>
+                    <Box flex={1} textAlign={"center"}>
+                      <Text mb={2}>기간(일)</Text>
+                      <hr className={hrStyle}/>
+                      <InputField width={"80%"} name="term" placeholder="기간(일수) 입력" type="number" 
+                        value={packageValues.term} readOnly/>
+                    </Box>
+                    <Box flex={1} textAlign={"center"}>
+                      <Text mb={2}>결제 금액</Text>
+                      <hr className={hrStyle}/>
+                      <InputField width={"80%"} name="payment" value={packageValues.payment} readOnly />
+                    </Box>
+                  </Flex>
+                  <Box textAlign={"center"}>
+                    <Button mb={4} w={"30%"} colorScheme='teal' type='submit'>패키지 구매하기</Button>
+                  </Box>
+                </Box>
+              </Form>
+              </>
+            )}}
+          </Formik>
+
+          <strong><Text fontSize={"lg"} mt={4}>일반 구매</Text></strong>
+          <Formik initialValues={
+           { target: 0, dailyRefund: 0, term: 0, payment: 0 }
+          } onSubmit={(value) => {
+            console.log(value);
+          }}
+          >
+          {({ isSubmitting, values }) => {
+          return(
+          <>
+            <Form>
+                <Box mt={4} borderWidth='1px' borderRadius='lg' overflow='hidden' borderColor={color}>
+                  <Flex m={4} justifyContent={"center"}>
+                    {/* 대상 -> 본인(0)/자녀(id), 일일반환액, 총 기간, 결제 금액 */}
+                    <Box flex={1} textAlign={"center"} alignContent={"center"}>
+                      <Text mb={2}>대상</Text>
+                      <hr className={hrStyle}/>
+                      <Box w="80%" m="auto">
+                      <InputField name="target" placeholder="대상 선택" 
+                          select selectOptions={targetSelectOptions} />
+                      </Box>
+                    </Box>
+                    <Box flex={1} textAlign={"center"}>
+                      <Text mb={2}>일일반환액</Text>
+                      <hr className={hrStyle}/>
+                      <Box m="auto">
                       <InputField width={"80%"} name="dailyRefund" placeholder="일일반환액 입력" type="number" />
+                      </Box>
                     </Box>
                     <Box flex={1} textAlign={"center"}>
-                      <Text>기간(일)</Text>
+                      <Text mb={2}>기간(일)</Text>
+                      <hr className={hrStyle}/>
                       <InputField width={"80%"} name="term" placeholder="기간(일수) 입력" type="number" />
                     </Box>
                     <Box flex={1} textAlign={"center"}>
-                      <Text>결제 금액</Text>
-                      <InputField width={"80%"} name="payment" readOnly />
+                      <Text mb={2}>결제 금액</Text>
+                      <hr className={hrStyle}/>
+                      <InputField width={"80%"} name="payment" value={values.dailyRefund * values.term} readOnly />
                     </Box>
                   </Flex>
                   <Box textAlign={"center"}>
@@ -157,7 +218,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                 </Box>
               </Form>
               </>
-            )}
+            )}}
           </Formik>
         </Layout>
         

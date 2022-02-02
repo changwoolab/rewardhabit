@@ -46,7 +46,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
                       <Box w={"100%"}>
                         {emailEditMode === "readOnly" ? 
                         <InputField readOnly name="email" label="이메일 주소"/>
-                        : <InputField color={"orange.400"} name="email" label="이메일 주소"/>}
+                        : <InputField borderColor={"orange.400"} name="email" label="이메일 주소"/>}
                       </Box>
                       <IconButton aria-label="edit email" icon={<EditIcon/>} ml={4} alignSelf={"end"} onClick={() => {
                         if (emailEditMode == "readOnly") {
@@ -61,7 +61,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
                       <Box w={"100%"}>
                         {bankEditMode === "readOnly" ?
                         <InputField readOnly name="bank" label="은행명"/>
-                        : <InputField color={"orange.400"} name="bank" label="은행명"/>}
+                        : <InputField borderColor={"orange.400"} name="bank" label="은행명"/>}
                       </Box>
                       <IconButton aria-label="edit email" icon={<EditIcon/>} ml={4} alignSelf={"end"} onClick={() => {
                         if (bankEditMode === "readOnly") {
@@ -75,7 +75,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
                       <Box w={"100%"}>
                         {accountEditMode === "readOnly" ?
                         <InputField readOnly name="account" label="계좌번호"/>
-                        : <InputField color={"orange.400"} name="account" label="계좌번호"/>
+                        : <InputField borderColor={"orange.400"} name="account" label="계좌번호"/>
                         }
                       </Box>
                       <IconButton aria-label="edit email" icon={<EditIcon/>} ml={4} alignSelf={"end"} onClick={() => {
