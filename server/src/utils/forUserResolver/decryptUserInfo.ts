@@ -1,6 +1,6 @@
 import { User_IV } from "../../entities/User_IV";
 import { User } from "../../entities/User";
-import { decrypt } from "../../secret_modules/encrypt";
+import { decrypt } from "../encrypt/encrypt";
 
 
 

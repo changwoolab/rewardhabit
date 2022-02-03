@@ -1,6 +1,6 @@
 import { UserRegisterInput } from "../../types/UserRegisterInput";
 import { UserResponse } from "../../types/UserResponse";
-import { decrypt } from "../../secret_modules/encrypt";
+import { decrypt } from "../encrypt/encrypt";
 import { directQuerying } from "../directQuerying";
 
 // email, account는 복호화를 한 뒤, 중복검사를 해줘야한다.

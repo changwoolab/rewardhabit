@@ -11,7 +11,7 @@ import argon2 from "argon2";
 import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
 import { directQuerying } from "../utils/directQuerying";
-import { decrypt } from "../secret_modules/encrypt";
+import { decrypt } from "../utils/encrypt/encrypt";
 import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from "../secret_modules/constants";
 import { sendEmail } from "../utils/sendEmail";
 import { emailForm } from "../utils/email/emailForm";

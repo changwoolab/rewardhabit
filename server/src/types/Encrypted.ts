@@ -1,4 +1,4 @@
-import { encrypt } from "../secret_modules/encrypt";
+import { encrypt } from "../utils/encrypt/encrypt";
 import { UserRegisterInput } from "./UserRegisterInput";
 
 export const keysToBeEncrypted = ["lastName", "firstName", "email", "bank", "account"];
