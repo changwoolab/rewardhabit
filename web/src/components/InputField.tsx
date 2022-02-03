@@ -13,15 +13,16 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
         option: string,
     }[];
     borderColor?: string;
+    mt?: number | string;
 }
 
 
-export const InputField: React.FC<InputFieldProps> = ({label, borderColor, size:_, textarea, select, selectOptions, ...props}) => {
+export const InputField: React.FC<InputFieldProps> = ({mt, label, borderColor, size:_, textarea, select, selectOptions, ...props}) => {
     const [field, {touched, error}] = useField(props);
     const {colorMode} = useColorMode();
     if (!borderColor) borderColor = colorMode === "dark" ? "white" : "black";
     if (!props.placeholder) props.placeholder = label;
-
+    if (!mt) mt=4;
     // input or Textarea or Select를 결정하는 컴포넌트 형성
     let InputOrElse: any = Input;
     let body: any = null;
@@ -36,7 +37,7 @@ export const InputField: React.FC<InputFieldProps> = ({label, borderColor, size:
     }
 
     return (
-        <Box mt={4}>
+        <Box mt={mt}>
         <FormControl isInvalid={touched && !!error}>
             <FormLabel htmlFor={field.name}>{label}</FormLabel>
             <InputOrElse borderColor={borderColor} {...field} {...props} id={field.name} >

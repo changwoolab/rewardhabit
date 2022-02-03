@@ -1,6 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany} from "typeorm";
 import { Comment } from "./Comment";
+import { Habit } from "./Habit";
 import { Post } from "./Post";
 import { Subscript } from "./Subscript";
 import { Updoot } from "./Updoot";
@@ -12,10 +13,11 @@ export class User extends BaseEntity { // BaseEntity로 Active Record를 가능�
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(() => Post, post => post.user, {
-        cascade: true
-    })
+    @OneToMany(() => Post, post => post.user)
     posts: Post[]; // Post에 대한 OneToMany Relation 설정
+
+    @OneToMany(() => Habit, habit => habit.user)
+    habits: Habit[]; // Post에 대한 OneToMany Relation 설정
 
     @OneToMany(() => Subscript, subscript => subscript.user)
     subscripts: Subscript[]; // Subscript에 대한 OneToMany Relation 설정

@@ -23,6 +23,7 @@ import { createUserLoader } from "./utils/dataLoader/createUserLoader";
 import { createUpdootLoader } from "./utils/dataLoader/createUpdootLoader";
 import { Comment } from "./entities/Comment";
 import { SubscriptResolver } from "./resolvers/subscript";
+import { Habit } from "./entities/Habit";
 
 const main = async() => {
     // Typeorm Connection
@@ -35,7 +36,7 @@ const main = async() => {
         password: DB_PASSWORD,
         logging: true,
         synchronize: true, // migration 없이 자동 synchronize
-        entities: [User, Post, Subscript, User_IV, Updoot, Comment],
+        entities: [User, Post, Subscript, User_IV, Updoot, Comment, Habit],
         migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
         multipleStatements: true // 여러개의 mock data를 넣을 것이므로
     });

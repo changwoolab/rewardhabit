@@ -13,6 +13,7 @@ exports.User = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Comment_1 = require("./Comment");
+const Habit_1 = require("./Habit");
 const Post_1 = require("./Post");
 const Subscript_1 = require("./Subscript");
 const Updoot_1 = require("./Updoot");
@@ -24,11 +25,13 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Post_1.Post, post => post.user, {
-        cascade: true
-    }),
+    (0, typeorm_1.OneToMany)(() => Post_1.Post, post => post.user),
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Habit_1.Habit, habit => habit.user),
+    __metadata("design:type", Array)
+], User.prototype, "habits", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Subscript_1.Subscript, subscript => subscript.user),
     __metadata("design:type", Array)

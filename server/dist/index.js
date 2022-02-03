@@ -27,6 +27,7 @@ const createUserLoader_1 = require("./utils/dataLoader/createUserLoader");
 const createUpdootLoader_1 = require("./utils/dataLoader/createUpdootLoader");
 const Comment_1 = require("./entities/Comment");
 const subscript_1 = require("./resolvers/subscript");
+const Habit_1 = require("./entities/Habit");
 const main = async () => {
     const conn = await (0, typeorm_1.createConnection)({
         type: 'mysql',
@@ -37,7 +38,7 @@ const main = async () => {
         password: constants_1.DB_PASSWORD,
         logging: true,
         synchronize: true,
-        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV, Updoot_1.Updoot, Comment_1.Comment],
+        entities: [User_1.User, Post_1.Post, Subscript_1.Subscript, User_IV_1.User_IV, Updoot_1.Updoot, Comment_1.Comment, Habit_1.Habit],
         migrations: [path_1.default.join(__dirname, "./migrations/*")],
         multipleStatements: true
     });
