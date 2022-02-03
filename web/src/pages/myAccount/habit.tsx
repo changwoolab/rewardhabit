@@ -93,7 +93,7 @@ const habit: React.FC<habitProps> = ({}) => {
                 const res = await createHabit({habitInput: value});
                 if (res) {
                   alert("습관이 추가되었습니다")
-                  router.reload();
+                  //router.reload();
                 }
             }}
           >

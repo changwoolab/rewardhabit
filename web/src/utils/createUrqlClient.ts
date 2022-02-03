@@ -138,6 +138,14 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
       // cache를 업데이트할 조건
       updates: {
         Mutation: {
+          // 습관 추가 시 캐시 업데이트
+          createHabit: (result, args, cache, info) => {
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(info => info.fieldName === "myHabits");
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "myHabits"); // invalidateAllPost를 사용하고 싶지만.. argument 넣으면 안됨.
+            });
+          },
           // 포스트 삭제 시 캐시 업데이트
           deletePost: (result, args, cache, info) => {
             cache.invalidate({ __typename: "Post", id: (args as DeletePostMutationVariables).id })
