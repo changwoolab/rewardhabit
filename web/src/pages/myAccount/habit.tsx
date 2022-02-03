@@ -34,13 +34,15 @@ const habit: React.FC<habitProps> = ({}) => {
         <MyAccountLayout>
           <Box>
             <Text>내 습관</Text>
+            
           </Box>
           <Box>
             <Text>내 시간표</Text>
           </Box>
-          <Box>
+          <Box textAlign={"center"}>
             <Text>습관 추가하기</Text>
-            <Text>주의점) 시작시간/종료시간 중 하나라도 입력하지 않으면, "종일"로 구분됩니다.</Text>
+            <Text>시작시간/종료시간 중 하나 이상 입력하지 않으면, "종일"로 구분됩니다</Text>
+            <Text>종일로 구분되지 않으려면 둘 다 입력해주세요</Text>
             <Formik initialValues={{
               habitDay: "", habitName: "", habitStart: "", habitEnd: ""}} onSubmit={(value) => {
                 let temp = "";
@@ -77,10 +79,10 @@ const habit: React.FC<habitProps> = ({}) => {
                       </Box>
                     </SubscriptBox>
                     <SubscriptBox desc="습관시작시각">
-                      <InputField width={"80%"} name="habitStart" placeholder="예시) 05:21" />
+                      <InputField width={"80%"} name="habitStart" placeholder="예시) 05:20" />
                     </SubscriptBox>
                     <SubscriptBox desc="습관종료시각">
-                      <InputField width={"80%"} name="habitEnd" placeholder="예시) 17:32" />
+                      <InputField width={"80%"} name="habitEnd" placeholder="예시) 17:30" />
                     </SubscriptBox>
                   </Flex>
                   <Box textAlign={"center"}>

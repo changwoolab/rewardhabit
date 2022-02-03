@@ -24,6 +24,7 @@ import { createUpdootLoader } from "./utils/dataLoader/createUpdootLoader";
 import { Comment } from "./entities/Comment";
 import { SubscriptResolver } from "./resolvers/subscript";
 import { Habit } from "./entities/Habit";
+import { HabitResolver } from "./resolvers/habit";
 
 const main = async() => {
     // Typeorm Connection
@@ -79,7 +80,7 @@ const main = async() => {
     // Apollo Server for Graphql
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [TestResolver, PostResolver, UserResolver, SubscriptResolver],
+            resolvers: [TestResolver, PostResolver, UserResolver, SubscriptResolver, HabitResolver],
             validate: false
         }),
         // 모든 Resolver에서 접근 가능하게 만들어줌. => req, res 필요 (cookie 정보는 req, res에 담겨있다~)
