@@ -1,4 +1,4 @@
-import { Box, Button, color, Flex, Heading, Link, Stack, Text, useColorMode } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Link, Stack, Text, useColorMode } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import React, { useState } from 'react';
 import { MyAccountLayout } from '../../components/myAccountLayout';
@@ -7,14 +7,25 @@ import NextLink from "next/link"
 import { Formik, Form } from 'formik';
 import { InputField } from '../../components/InputField';
 import { SubscriptBox } from '../../components/SubscriptBox';
-import { packageSelectOptions, targetSelectOptions } from '../../utils/selectOptions';
+import { useCreateHabitMutation, useMyHabitsQuery } from '../../generated/graphql';
+import { object, string, ValidationError } from 'yup';
+import { useRouter } from 'next/router';
+import { EditDeleteButton } from '../../components/CEDButton';
 
 interface habitProps {}
 
 const habit: React.FC<habitProps> = ({}) => {
+  const router = useRouter();
+
   // 다크모드인지 확인 후 색깔 결정
   const {colorMode} = useColorMode();
   const color = colorMode === "dark" ? "white" : "black";
+
+  // MyHabit Hook
+  const [{data: myHabits}] = useMyHabitsQuery();
+
+  // createHabit Hook
+  const [, createHabit] = useCreateHabitMutation();
 
   // 요일 선택 기능 State
   let days: boolean[] = [];
@@ -30,11 +41,39 @@ const habit: React.FC<habitProps> = ({}) => {
     )
   }
 
+  const checker = (value: string | undefined) => {
+    if (!value) return false;
+    const splitted = value.split(":")
+    if (!splitted[0] || !splitted[1]) return false;
+    if (splitted[0].length != 2 || splitted[1].length != 2) return false;
+    if ((Number(splitted[0]) >= 0 && Number(splitted[0]) <= 23) 
+        && Number(splitted[1]) >= 0 && Number(splitted[1]) <= 59) return true;
+    return false;
+  }
+  const habitValidationSchema = object().shape({
+    habitStart: string().test("habitStart", "정확히 입력하세요 예)05:20", checker), 
+    habitEnd: string().test("habitEnd", "정확히 입력하세요 예)17:20", checker), 
+  });
+
     return (
         <MyAccountLayout>
           <Box>
             <Text>내 습관</Text>
-            
+            {!myHabits ? null : <Stack spacing={1}>
+                {myHabits?.myHabits.map((p) => !p ? null : (
+                  <Box key={p.id} p={2} shadow="md" borderwidth="1px">
+                    <Flex>
+                      <Box flex={1}>
+                        <Heading fontSize="xl">습관명: {p.habitName}</Heading>
+                        <Flex>
+                        <Text>시작시간: {p.habitStart}</Text>
+                        <Text ml={4}>종료시간: {p.habitEnd}</Text>
+                        </Flex>
+                      </Box>
+                    </Flex>
+                  </Box>
+                ))}
+              </Stack>}
           </Box>
           <Box>
             <Text>내 시간표</Text>
@@ -44,13 +83,18 @@ const habit: React.FC<habitProps> = ({}) => {
             <Text>시작시간/종료시간 중 하나 이상 입력하지 않으면, "종일"로 구분됩니다</Text>
             <Text>종일로 구분되지 않으려면 둘 다 입력해주세요</Text>
             <Formik initialValues={{
-              habitDay: "", habitName: "", habitStart: "", habitEnd: ""}} onSubmit={(value) => {
+              habitDay: "", habitName: "", habitStart: "", habitEnd: ""}} validationSchema={habitValidationSchema}
+              onSubmit={async (value) => {
                 let temp = "";
                 for(let i = 0; i < 7; i++) {
                   if (days[i] === true) temp += `${i+1}`;
                 }
                 value.habitDay = temp;
-                console.log(value);
+                const res = await createHabit({habitInput: value});
+                if (res) {
+                  alert("습관이 추가되었습니다")
+                  router.reload();
+                }
             }}
           >
           {({ isSubmitting, values }) => {

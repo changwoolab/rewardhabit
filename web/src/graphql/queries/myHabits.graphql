@@ -1,0 +1,10 @@
+query MyHabits {
+    myHabits{
+        id
+        habitName
+        habitDay
+        habitStart
+        habitEnd
+        checked
+  }
+}

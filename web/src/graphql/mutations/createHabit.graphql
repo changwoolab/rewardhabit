@@ -1,0 +1,11 @@
+mutation CreateHabit(
+    $habitInput: HabitInput!
+) {
+    createHabit(habitInput: $habitInput) {
+        habitDay
+        habitEnd
+        habitName
+        habitStart
+        checked
+    }
+}

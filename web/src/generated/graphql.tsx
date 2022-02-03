@@ -33,13 +33,34 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type Habit = {
+  __typename?: 'Habit';
+  checked: Scalars['Boolean'];
+  habitDay: Scalars['String'];
+  habitEnd: Scalars['String'];
+  habitName: Scalars['String'];
+  habitStart: Scalars['String'];
+  id: Scalars['Float'];
+  userId: Scalars['Float'];
+};
+
+export type HabitInput = {
+  habitDay: Scalars['String'];
+  habitEnd: Scalars['String'];
+  habitName: Scalars['String'];
+  habitStart: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: Scalars['Boolean'];
   checkImmediateDuplicate: Scalars['Boolean'];
   createComment?: Maybe<Post>;
+  createHabit: Habit;
   createPost: Post;
+  deleteHabit: Scalars['Boolean'];
   deletePost: Scalars['Boolean'];
+  editHabit: Habit;
   forgotPassword: Scalars['Boolean'];
   forgotUserId: Scalars['Boolean'];
   login?: Maybe<UserResponse>;
@@ -68,13 +89,29 @@ export type MutationCreateCommentArgs = {
 };
 
 
+export type MutationCreateHabitArgs = {
+  habitInput: HabitInput;
+};
+
+
 export type MutationCreatePostArgs = {
   input: PostInput;
 };
 
 
+export type MutationDeleteHabitArgs = {
+  habitId: Scalars['Float'];
+};
+
+
 export type MutationDeletePostArgs = {
   id: Scalars['Int'];
+};
+
+
+export type MutationEditHabitArgs = {
+  habitId: Scalars['Float'];
+  habitInput: HabitInput;
 };
 
 
@@ -156,6 +193,7 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<UserResponse>;
   myAccount: UserResponse;
+  myHabits: Array<Habit>;
   offsetBasePosts: Array<Post>;
   pagesCount: Scalars['Int'];
   post: Post;
@@ -260,6 +298,13 @@ export type ChangePasswordMutationVariables = Exact<{
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: boolean };
 
+export type CreateHabitMutationVariables = Exact<{
+  habitInput: HabitInput;
+}>;
+
+
+export type CreateHabitMutation = { __typename?: 'Mutation', createHabit: { __typename?: 'Habit', habitDay: string, habitEnd: string, habitName: string, habitStart: string, checked: boolean } };
+
 export type CreatePostMutationVariables = Exact<{
   input: PostInput;
 }>;
@@ -349,6 +394,11 @@ export type MyAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, lastName: string, firstName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
 
+export type MyHabitsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyHabitsQuery = { __typename?: 'Query', myHabits: Array<{ __typename?: 'Habit', id: number, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean }> };
+
 export type OffsetBasePostsQueryVariables = Exact<{
   type: Scalars['Int'];
   limit: Scalars['Int'];
@@ -433,6 +483,21 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreateHabitDocument = gql`
+    mutation CreateHabit($habitInput: HabitInput!) {
+  createHabit(habitInput: $habitInput) {
+    habitDay
+    habitEnd
+    habitName
+    habitStart
+    checked
+  }
+}
+    `;
+
+export function useCreateHabitMutation() {
+  return Urql.useMutation<CreateHabitMutation, CreateHabitMutationVariables>(CreateHabitDocument);
 };
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
@@ -610,6 +675,22 @@ export const MyAccountDocument = gql`
 
 export function useMyAccountQuery(options: Omit<Urql.UseQueryArgs<MyAccountQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyAccountQuery>({ query: MyAccountDocument, ...options });
+};
+export const MyHabitsDocument = gql`
+    query MyHabits {
+  myHabits {
+    id
+    habitName
+    habitDay
+    habitStart
+    habitEnd
+    checked
+  }
+}
+    `;
+
+export function useMyHabitsQuery(options: Omit<Urql.UseQueryArgs<MyHabitsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MyHabitsQuery>({ query: MyHabitsDocument, ...options });
 };
 export const OffsetBasePostsDocument = gql`
     query OffsetBasePosts($type: Int!, $limit: Int!, $page: Int!) {

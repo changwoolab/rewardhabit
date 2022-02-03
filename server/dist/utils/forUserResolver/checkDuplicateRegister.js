@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkDuplicateRegister = void 0;
-const encrypt_1 = require("../../secret_modules/encrypt");
+const encrypt_1 = require("../encrypt/encrypt");
 const directQuerying_1 = require("../directQuerying");
 const checkDuplicateRegister = async (inputs) => {
     const sql = "SELECT account, email, accountIV, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";

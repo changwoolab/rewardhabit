@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EncryptedData = exports.Encrypted = exports.keysToBeEncrypted = void 0;
-const encrypt_1 = require("../secret_modules/encrypt");
+const encrypt_1 = require("../utils/encrypt/encrypt");
 exports.keysToBeEncrypted = ["lastName", "firstName", "email", "bank", "account"];
 class Encrypted {
 }
