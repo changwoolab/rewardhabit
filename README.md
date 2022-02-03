@@ -12,15 +12,49 @@
 >
 
     $ redis-server
+    
+2. /server/src/secret_modules/constants.ts 파일을 추가하고 다음과 같은 정보들을 추가해줍니다.
 
-2. server를 실행시킵니다.
+>
+
+    
+    // DB
+    export const DB_NAME = ;
+    export const DB_USERNAME = ;
+    export const DB_PASSWORD = ;
+    export const DB_HOST = ;
+    export const DB_PORT = ;
+
+
+    // 암호화
+    export const ENCRYPT_ALGORITHM = "aes-256-cbc";
+    export const ENCRYPT_KEY = Buffer.from(""); // 32byte 크기로 설정해주세요
+
+
+    // COOKIE
+    export const COOKIE_NAME = ;
+
+    // EMAIL
+    export const EMAIL_ID = 
+    export const EMAIL_PW = 
+
+    // FORGOT_PASSWORD
+    export const FORGOT_PASSWORD_PREFIX = 
+
+    // OPEN_AI API KEY
+    export const OPENAI_API_KEY = 
+
+
+3. server를 실행시킵니다.
 
 >
 
     $ cd server
+    $ yarn watch
+    $ cd server
     $ yarn dev
 
-3. web을 실행시킵니다.
+4. web을 실행시킵니다.
 
 >
 
