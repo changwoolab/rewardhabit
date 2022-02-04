@@ -17,6 +17,10 @@ interface habitProps {}
 const habit: React.FC<habitProps> = ({}) => {
   const router = useRouter();
 
+  const initialValue = {
+    habitDay: "", habitName: "", habitStart: "", habitEnd: ""
+  };
+
   // 다크모드인지 확인 후 색깔 결정
   const {colorMode} = useColorMode();
   const color = colorMode === "dark" ? "white" : "black";
@@ -82,9 +86,8 @@ const habit: React.FC<habitProps> = ({}) => {
             <Text>습관 추가하기</Text>
             <Text>시작시간/종료시간 중 하나 이상 입력하지 않으면, "종일"로 구분됩니다</Text>
             <Text>종일로 구분되지 않으려면 둘 다 입력해주세요</Text>
-            <Formik initialValues={{
-              habitDay: "", habitName: "", habitStart: "", habitEnd: ""}} validationSchema={habitValidationSchema}
-              onSubmit={async (value) => {
+            <Formik initialValues={initialValue} validationSchema={habitValidationSchema}
+              onSubmit={async (value, actions) => {
                 let temp = "";
                 for(let i = 0; i < 7; i++) {
                   if (days[i] === true) temp += `${i+1}`;
@@ -93,11 +96,11 @@ const habit: React.FC<habitProps> = ({}) => {
                 const res = await createHabit({habitInput: value});
                 if (res) {
                   alert("습관이 추가되었습니다")
-                  //router.reload();
+                  actions.resetForm({values: initialValue});
                 }
             }}
           >
-          {({ isSubmitting, values }) => {
+          {({ isSubmitting }) => {
           return(
           <>
             <Form>
@@ -130,7 +133,7 @@ const habit: React.FC<habitProps> = ({}) => {
                     </SubscriptBox>
                   </Flex>
                   <Box textAlign={"center"}>
-                    <Button mb={4} w={"20%"} colorScheme='teal' type='submit'>습관추가</Button>
+                    <Button mb={4} w={"20%"} colorScheme='teal' isLoading={isSubmitting} type='submit'>습관추가</Button>
                   </Box>
                 </Box>
               </Form>
