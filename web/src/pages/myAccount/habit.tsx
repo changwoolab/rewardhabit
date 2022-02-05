@@ -52,6 +52,7 @@ const habit: React.FC<habitProps> = ({}) => {
   // 다크모드인지 확인 후 색깔 결정
   const { colorMode } = useColorMode();
   const color = colorMode === "dark" ? "white" : "black";
+  const borderColor = colorMode === "dark" ? "#c8c8c8" : "gray";
 
   // MyHabit Hook
   const [{ data: myHabits }] = useMyHabitsQuery();
@@ -84,22 +85,33 @@ const habit: React.FC<habitProps> = ({}) => {
   const heightPerHour = 35;
   /** 시간표 시간대 생성기 */
   const TimeTableHours = () => {
-    let li = [<Box key="init" h={`${heightPerHour}px`}>-</Box>];
+    let li = [
+      <Box key="init" h={`${heightPerHour}px`}>
+        -
+      </Box>,
+    ];
     // 종일 추가
     li.push(
-    <Flex
-      key="allDay"
-      justifyContent={"center"}
-      alignItems={"center"}
-      h={`${heightPerHour*3}px`}
-    >
-      종일
-    </Flex>)
+      <Flex
+        borderRadius={"sm"}
+        border="1px"
+        borderColor={borderColor}
+        key="allDay"
+        justifyContent={"center"}
+        alignItems={"center"}
+        h={`${heightPerHour * 3}px`}
+      >
+        종일
+      </Flex>
+    );
     // 시간 추가
     for (let i = 0; i < 24; i++) {
       li.push(
         <Flex
-          key={"timetable"+i}
+          borderRadius={"sm"}
+          border="1px"
+          borderColor={borderColor}
+          key={"timetable" + i}
           justifyContent={"center"}
           alignItems={"center"}
           h={`${heightPerHour}px`}
@@ -143,6 +155,9 @@ const habit: React.FC<habitProps> = ({}) => {
       if (sortedHabits.length <= index || !sortedHabits[index].allDay) {
         li.push(
           <Flex
+            borderRadius={"sm"}
+            border="1px"
+            borderColor={borderColor}
             key={"allDay" + index}
             h={`${heightPerHour * (3 - time)}px`}
           ></Flex>
@@ -175,7 +190,13 @@ const habit: React.FC<habitProps> = ({}) => {
             Math.ceil(sortedHabits[index].start)
         ) {
           li.push(
-            <Flex key={"0.5day" + index} h={`${heightPerHour * 0.5}px`}></Flex>
+            <Flex
+              border="1px"
+              borderRadius={"sm"}
+              borderColor={borderColor}
+              key={"0.5day" + index}
+              h={`${heightPerHour * 0.5}px`}
+            ></Flex>
           );
           time += 0.5;
         }
@@ -192,22 +213,26 @@ const habit: React.FC<habitProps> = ({}) => {
       } else if (Math.floor(time) != Math.ceil(time)) {
         li.push(
           <Flex
+            borderRadius={"sm"}
+            border="1px"
+            borderColor={borderColor}
             key={"empty" + time}
             justifyContent={"center"}
             alignItems={"center"}
             h={`${heightPerHour * 0.5}px`}
-            borderColor={"white"}
           ></Flex>
         );
         time += 0.5;
       } else {
         li.push(
           <Flex
+            borderRadius={"sm"}
+            border="1px"
+            borderColor={borderColor}
             key={"empty" + time}
             justifyContent={"center"}
             alignItems={"center"}
             h={`${heightPerHour}px`}
-            borderColor={"white"}
           ></Flex>
         );
         time += 1;
@@ -218,9 +243,9 @@ const habit: React.FC<habitProps> = ({}) => {
 
   /** 습관 추가 색깔 선택창 */
   const SelectColor = () => {
-    const [isEditing, setIsEditing] = useBoolean()
-    const [color, setColor] = useState('red')
-    const {values} = useFormikContext();
+    const [isEditing, setIsEditing] = useBoolean();
+    const [color, setColor] = useState("red");
+    const { values } = useFormikContext();
     return (
       <Popover
         isOpen={isEditing}
@@ -276,8 +301,7 @@ const habit: React.FC<habitProps> = ({}) => {
         </PopoverContent>
       </Popover>
     );
-  }
-
+  };
 
   /** 시간표 요일 생성 위함 */
   const dayDays = [
@@ -293,13 +317,20 @@ const habit: React.FC<habitProps> = ({}) => {
     <MyAccountLayout>
       <Box>
         <Text>내 시간표</Text>
-        <Flex borderRadius={"2xl"} border={"1px"} justifyContent={"center"}>
+        <Flex
+          bgColor={colorMode === "dark" ? "#5a5a5a" : "#bebebe"}
+          borderRadius={"sm"}
+          border={"1px"}
+          justifyContent={"center"}
+        >
           <Box flex={1} textAlign={"center"}>
             <TimeTableHours />
           </Box>
           {dayDays.map((value) => (
-            <Box key={"days"+value[0]} flex={1} textAlign={"center"}>
-              <Text h={`${heightPerHour}px`}>{value[1]}</Text>
+            <Box key={"days" + value[0]} flex={1} textAlign={"center"}>
+              <Text h={`${heightPerHour}px`}>
+                <strong>{value[1]}</strong>
+              </Text>
               {DayTimeGenerator(value[0])}
             </Box>
           ))}
@@ -312,7 +343,12 @@ const habit: React.FC<habitProps> = ({}) => {
           <Stack spacing={1}>
             {myHabits?.myHabits.map((p) =>
               !p ? null : (
-                <Box key={"myHabits"+p.id} p={2} shadow="md" borderwidth="1px">
+                <Box
+                  key={"myHabits" + p.id}
+                  p={2}
+                  shadow="md"
+                  borderwidth="1px"
+                >
                   <Flex>
                     <Box flex={1}>
                       <Heading fontSize="sm">습관명: {p.habitName}</Heading>
@@ -332,7 +368,9 @@ const habit: React.FC<habitProps> = ({}) => {
       </Box>
 
       <Box mt={2} textAlign={"center"}>
-        <Text fontSize="xl"><strong>습관 추가하기</strong></Text>
+        <Text fontSize="xl">
+          <strong>습관 추가하기</strong>
+        </Text>
         <Text>종일을 선택한 경우, 습관시간은 입력하지 않으셔도 됩니다.</Text>
         <Text>종일습관은 매일 최대 6개씩 추가 가능합니다.</Text>
         <Formik
@@ -347,7 +385,8 @@ const habit: React.FC<habitProps> = ({}) => {
               alert("요일을 선택해주세요");
               return;
             }
-            let {bgColor, habitName, startHour, startMin, endHour, endMin} = value;
+            let { bgColor, habitName, startHour, startMin, endHour, endMin } =
+              value;
             // 습관명 검증
             if (!habitName) {
               alert("습관명을 입력해주세요");
@@ -416,7 +455,11 @@ const habit: React.FC<habitProps> = ({}) => {
                         </Box>
                       </SubscriptBox>
                       <SubscriptBox desc="종일">
-                        <Flex mt={4} justifyContent={"center"} alignItems={"center"}>
+                        <Flex
+                          mt={4}
+                          justifyContent={"center"}
+                          alignItems={"center"}
+                        >
                           {DayButton("종일", 7)}
                         </Flex>
                       </SubscriptBox>

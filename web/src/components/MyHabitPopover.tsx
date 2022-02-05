@@ -24,27 +24,29 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
   // 다크모드인지 확인 후 색깔 결정
   const { colorMode } = useColorMode();
   const color = colorMode === "dark" ? "white" : "black";
-  let bgColor = colorMode === "dark" ? habit.bgColor.split(".")[0] + ".700" : habit.bgColor;
+  const bgColor =
+    colorMode === "dark" ? habit.bgColor.split(".")[0] + ".700" : habit.bgColor;
+  const borderColor = colorMode === "dark" ? "#c8c8c8" : "gray";
 
-  const days = ["월", "화", "수", "목", "금", "토", "일"]
+  const days = ["월", "화", "수", "목", "금", "토", "일"];
   let habitDays = [];
   for (let i = 0; i < habit.habitDay.length; i++) {
-    habitDays.push(days[Number(habit.habitDay[i])-1]);
+    habitDays.push(days[Number(habit.habitDay[i]) - 1]);
   }
   return (
     <Popover placement="auto" closeOnBlur={false}>
       <PopoverTrigger>
         <Flex
           bgColor={bgColor}
-          borderRadius={"2xl"}
-          w="97%"
+          w="100%"
           as="button"
           direction="column"
           justifyContent={"center"}
           alignItems={"center"}
           h={`${height}px`}
           border="1px"
-          borderColor={color}
+          borderRadius={"sm"}
+          borderColor={borderColor}
         >
           <Text fontSize={"5px"}>{habit.habitName}</Text>
           {habit.allDay ? null : (
@@ -68,7 +70,7 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
             {!habitDays
               ? null
               : habitDays.map((value) => (
-                  <Text ml={1} key={"habitDays"+value}>
+                  <Text ml={1} key={"habitDays" + value}>
                     {value}
                   </Text>
                 ))}
