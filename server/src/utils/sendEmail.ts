@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 import { EMAIL_ID, EMAIL_PW } from "../secret_modules/constants";
 
 // to: 누구에게 보낼지, subject: 메일 제목, html: 어떤 내용을 보낼지
@@ -12,8 +12,8 @@ export async function sendEmail(to: string, subject: string, html: string) {
       pass: EMAIL_PW,
     },
     tls: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 
   // send mail with defined transport object

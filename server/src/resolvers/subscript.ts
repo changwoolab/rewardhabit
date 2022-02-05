@@ -5,15 +5,17 @@ import { getManager } from "typeorm";
 
 @Resolver(Subscript)
 export class SubscriptResolver {
-    @FieldResolver(() => String, {nullable: true})
-    async daysRemain(
-        @Root() subscript: Subscript,
-        @Ctx() { req }: ReqResContext
-    ) {
-        const res = await getManager()
-        .query(`
+  @FieldResolver(() => String, { nullable: true })
+  async daysRemain(
+    @Root() subscript: Subscript,
+    @Ctx() { req }: ReqResContext
+  ) {
+    const res = await getManager().query(
+      `
         select datediff(expireAt, startedAt) as dateDiff from subscript where userId = ?;
-        `, [req.session.userId]);
-        return res[0].dateDiff;
-    }
+        `,
+      [req.session.userId]
+    );
+    return res[0].dateDiff;
+  }
 }
