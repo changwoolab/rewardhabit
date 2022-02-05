@@ -1,3 +1,4 @@
 /node_modules
 /src/secret_modules
 /dist/secret_modules
+/dist
