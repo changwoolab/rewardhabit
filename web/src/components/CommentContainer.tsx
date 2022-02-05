@@ -13,16 +13,21 @@ export const CommentContainer: React.FC<CommentContainerProps> = ({imgSrc, comme
         return null;
     }
     for(let i = 0; i < comment?.length; i++) {
-        comments.push((
-        <Flex key={i}>
-            <Image mr={4} src={imgSrc} borderRadius="full" width={43} height={43} /> 
+        comments.push(
+          <Flex key={i}>
+            <Image
+              mr={4}
+              src={imgSrc}
+              borderRadius="full"
+              width={43}
+              height={43}
+            />
             <Box>
               {comment[i].userName}
-              <Box>
-                {comment[i].texts}
-              </Box>
+              <Box>{comment[i].texts}</Box>
             </Box>
-        </Flex>));
+          </Flex>
+        );
     }
     return ( 
         <>

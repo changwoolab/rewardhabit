@@ -10,27 +10,35 @@ interface CommentButtonProps {
 
 /** 댓글/수정/삭제 (Comment, Edit, Delete) 버튼 */
 export const CommentButton: React.FC<CommentButtonProps> = ({post}) => {
-    const [showComment, setShowComment] = useState<"show-comment" | "hide-comment">("hide-comment");
+  const [showComment, setShowComment] = useState<
+    "show-comment" | "hide-comment"
+  >("hide-comment");
 
-    if (!post.comments) return null;
-    
-    // 로그인 되어있지 않다면 수정/삭제 버튼 안보여줌
-    return (
+  if (!post.comments) return null;
+
+  // 로그인 되어있지 않다면 수정/삭제 버튼 안보여줌
+  return (
     <>
-        <Flex>
+      <Flex>
         {showComment === "hide-comment" ? null : (
-            <CommentContainer
+          <CommentContainer
             imgSrc="/open_ai_logo.jpg"
-            comment={post.comments} />
+            comment={post.comments}
+          />
         )}
-            <IconButton ml={"auto"} aria-label="Edit Post" icon={<ChatIcon />} onClick={async () => {
+        <IconButton
+          ml={"auto"}
+          aria-label="Edit Post"
+          icon={<ChatIcon />}
+          onClick={async () => {
             if (showComment === "hide-comment") {
-                setShowComment("show-comment");
+              setShowComment("show-comment");
             } else {
-                setShowComment("hide-comment");
+              setShowComment("hide-comment");
             }
-            }}/>
-        </Flex>
+          }}
+        />
+      </Flex>
     </>
-      );
+  );
 }

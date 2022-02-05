@@ -10,11 +10,15 @@ export const wrapperSize = {
 }
 
 interface WrapperProps {
-    variant: WrapperVariant;
+  variant: WrapperVariant;
 }
 
-const Wrapper: React.FC<WrapperProps> = ({ children, variant="regular" }) => {
-    return <Box maxW={wrapperSize[variant]} minH={"100vh"} w="100%" mt={8} mx="auto">{children}</Box>;
-}
+const Wrapper: React.FC<WrapperProps> = ({ children, variant = "regular" }) => {
+  return (
+    <Box maxW={wrapperSize[variant]} minH={"100vh"} w="100%" mt={8} mx="auto">
+      {children}
+    </Box>
+  );
+};
 
 export default Wrapper;

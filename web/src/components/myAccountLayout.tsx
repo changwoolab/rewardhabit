@@ -9,17 +9,15 @@ interface MyAccountLayoutProps {
 
 export const MyAccountLayout: React.FC<MyAccountLayoutProps> = ({ children }) => {
     return (
-        <>
+      <>
         <Layout variant="large">
-        <Grid templateColumns="1fr 3fr" gap={1}>
-          <GridItem>
-            <SideBar />
-          </GridItem>
-          <GridItem>
-            {children}
-          </GridItem>
-        </Grid>
+          <Grid templateColumns="1fr 3fr" gap={1}>
+            <GridItem>
+              <SideBar />
+            </GridItem>
+            <GridItem>{children}</GridItem>
+          </Grid>
         </Layout>
-        </>
+      </>
     );
 }
