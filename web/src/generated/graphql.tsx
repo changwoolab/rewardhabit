@@ -35,6 +35,8 @@ export type FieldError = {
 
 export type Habit = {
   __typename?: 'Habit';
+  allDay: Scalars['Boolean'];
+  bgColor: Scalars['String'];
   checked: Scalars['Boolean'];
   habitDay: Scalars['String'];
   habitEnd: Scalars['String'];
@@ -45,6 +47,8 @@ export type Habit = {
 };
 
 export type HabitInput = {
+  allDay: Scalars['Boolean'];
+  bgColor: Scalars['String'];
   habitDay: Scalars['String'];
   habitEnd: Scalars['String'];
   habitName: Scalars['String'];
@@ -397,7 +401,7 @@ export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: '
 export type MyHabitsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyHabitsQuery = { __typename?: 'Query', myHabits: Array<{ __typename?: 'Habit', id: number, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean }> };
+export type MyHabitsQuery = { __typename?: 'Query', myHabits: Array<{ __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string }> };
 
 export type OffsetBasePostsQueryVariables = Exact<{
   type: Scalars['Int'];
@@ -680,11 +684,13 @@ export const MyHabitsDocument = gql`
     query MyHabits {
   myHabits {
     id
+    allDay
     habitName
     habitDay
     habitStart
     habitEnd
     checked
+    bgColor
   }
 }
     `;

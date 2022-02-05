@@ -1,10 +1,12 @@
 query MyHabits {
     myHabits{
         id
+        allDay
         habitName
         habitDay
         habitStart
         habitEnd
         checked
+        bgColor
   }
 }

@@ -2,12 +2,20 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
-  GridItem,
+  FormControl,
   Heading,
-  Link,
+  HStack,
+  Input,
+  Popover,
+  PopoverAnchor,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
+  useBoolean,
   useColorMode,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
@@ -15,15 +23,16 @@ import React, { useState } from "react";
 import { MyAccountLayout } from "../../components/myAccountLayout";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import NextLink from "next/link";
-import { Formik, Form } from "formik";
+import { Formik, Form, useFormikContext } from "formik";
 import { InputField } from "../../components/InputField";
 import { SubscriptBox } from "../../components/SubscriptBox";
 import {
   useCreateHabitMutation,
   useMyHabitsQuery,
 } from "../../generated/graphql";
-import { object, string, ValidationError } from "yup";
 import { useRouter } from "next/router";
+import { hourSelectOptions, minSelectOptions } from "../../utils/selectOptions";
+import { MyHabitPopover } from "../../components/MyHabitPopover";
 
 interface habitProps {}
 
@@ -33,8 +42,11 @@ const habit: React.FC<habitProps> = ({}) => {
   const initialValue = {
     habitDay: "",
     habitName: "",
-    habitStart: "",
-    habitEnd: "",
+    startHour: "",
+    startMin: "",
+    endHour: "",
+    endMin: "",
+    bgColor: "",
   };
 
   // 다크모드인지 확인 후 색깔 결정
@@ -47,12 +59,13 @@ const habit: React.FC<habitProps> = ({}) => {
   // createHabit Hook
   const [, createHabit] = useCreateHabitMutation();
 
-  // 습관 추가 요일 선택
+  // 습관 추가 요일 선택 (8번째(7)는 종일여부)
   let days: boolean[] = [];
-  for (let i = 0; i < 7; i++) days.push(false);
+  for (let i = 0; i < 8; i++) days.push(false);
+
   const DayButton = (day: string, idx: number) => {
     const [clicked, setClicked] = useState<boolean>(false);
-    const color = clicked ? "teal" : undefined;
+    const color = days[idx] ? "teal" : undefined;
     return (
       <Button
         size={"sm"}
@@ -70,11 +83,23 @@ const habit: React.FC<habitProps> = ({}) => {
   // 시간 당 높이
   const heightPerHour = 35;
   /** 시간표 시간대 생성기 */
-  const timeTableHours = () => {
-    let li = [<Box h={`${heightPerHour}px`}>-</Box>];
+  const TimeTableHours = () => {
+    let li = [<Box key="init" h={`${heightPerHour}px`}>-</Box>];
+    // 종일 추가
+    li.push(
+    <Flex
+      key="allDay"
+      justifyContent={"center"}
+      alignItems={"center"}
+      h={`${heightPerHour*3}px`}
+    >
+      종일
+    </Flex>)
+    // 시간 추가
     for (let i = 0; i < 24; i++) {
       li.push(
         <Flex
+          key={"timetable"+i}
           justifyContent={"center"}
           alignItems={"center"}
           h={`${heightPerHour}px`}
@@ -87,8 +112,8 @@ const habit: React.FC<habitProps> = ({}) => {
   };
 
   /** 요일별 시간 생성기 */
-  const dayTimeGenerator = (type: string) => {
-    if (!myHabits) return undefined;
+  const DayTimeGenerator = (type: string) => {
+    if (!myHabits || myHabits.myHabits.length == 0) return null;
     // 1. 요일에 type이 포함된 것들만 뽑아내기 + 정렬 위한 인덱싱
     let habits: any[] = [];
     myHabits.myHabits.forEach((value) => {
@@ -112,26 +137,54 @@ const habit: React.FC<habitProps> = ({}) => {
     let li = [];
     let time = 0;
     let index = 0;
+    // 3-1. 종일 추가하기
+    while (time < 3) {
+      // 종일이 아닌게 나온 경우 or 습관이 끝난 경우 반복문 끝내기
+      if (sortedHabits.length <= index || !sortedHabits[index].allDay) {
+        li.push(
+          <Flex
+            key={"allDay" + index}
+            h={`${heightPerHour * (3 - time)}px`}
+          ></Flex>
+        );
+        break;
+      }
+
+      li.push(
+        <MyHabitPopover
+          key={"allDay" + index}
+          height={heightPerHour / 2}
+          habit={sortedHabits[index]}
+        />
+      );
+      time += 0.5;
+      index++;
+    }
+    // 3-2. 일반 시간표 추가하기
+    time = 0;
     while (time < 24) {
       if (
         index < sortedHabits.length &&
         Math.floor(sortedHabits[index].start) == Math.floor(time)
       ) {
         let gap = sortedHabits[index].end - sortedHabits[index].start;
+        // 30분 시작인데 time이 30분에 맞춰져있지 않은 경우
+        if (
+          Math.floor(time) == Math.ceil(time) &&
+          Math.floor(sortedHabits[index].start) !=
+            Math.ceil(sortedHabits[index].start)
+        ) {
+          li.push(
+            <Flex key={"0.5day" + index} h={`${heightPerHour * 0.5}px`}></Flex>
+          );
+          time += 0.5;
+        }
         li.push(
-          <Flex
-            direction="column"
-            justifyContent={"center"}
-            alignItems={"center"}
-            h={`${heightPerHour * gap}px`}
-            border="1px"
-            borderColor={color}
-          >
-            <Text fontSize={"5px"}>{sortedHabits[index].habitName}</Text>
-            <Text fontSize={"3px"}>
-              {sortedHabits[index].habitStart}~{sortedHabits[index].habitEnd}
-            </Text>
-          </Flex>
+          <MyHabitPopover
+            key={"day" + index}
+            height={heightPerHour * gap}
+            habit={sortedHabits[index]}
+          />
         );
         index++;
         time += gap;
@@ -139,6 +192,7 @@ const habit: React.FC<habitProps> = ({}) => {
       } else if (Math.floor(time) != Math.ceil(time)) {
         li.push(
           <Flex
+            key={"empty" + time}
             justifyContent={"center"}
             alignItems={"center"}
             h={`${heightPerHour * 0.5}px`}
@@ -149,6 +203,7 @@ const habit: React.FC<habitProps> = ({}) => {
       } else {
         li.push(
           <Flex
+            key={"empty" + time}
             justifyContent={"center"}
             alignItems={"center"}
             h={`${heightPerHour}px`}
@@ -161,38 +216,103 @@ const habit: React.FC<habitProps> = ({}) => {
     return <>{li}</>;
   };
 
-  const checker = (value: string | undefined) => {
-    if (!value) return false;
-    const splitted = value.split(":");
-    if (!splitted[0] || !splitted[1]) return false;
-    if (splitted[0].length != 2 || splitted[1].length != 2) return false;
-    if (
-      Number(splitted[0]) >= 0 &&
-      Number(splitted[0]) <= 23 &&
-      Number(splitted[1]) >= 0 &&
-      Number(splitted[1]) <= 59
-    )
-      return true;
-    return false;
-  };
-  const habitValidationSchema = object().shape({
-    habitStart: string().test(
-      "habitStart",
-      "정확히 입력하세요 예)05:30",
-      checker
-    ),
-    habitEnd: string().test("habitEnd", "정확히 입력하세요 예)17:20", checker),
-  });
+  /** 습관 추가 색깔 선택창 */
+  const SelectColor = () => {
+    const [isEditing, setIsEditing] = useBoolean()
+    const [color, setColor] = useState('red')
+    const {values} = useFormikContext();
+    return (
+      <Popover
+        isOpen={isEditing}
+        onOpen={setIsEditing.on}
+        onClose={setIsEditing.off}
+        closeOnBlur={false}
+        isLazy
+        lazyBehavior="keepMounted"
+      >
+        <HStack>
+          <PopoverAnchor>
+            <Input
+              color={color}
+              position="absolute"
+              w={"0px"}
+              h={"0px"}
+              visibility="hidden"
+              name="bgColor"
+              display="inline-flex"
+              isDisabled={!isEditing}
+            />
+          </PopoverAnchor>
 
+          <PopoverTrigger>
+            <Button h="40px" colorScheme={`${color.split(".")[0]}`}>
+              색상
+            </Button>
+          </PopoverTrigger>
+        </HStack>
+
+        <PopoverContent>
+          <PopoverBody>
+            Colors:
+            <RadioGroup
+              value={color}
+              onChange={(newColor) => {
+                (values as any).bgColor = newColor;
+                setColor(newColor);
+              }}
+            >
+              <Radio value="red.200">빨강</Radio>
+              <Radio value="blue.200">파랑</Radio>
+              <Radio value="green.200">초록</Radio>
+              <Radio value="purple.200">보라</Radio>
+              <Radio value="gray.500">회색</Radio>
+              <Radio value="orange.200">주황</Radio>
+              <Radio value="yellow.200">노랑</Radio>
+              <Radio value="teal.200">청록</Radio>
+              <Radio value="cyan.200">시안</Radio>
+              <Radio value="pink.200">분홍</Radio>
+            </RadioGroup>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+
+  /** 시간표 요일 생성 위함 */
+  const dayDays = [
+    ["1", "월"],
+    ["2", "화"],
+    ["3", "수"],
+    ["4", "목"],
+    ["5", "금"],
+    ["6", "토"],
+    ["7", "일"],
+  ];
   return (
     <MyAccountLayout>
+      <Box>
+        <Text>내 시간표</Text>
+        <Flex borderRadius={"2xl"} border={"1px"} justifyContent={"center"}>
+          <Box flex={1} textAlign={"center"}>
+            <TimeTableHours />
+          </Box>
+          {dayDays.map((value) => (
+            <Box key={"days"+value[0]} flex={1} textAlign={"center"}>
+              <Text h={`${heightPerHour}px`}>{value[1]}</Text>
+              {DayTimeGenerator(value[0])}
+            </Box>
+          ))}
+        </Flex>
+      </Box>
+
       <Box>
         <Text>내 습관</Text>
         {!myHabits ? null : (
           <Stack spacing={1}>
             {myHabits?.myHabits.map((p) =>
               !p ? null : (
-                <Box key={p.id} p={2} shadow="md" borderwidth="1px">
+                <Box key={"myHabits"+p.id} p={2} shadow="md" borderwidth="1px">
                   <Flex>
                     <Box flex={1}>
                       <Heading fontSize="sm">습관명: {p.habitName}</Heading>
@@ -211,68 +331,51 @@ const habit: React.FC<habitProps> = ({}) => {
         )}
       </Box>
 
-      <Box>
-        <Text>내 시간표</Text>
-        <Flex justifyContent={"center"}>
-          <Box flex={1} textAlign={"center"}>
-            {timeTableHours()}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>월</Text>
-            {dayTimeGenerator("1")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>화</Text>
-            {dayTimeGenerator("2")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>수</Text>
-            {dayTimeGenerator("3")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>목</Text>
-            {dayTimeGenerator("4")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>금</Text>
-            {dayTimeGenerator("5")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>토</Text>
-            {dayTimeGenerator("6")}
-          </Box>
-          <Box flex={1} textAlign={"center"}>
-            <Text h={`${heightPerHour}px`}>일</Text>
-            {dayTimeGenerator("7")}
-          </Box>
-        </Flex>
-      </Box>
-      <Box textAlign={"center"}>
-        <Text>습관 추가하기</Text>
-        <Text>
-          시작시간/종료시간 중 하나 이상 입력하지 않으면, "종일"로 구분됩니다
-        </Text>
-        <Text>종일로 구분되지 않으려면 둘 다 입력해주세요</Text>
-        <Text>
-          분은 30분 단위로만 입력 가능합니다. 예시) 00:30(O), 00:20(X)
-        </Text>
+      <Box mt={2} textAlign={"center"}>
+        <Text fontSize="xl"><strong>습관 추가하기</strong></Text>
+        <Text>종일을 선택한 경우, 습관시간은 입력하지 않으셔도 됩니다.</Text>
+        <Text>종일습관은 매일 최대 6개씩 추가 가능합니다.</Text>
         <Formik
           initialValues={initialValue}
-          validationSchema={habitValidationSchema}
           onSubmit={async (value, actions) => {
-            let temp = "";
+            // 요일 검증
+            let habitDay = "";
             for (let i = 0; i < 7; i++) {
-              if (days[i] === true) temp += `${i + 1}`;
+              if (days[i] === true) habitDay += `${i + 1}`;
             }
-            value.habitDay = temp;
-            const res = await createHabit({ habitInput: value });
-            if (res) {
+            if (habitDay == "") {
+              alert("요일을 선택해주세요");
+              return;
+            }
+            let {bgColor, habitName, startHour, startMin, endHour, endMin} = value;
+            // 습관명 검증
+            if (!habitName) {
+              alert("습관명을 입력해주세요");
+              return;
+            }
+            // 습관 시간 검증
+            let allDay = days[7];
+            if (!allDay && (!startHour || !startMin || !endHour || !endMin)) {
+              alert("습관 시간을 입력해주세요");
+              return;
+            }
+            const res = await createHabit({
+              habitInput: {
+                habitDay,
+                allDay,
+                bgColor,
+                habitName,
+                habitStart: startHour + ":" + startMin,
+                habitEnd: endHour + ":" + endMin,
+              },
+            });
+            if (res && !res.error) {
               alert("습관이 추가되었습니다");
               actions.resetForm({ values: initialValue });
             }
           }}
         >
-          {({ isSubmitting }) => {
+          {(props) => {
             return (
               <>
                 <Form>
@@ -312,27 +415,75 @@ const habit: React.FC<habitProps> = ({}) => {
                           />
                         </Box>
                       </SubscriptBox>
+                      <SubscriptBox desc="종일">
+                        <Flex mt={4} justifyContent={"center"} alignItems={"center"}>
+                          {DayButton("종일", 7)}
+                        </Flex>
+                      </SubscriptBox>
                       <SubscriptBox desc="습관시작시각">
-                        <InputField
-                          width={"80%"}
-                          name="habitStart"
-                          placeholder="예시) 05:20"
-                        />
+                        <Flex mt={1} justifyContent={"center"}>
+                          <InputField
+                            mt={1}
+                            select
+                            selectOptions={hourSelectOptions()}
+                            width={"70px"}
+                            name="startHour"
+                            placeholder="시"
+                          />
+                          <Flex
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                            mt={1}
+                            width={"15px"}
+                          >
+                            :
+                          </Flex>
+                          <InputField
+                            mt={1}
+                            select
+                            selectOptions={minSelectOptions}
+                            width={"70px"}
+                            name="startMin"
+                            placeholder="분"
+                          />
+                        </Flex>
                       </SubscriptBox>
                       <SubscriptBox desc="습관종료시각">
-                        <InputField
-                          width={"80%"}
-                          name="habitEnd"
-                          placeholder="예시) 17:30"
-                        />
+                        <Flex mt={1} justifyContent={"center"}>
+                          <InputField
+                            mt={1}
+                            select
+                            selectOptions={hourSelectOptions()}
+                            width={"70px"}
+                            name="endHour"
+                            placeholder="시"
+                          />
+                          <Flex
+                            justifyContent={"center"}
+                            alignItems={"center"}
+                            mt={1}
+                            width={"15px"}
+                          >
+                            :
+                          </Flex>
+                          <InputField
+                            mt={1}
+                            select
+                            selectOptions={minSelectOptions}
+                            width={"70px"}
+                            name="endMin"
+                            placeholder="분"
+                          />
+                        </Flex>
                       </SubscriptBox>
+                      <SelectColor />
                     </Flex>
                     <Box textAlign={"center"}>
                       <Button
                         mb={4}
                         w={"20%"}
                         colorScheme="teal"
-                        isLoading={isSubmitting}
+                        isLoading={props.isSubmitting}
                         type="submit"
                       >
                         습관추가

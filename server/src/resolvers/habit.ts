@@ -7,7 +7,6 @@ import {
   Mutation,
   Query,
   Resolver,
-  Root,
   UseMiddleware,
 } from "type-graphql";
 import { Habit } from "../entities/Habit";
@@ -24,6 +23,10 @@ class HabitInput {
   habitStart?: string;
   @Field()
   habitEnd?: string;
+  @Field()
+  allDay: boolean;
+  @Field()
+  bgColor: string;
 }
 
 @Resolver(Habit)
@@ -37,6 +40,34 @@ export class HabitResolver {
   ): Promise<Habit | null> {
     const { userId } = req.session;
     if (!userId) return null;
+
+    let { habitDay, habitName, allDay, habitStart, habitEnd } = habitInput;
+    // 습관 검증
+    // 1. habitDay
+    if (!habitDay) throw new Error("요일을 선택하세요");
+    // 2. habitName
+    if (!habitName) throw new Error("습관명을 입력하세요");
+    // 3. allDay
+    if (allDay) {
+      // 해당 요일에 종일습관이 6개 이하인지 확인하기
+      const allDayHabits = await Habit.find({ userId });
+      let dailyAllDayHabits = [0, 0, 0, 0, 0, 0, 0];
+      allDayHabits.forEach((value) => {
+        if (value.allDay) {
+          for (let i = 0; i < value.habitDay.length; i++) {
+            dailyAllDayHabits[Number(value.habitDay[i]) - 1]++;
+          }
+        }
+      });
+      if (Math.max(...dailyAllDayHabits) >= 6)
+        throw new Error("해당 요일에 이미 종일습관이 6개 존재합니다");
+      habitInput.habitStart = "00:00";
+      habitInput.habitEnd = "00:00";
+    } else {
+      // 4. habitStart, habitEnd
+      if (!habitStart || !habitEnd) throw new Error("습관 시간을 입력하세요");
+    }
+
     const res = await Habit.create({
       ...habitInput,
       userId,

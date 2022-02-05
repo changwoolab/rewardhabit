@@ -33,17 +33,24 @@ export class Habit extends BaseEntity {
   @Field()
   @Column()
   habitName: string;
-  // 3. 이것들 중에 하나라도 null이면 “종일”임
-  // 3-1. 습관 시작 시간 (EX: 17:00, 05:32)
+  // 3. 습관 시작 시간 (EX: 17:00, 05:32)
   @Field()
   @Column({ nullable: true })
   habitStart: string;
-  // 3-2. 습관 종료 시간
+  // 4. 습관 종료 시간
   @Field()
   @Column({ nullable: true })
   habitEnd: string;
-  // 4. 습관 확인 여부 (DEFAULT FALSE)
+  // 5. 습관 확인 여부 (DEFAULT FALSE)
   @Field()
   @Column({ default: false })
   checked: boolean;
+  // 6. 종일여부
+  @Field()
+  @Column({ default: false })
+  allDay: boolean;
+  // 7. 배경색깔
+  @Field()
+  @Column({ nullable: true })
+  bgColor: string;
 }
