@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { MyHabitPopover } from "../../components/habits/MyHabitPopover";
 import { HourMinInput } from "../../components/habits/HourMinInput";
 import { SelectHabitColor } from "../../components/habits/SelectHabitColor";
+import { DayButton } from "../../components/habits/DayButton";
 
 export const habitInitialValue = {
   habitDay: "",
@@ -51,25 +52,9 @@ const habit: React.FC<habitProps> = ({}) => {
   const [, createHabit] = useCreateHabitMutation();
 
   // 습관 추가 요일 선택 (8번째(7)는 종일여부)
-  let days: boolean[] = [];
-  for (let i = 0; i < 8; i++) days.push(false);
-
-  const DayButton = (day: string, idx: number) => {
-    const [clicked, setClicked] = useState<boolean>(false);
-    const color = days[idx] ? "teal" : undefined;
-    return (
-      <Button
-        size={"sm"}
-        colorScheme={color}
-        onClick={() => {
-          days[idx] = !days[idx];
-          setClicked(!clicked);
-        }}
-      >
-        {day}
-      </Button>
-    );
-  };
+  let myDays: boolean[] = [];
+  for (let i = 0; i < 8; i++) myDays.push(false);
+  const weekDaysHook = useState<boolean[]>(myDays);
 
   // 시간 당 높이
   const heightPerHour = 35;
@@ -307,6 +292,7 @@ const habit: React.FC<habitProps> = ({}) => {
           onSubmit={async (value, actions) => {
             // 요일 검증
             let habitDay = "";
+            let days = weekDaysHook[0];
             for (let i = 0; i < 7; i++) {
               if (days[i] === true) habitDay += "1";
               else habitDay += "0";
@@ -358,15 +344,43 @@ const habit: React.FC<habitProps> = ({}) => {
                     <Flex m={4} justifyContent={"center"}>
                       <SubscriptBox desc="요일선택">
                         <Flex mt={1} justifyContent={"center"}>
-                          {DayButton("월", 0)}
-                          {DayButton("화", 1)}
-                          {DayButton("수", 2)}
-                          {DayButton("목", 3)}
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="월"
+                            idx={0}
+                          />
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="화"
+                            idx={1}
+                          />
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="수"
+                            idx={2}
+                          />
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="목"
+                            idx={3}
+                          />
                         </Flex>
                         <Flex justifyContent={"center"}>
-                          {DayButton("금", 4)}
-                          {DayButton("토", 5)}
-                          {DayButton("일", 6)}
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="금"
+                            idx={4}
+                          />
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="토"
+                            idx={5}
+                          />
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="일"
+                            idx={6}
+                          />
                         </Flex>
                         <InputField
                           mt={1}
@@ -379,6 +393,7 @@ const habit: React.FC<habitProps> = ({}) => {
                       <SubscriptBox desc="습관명">
                         <Box w="80%" m="auto">
                           <InputField
+                            mySize="sm"
                             name="habitName"
                             placeholder="EX) 운동하기"
                           />
@@ -390,7 +405,11 @@ const habit: React.FC<habitProps> = ({}) => {
                           justifyContent={"center"}
                           alignItems={"center"}
                         >
-                          {DayButton("종일", 7)}
+                          <DayButton
+                            weekDaysHook={weekDaysHook}
+                            day="종일"
+                            idx={7}
+                          />
                         </Flex>
                       </SubscriptBox>
                       <SubscriptBox desc="습관시작시각">
@@ -398,16 +417,16 @@ const habit: React.FC<habitProps> = ({}) => {
                           <HourMinInput
                             hourName="startHour"
                             minName="startMin"
-                            size="md"
+                            size="sm"
                           />
                         </Flex>
                       </SubscriptBox>
                       <SubscriptBox desc="습관종료시각">
-                        <Flex mt={1} justifyContent={"center"}>
+                        <Flex ml={2} mt={1} justifyContent={"center"}>
                           <HourMinInput
                             hourName="endHour"
                             minName="endMin"
-                            size="md"
+                            size="sm"
                           />
                         </Flex>
                       </SubscriptBox>
@@ -416,6 +435,7 @@ const habit: React.FC<habitProps> = ({}) => {
                     <Box textAlign={"center"}>
                       <Button
                         mb={4}
+                        size="sm"
                         w={"20%"}
                         colorScheme="teal"
                         isLoading={props.isSubmitting}

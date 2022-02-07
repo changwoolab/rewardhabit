@@ -19,6 +19,7 @@ import { InputField } from "../InputField";
 import { Form, Formik } from "formik";
 import { HourMinInput } from "./HourMinInput";
 import { SelectHabitColor } from "./SelectHabitColor";
+import { DayButton } from "./DayButton";
 
 interface MyHabitPopoverProps {
   height: number;
@@ -40,30 +41,11 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
     bgColor: habit.bgColor,
   };
 
-  // 습관 추가 요일 선택 (8번째(7)는 종일여부)
-  let addDays: boolean[] = [];
-  for (let i = 0; i < 7; i++) {
-    addDays.push(Boolean(Number(habit.habitDay[i])));
-  } addDays.push(habit.allDay);
-
-  function DayButton(day: string, idx: number, hidden: boolean) {
-    const [clicked, setClicked] = useState<boolean>(false);
-    const color = addDays[idx] ? "teal" : undefined;
-    return (
-      <Button
-        size={"xs"}
-        colorScheme={color}
-        borderRadius="full"
-        hidden={hidden}
-        onClick={() => {
-          addDays[idx] = !addDays[idx];
-          setClicked(!clicked);
-        }}
-      >
-        {day}
-      </Button>
-    );
-  };
+  // 습관 요일 선택 위한 Hook 생성 (8번째(7)는 종일여부)
+  let myDays: boolean[] = [];
+  for (let i = 0; i < 7; i++) myDays.push(Boolean(Number(habit.habitDay[i])));
+  myDays.push(habit.allDay);
+  const weekDaysHook = useState<boolean[]>(myDays);
 
   // 다크모드인지 확인 후 색깔 결정
   const { colorMode } = useColorMode();
@@ -106,7 +88,7 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
         <Formik
           initialValues={myHabitInitialValues}
           onSubmit={(value) => {
-            console.log(value);
+            console.log(weekDaysHook[0]);
           }}
         >
           <Form>
@@ -137,20 +119,26 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                       <Text ml={1} key={"habitDays" + value}>
                         {value}
                       </Text>
-                  ))}
-                {DayButton("월", 0, !editHabit)}
-                {DayButton("화", 1, !editHabit)}
-                {DayButton("수", 2, !editHabit)}
-                {DayButton("목", 3, !editHabit)}
-                {DayButton("금", 4, !editHabit)}
-                {DayButton("토", 5, !editHabit)}
-                {DayButton("일", 6, !editHabit)}
+                    ))}
+                {!editHabit ? null : (
+                  <>
+                    <DayButton weekDaysHook={weekDaysHook} day="월" idx={0} />
+                    <DayButton weekDaysHook={weekDaysHook} day="화" idx={1} />
+                    <DayButton weekDaysHook={weekDaysHook} day="수" idx={2} />
+                    <DayButton weekDaysHook={weekDaysHook} day="목" idx={3} />
+                    <DayButton weekDaysHook={weekDaysHook} day="금" idx={4} />
+                    <DayButton weekDaysHook={weekDaysHook} day="토" idx={5} />
+                    <DayButton weekDaysHook={weekDaysHook} day="일" idx={6} />
+                  </>
+                )}
               </Flex>
-              <Flex alignItems={"center"}>
-                {!editHabit ? null : <Text fontSize="sm">종일여부 </Text>}
-                {DayButton("종일", 7, !editHabit)}
-                {!editHabit ? null : <SelectHabitColor />}
-              </Flex>
+              {!editHabit ? null : (
+                <Flex alignItems={"center"}>
+                  <Text fontSize="sm">종일여부 </Text>
+                  <DayButton weekDaysHook={weekDaysHook} day="종일" idx={7} />
+                  <SelectHabitColor />
+                </Flex>
+              )}
               <Flex>
                 {!editHabit ? (
                   habit.allDay ? null : (
