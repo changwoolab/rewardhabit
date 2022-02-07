@@ -197,12 +197,18 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<UserResponse>;
   myAccount: UserResponse;
+  myHabit: Habit;
   myHabits: Array<Habit>;
   offsetBasePosts: Array<Post>;
   pagesCount: Scalars['Int'];
   post: Post;
   posts: PaginatedPosts;
   test: Scalars['Boolean'];
+};
+
+
+export type QueryMyHabitArgs = {
+  habitId: Scalars['Float'];
 };
 
 
@@ -291,6 +297,8 @@ export type CommentFragFragment = { __typename?: 'Comment', id: number, userName
 export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, message: string };
 
 export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined };
+
+export type HabitFragFragment = { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -398,6 +406,13 @@ export type MyAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, lastName: string, firstName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
 
+export type MyHabitQueryVariables = Exact<{
+  habitId: Scalars['Float'];
+}>;
+
+
+export type MyHabitQuery = { __typename?: 'Query', myHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
+
 export type MyHabitsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -469,6 +484,18 @@ export const PostFragFragmentDoc = gql`
   }
 }
     ${CommentFragFragmentDoc}`;
+export const HabitFragFragmentDoc = gql`
+    fragment habitFrag on Habit {
+  id
+  allDay
+  habitName
+  habitDay
+  habitStart
+  habitEnd
+  checked
+  bgColor
+}
+    `;
 export const PartialUserFragFragmentDoc = gql`
     fragment PartialUserFrag on PartialUser {
   id
@@ -680,20 +707,24 @@ export const MyAccountDocument = gql`
 export function useMyAccountQuery(options: Omit<Urql.UseQueryArgs<MyAccountQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyAccountQuery>({ query: MyAccountDocument, ...options });
 };
+export const MyHabitDocument = gql`
+    query MyHabit($habitId: Float!) {
+  myHabit(habitId: $habitId) {
+    ...habitFrag
+  }
+}
+    ${HabitFragFragmentDoc}`;
+
+export function useMyHabitQuery(options: Omit<Urql.UseQueryArgs<MyHabitQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MyHabitQuery>({ query: MyHabitDocument, ...options });
+};
 export const MyHabitsDocument = gql`
     query MyHabits {
   myHabits {
-    id
-    allDay
-    habitName
-    habitDay
-    habitStart
-    habitEnd
-    checked
-    bgColor
+    ...habitFrag
   }
 }
-    `;
+    ${HabitFragFragmentDoc}`;
 
 export function useMyHabitsQuery(options: Omit<Urql.UseQueryArgs<MyHabitsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyHabitsQuery>({ query: MyHabitsDocument, ...options });

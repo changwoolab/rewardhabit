@@ -25,7 +25,7 @@ export class Habit extends BaseEntity {
   })
   user: User;
 
-  // 1. 습관 대상 요일(1234567, 순서대로 월화수목금토일)
+  // 1. 습관 대상 요일(0000000, 순서대로 월화수목금토일, 월요일만 = 1000000, 화요일만 = 0100000 이런식으로 표시)
   @Field()
   @Column()
   habitDay: string;

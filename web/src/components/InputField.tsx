@@ -16,6 +16,7 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   name: string;
   textarea?: boolean;
   select?: boolean;
+  mySize?: string;
   selectOptions?: {
     value: string;
     option: string;
@@ -26,6 +27,7 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 
 export const InputField: React.FC<InputFieldProps> = ({
   mt,
+  mySize,
   label,
   borderColor,
   size: _,
@@ -61,6 +63,7 @@ export const InputField: React.FC<InputFieldProps> = ({
       <FormControl isInvalid={touched && !!error}>
         <FormLabel htmlFor={field.name}>{label}</FormLabel>
         <InputOrElse
+          size={mySize}
           borderColor={borderColor}
           {...field}
           {...props}

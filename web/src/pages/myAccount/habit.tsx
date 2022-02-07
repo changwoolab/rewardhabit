@@ -2,20 +2,9 @@ import {
   Box,
   Button,
   Flex,
-  FormControl,
   Heading,
-  HStack,
-  Input,
-  Popover,
-  PopoverAnchor,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Radio,
-  RadioGroup,
   Stack,
   Text,
-  useBoolean,
   useColorMode,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
@@ -23,7 +12,7 @@ import React, { useState } from "react";
 import { MyAccountLayout } from "../../components/myAccountLayout";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import NextLink from "next/link";
-import { Formik, Form, useFormikContext } from "formik";
+import { Formik, Form } from "formik";
 import { InputField } from "../../components/InputField";
 import { SubscriptBox } from "../../components/SubscriptBox";
 import {
@@ -31,23 +20,24 @@ import {
   useMyHabitsQuery,
 } from "../../generated/graphql";
 import { useRouter } from "next/router";
-import { hourSelectOptions, minSelectOptions } from "../../utils/selectOptions";
-import { MyHabitPopover } from "../../components/MyHabitPopover";
+import { MyHabitPopover } from "../../components/habits/MyHabitPopover";
+import { HourMinInput } from "../../components/habits/HourMinInput";
+import { SelectHabitColor } from "../../components/habits/SelectHabitColor";
+
+export const habitInitialValue = {
+  habitDay: "",
+  habitName: "",
+  startHour: "",
+  startMin: "",
+  endHour: "",
+  endMin: "",
+  bgColor: "",
+};
 
 interface habitProps {}
 
 const habit: React.FC<habitProps> = ({}) => {
   const router = useRouter();
-
-  const initialValue = {
-    habitDay: "",
-    habitName: "",
-    startHour: "",
-    startMin: "",
-    endHour: "",
-    endMin: "",
-    bgColor: "",
-  };
 
   // 다크모드인지 확인 후 색깔 결정
   const { colorMode } = useColorMode();
@@ -124,7 +114,7 @@ const habit: React.FC<habitProps> = ({}) => {
   };
 
   /** 요일별 시간 생성기 */
-  const DayTimeGenerator = (type: string) => {
+  const DayTimeGenerator = (type: number) => {
     if (!myHabits || myHabits.myHabits.length == 0) return null;
     // 1. 요일에 type이 포함된 것들만 뽑아내기 + 정렬 위한 인덱싱
     let habits: any[] = [];
@@ -136,12 +126,13 @@ const habit: React.FC<habitProps> = ({}) => {
       let endSplit = value.habitEnd.split(":");
       end = Number(endSplit[0]);
       if (endSplit[1] !== "00") end += 0.5;
-      if (value.habitDay.includes(type))
+      if (value.habitDay[type] == "1") {
         habits.push({
           ...value,
           start,
           end,
         });
+      }
     });
     // 2. 시작시간순으로 정렬하기
     let sortedHabits = habits.sort((a, b) => a.start - b.start);
@@ -241,77 +232,15 @@ const habit: React.FC<habitProps> = ({}) => {
     return <>{li}</>;
   };
 
-  /** 습관 추가 색깔 선택창 */
-  const SelectColor = () => {
-    const [isEditing, setIsEditing] = useBoolean();
-    const [color, setColor] = useState("red");
-    const { values } = useFormikContext();
-    return (
-      <Popover
-        isOpen={isEditing}
-        onOpen={setIsEditing.on}
-        onClose={setIsEditing.off}
-        closeOnBlur={false}
-        isLazy
-        lazyBehavior="keepMounted"
-      >
-        <HStack>
-          <PopoverAnchor>
-            <Input
-              color={color}
-              position="absolute"
-              w={"0px"}
-              h={"0px"}
-              visibility="hidden"
-              name="bgColor"
-              display="inline-flex"
-              isDisabled={!isEditing}
-            />
-          </PopoverAnchor>
-
-          <PopoverTrigger>
-            <Button h="40px" colorScheme={`${color.split(".")[0]}`}>
-              색상
-            </Button>
-          </PopoverTrigger>
-        </HStack>
-
-        <PopoverContent>
-          <PopoverBody>
-            Colors:
-            <RadioGroup
-              value={color}
-              onChange={(newColor) => {
-                (values as any).bgColor = newColor;
-                setColor(newColor);
-              }}
-            >
-              <Radio value="red.200">빨강</Radio>
-              <Radio value="blue.200">파랑</Radio>
-              <Radio value="green.200">초록</Radio>
-              <Radio value="purple.200">보라</Radio>
-              <Radio value="gray.500">회색</Radio>
-              <Radio value="orange.200">주황</Radio>
-              <Radio value="yellow.200">노랑</Radio>
-              <Radio value="teal.200">청록</Radio>
-              <Radio value="cyan.200">시안</Radio>
-              <Radio value="pink.200">분홍</Radio>
-            </RadioGroup>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-    );
-  };
-
   /** 시간표 요일 생성 위함 */
-  const dayDays = [
-    ["1", "월"],
-    ["2", "화"],
-    ["3", "수"],
-    ["4", "목"],
-    ["5", "금"],
-    ["6", "토"],
-    ["7", "일"],
+  const dayDays: [number, string][] = [
+    [0, "월"],
+    [1, "화"],
+    [2, "수"],
+    [3, "목"],
+    [4, "금"],
+    [5, "토"],
+    [6, "일"],
   ];
   return (
     <MyAccountLayout>
@@ -374,14 +303,15 @@ const habit: React.FC<habitProps> = ({}) => {
         <Text>종일을 선택한 경우, 습관시간은 입력하지 않으셔도 됩니다.</Text>
         <Text>종일습관은 매일 최대 6개씩 추가 가능합니다.</Text>
         <Formik
-          initialValues={initialValue}
+          initialValues={habitInitialValue}
           onSubmit={async (value, actions) => {
             // 요일 검증
             let habitDay = "";
             for (let i = 0; i < 7; i++) {
-              if (days[i] === true) habitDay += `${i + 1}`;
+              if (days[i] === true) habitDay += "1";
+              else habitDay += "0";
             }
-            if (habitDay == "") {
+            if (habitDay == "0000000") {
               alert("요일을 선택해주세요");
               return;
             }
@@ -410,7 +340,7 @@ const habit: React.FC<habitProps> = ({}) => {
             });
             if (res && !res.error) {
               alert("습관이 추가되었습니다");
-              actions.resetForm({ values: initialValue });
+              actions.resetForm({ values: habitInitialValue });
             }
           }}
         >
@@ -465,61 +395,23 @@ const habit: React.FC<habitProps> = ({}) => {
                       </SubscriptBox>
                       <SubscriptBox desc="습관시작시각">
                         <Flex mt={1} justifyContent={"center"}>
-                          <InputField
-                            mt={1}
-                            select
-                            selectOptions={hourSelectOptions()}
-                            width={"70px"}
-                            name="startHour"
-                            placeholder="시"
-                          />
-                          <Flex
-                            justifyContent={"center"}
-                            alignItems={"center"}
-                            mt={1}
-                            width={"15px"}
-                          >
-                            :
-                          </Flex>
-                          <InputField
-                            mt={1}
-                            select
-                            selectOptions={minSelectOptions}
-                            width={"70px"}
-                            name="startMin"
-                            placeholder="분"
+                          <HourMinInput
+                            hourName="startHour"
+                            minName="startMin"
+                            size="md"
                           />
                         </Flex>
                       </SubscriptBox>
                       <SubscriptBox desc="습관종료시각">
                         <Flex mt={1} justifyContent={"center"}>
-                          <InputField
-                            mt={1}
-                            select
-                            selectOptions={hourSelectOptions()}
-                            width={"70px"}
-                            name="endHour"
-                            placeholder="시"
-                          />
-                          <Flex
-                            justifyContent={"center"}
-                            alignItems={"center"}
-                            mt={1}
-                            width={"15px"}
-                          >
-                            :
-                          </Flex>
-                          <InputField
-                            mt={1}
-                            select
-                            selectOptions={minSelectOptions}
-                            width={"70px"}
-                            name="endMin"
-                            placeholder="분"
+                          <HourMinInput
+                            hourName="endHour"
+                            minName="endMin"
+                            size="md"
                           />
                         </Flex>
                       </SubscriptBox>
-                      <SelectColor />
+                      <SelectHabitColor />
                     </Flex>
                     <Box textAlign={"center"}>
                       <Button

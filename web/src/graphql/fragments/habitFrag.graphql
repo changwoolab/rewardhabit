@@ -1,0 +1,10 @@
+fragment habitFrag on Habit {
+  id
+  allDay
+  habitName
+  habitDay
+  habitStart
+  habitEnd
+  checked
+  bgColor
+}

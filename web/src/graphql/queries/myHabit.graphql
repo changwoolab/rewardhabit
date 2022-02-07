@@ -1,0 +1,5 @@
+query MyHabit ($habitId: Float!) {
+    myHabit(habitId: $habitId) {
+        ...habitFrag
+    }
+}
