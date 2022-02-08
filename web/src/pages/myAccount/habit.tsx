@@ -24,6 +24,7 @@ import { MyHabitPopover } from "../../components/habits/MyHabitPopover";
 import { HourMinInput } from "../../components/habits/HourMinInput";
 import { SelectHabitColor } from "../../components/habits/SelectHabitColor";
 import { DayButton } from "../../components/habits/DayButton";
+import { validateHabits } from "../../utils/validateHabits";
 
 export const habitInitialValue = {
   habitDay: "",
@@ -33,6 +34,16 @@ export const habitInitialValue = {
   endHour: "",
   endMin: "",
   bgColor: "",
+};
+
+export type habitInputFrontEnd = {
+  habitDay: string;
+  habitName: string;
+  startHour: string;
+  startMin: string;
+  endHour: string;
+  endMin: string;
+  bgColor: string;
 };
 
 interface habitProps {}
@@ -290,38 +301,11 @@ const habit: React.FC<habitProps> = ({}) => {
         <Formik
           initialValues={habitInitialValue}
           onSubmit={async (value, actions) => {
-            // 요일 검증
-            let habitDay = "";
-            let days = weekDaysHook[0];
-            for (let i = 0; i < 7; i++) {
-              if (days[i] === true) habitDay += "1";
-              else habitDay += "0";
-            }
-            if (habitDay == "0000000") {
-              alert("요일을 선택해주세요");
-              return;
-            }
-            let { bgColor, habitName, startHour, startMin, endHour, endMin } =
-              value;
-            // 습관명 검증
-            if (!habitName) {
-              alert("습관명을 입력해주세요");
-              return;
-            }
-            // 습관 시간 검증
-            let allDay = days[7];
-            if (!allDay && (!startHour || !startMin || !endHour || !endMin)) {
-              alert("습관 시간을 입력해주세요");
-              return;
-            }
+            const validateResult = validateHabits(weekDaysHook[0], value);
+            if (!validateResult) return;
             const res = await createHabit({
               habitInput: {
-                habitDay,
-                allDay,
-                bgColor,
-                habitName,
-                habitStart: startHour + ":" + startMin,
-                habitEnd: endHour + ":" + endMin,
+                ...validateResult,
               },
             });
             if (res && !res.error) {

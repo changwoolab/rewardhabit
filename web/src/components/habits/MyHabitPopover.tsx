@@ -1,4 +1,4 @@
-import { EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Popover,
   Text,
@@ -12,14 +12,16 @@ import {
   useColorMode,
   IconButton,
   Button,
+  Box,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import NextLink from "next/link"
 import { InputField } from "../InputField";
 import { Form, Formik } from "formik";
 import { HourMinInput } from "./HourMinInput";
 import { SelectHabitColor } from "./SelectHabitColor";
 import { DayButton } from "./DayButton";
+import { validateHabits } from "../../utils/validateHabits";
+import { useDeleteHabitMutation, useEditHabitMutation } from "../../generated/graphql";
 
 interface MyHabitPopoverProps {
   height: number;
@@ -59,6 +61,9 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
     if (habit.habitDay[i] == "1") habitDays.push(days[i]);
   }
 
+  const [, updateHabit] = useEditHabitMutation();
+  const [, deleteHabit] = useDeleteHabitMutation();
+
   const [editHabit, setEditHabit] = useState<boolean>(false);
 
   return (
@@ -87,8 +92,18 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
       <PopoverContent color="white" bg="blue.800" borderColor="blue.800">
         <Formik
           initialValues={myHabitInitialValues}
-          onSubmit={(value) => {
-            console.log(weekDaysHook[0]);
+          onSubmit={async (value) => {
+            const validateResult = validateHabits(weekDaysHook[0], value);
+            if (!validateResult) return;
+            const res = await updateHabit({
+              habitId: habit.id,
+              habitInput: {
+                ...validateResult
+              }
+            });
+            if (res && !res.error) {
+              alert("수정되었습니다");
+            }
           }}
         >
           <Form>
@@ -99,6 +114,17 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                 alignItems="center"
               >
                 {!editHabit ? habit.habitName : <InputField name="habitName" />}
+                <Box>
+                  <IconButton aria-label="delete-habit"
+                    icon={<DeleteIcon />}
+                    onClick={async () => {
+                      const really = confirm("정말 삭제하시겠습니까?");
+                      if (really) {
+                        let res = await deleteHabit({habitId: habit.id});
+                        if (res.data?.deleteHabit) alert("삭제되었습니다")
+                      }
+                    }}
+                  />
                 <IconButton
                   aria-label="edit-habit"
                   icon={<EditIcon />}
@@ -106,6 +132,7 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                     setEditHabit(!editHabit);
                   }}
                 />
+                </Box>
               </Flex>
             </PopoverHeader>
             <PopoverArrow />

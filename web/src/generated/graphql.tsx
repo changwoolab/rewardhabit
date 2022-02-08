@@ -104,7 +104,7 @@ export type MutationCreatePostArgs = {
 
 
 export type MutationDeleteHabitArgs = {
-  habitId: Scalars['Float'];
+  habitId: Scalars['Int'];
 };
 
 
@@ -114,7 +114,7 @@ export type MutationDeletePostArgs = {
 
 
 export type MutationEditHabitArgs = {
-  habitId: Scalars['Float'];
+  habitId: Scalars['Int'];
   habitInput: HabitInput;
 };
 
@@ -315,7 +315,7 @@ export type CreateHabitMutationVariables = Exact<{
 }>;
 
 
-export type CreateHabitMutation = { __typename?: 'Mutation', createHabit: { __typename?: 'Habit', habitDay: string, habitEnd: string, habitName: string, habitStart: string, checked: boolean } };
+export type CreateHabitMutation = { __typename?: 'Mutation', createHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
 
 export type CreatePostMutationVariables = Exact<{
   input: PostInput;
@@ -324,12 +324,27 @@ export type CreatePostMutationVariables = Exact<{
 
 export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', id: number, userId: number, writtenDate: any, type: number, title: string, texts: string } };
 
+export type DeleteHabitMutationVariables = Exact<{
+  habitId: Scalars['Int'];
+}>;
+
+
+export type DeleteHabitMutation = { __typename?: 'Mutation', deleteHabit: boolean };
+
 export type DeletePostMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
 export type DeletePostMutation = { __typename?: 'Mutation', deletePost: boolean };
+
+export type EditHabitMutationVariables = Exact<{
+  habitId: Scalars['Int'];
+  habitInput: HabitInput;
+}>;
+
+
+export type EditHabitMutation = { __typename?: 'Mutation', editHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   userId: Scalars['String'];
@@ -518,14 +533,10 @@ export function useChangePasswordMutation() {
 export const CreateHabitDocument = gql`
     mutation CreateHabit($habitInput: HabitInput!) {
   createHabit(habitInput: $habitInput) {
-    habitDay
-    habitEnd
-    habitName
-    habitStart
-    checked
+    ...habitFrag
   }
 }
-    `;
+    ${HabitFragFragmentDoc}`;
 
 export function useCreateHabitMutation() {
   return Urql.useMutation<CreateHabitMutation, CreateHabitMutationVariables>(CreateHabitDocument);
@@ -546,6 +557,15 @@ export const CreatePostDocument = gql`
 export function useCreatePostMutation() {
   return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
 };
+export const DeleteHabitDocument = gql`
+    mutation DeleteHabit($habitId: Int!) {
+  deleteHabit(habitId: $habitId)
+}
+    `;
+
+export function useDeleteHabitMutation() {
+  return Urql.useMutation<DeleteHabitMutation, DeleteHabitMutationVariables>(DeleteHabitDocument);
+};
 export const DeletePostDocument = gql`
     mutation DeletePost($id: Int!) {
   deletePost(id: $id)
@@ -554,6 +574,17 @@ export const DeletePostDocument = gql`
 
 export function useDeletePostMutation() {
   return Urql.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument);
+};
+export const EditHabitDocument = gql`
+    mutation EditHabit($habitId: Int!, $habitInput: HabitInput!) {
+  editHabit(habitId: $habitId, habitInput: $habitInput) {
+    ...habitFrag
+  }
+}
+    ${HabitFragFragmentDoc}`;
+
+export function useEditHabitMutation() {
+  return Urql.useMutation<EditHabitMutation, EditHabitMutationVariables>(EditHabitDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($userId: String!, $email: String!) {

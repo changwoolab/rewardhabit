@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -35,6 +36,8 @@ const validateHabitInput = async (userId: number, habitInput: HabitInput) => {
 
   // 1. habitDay
   if (habitDay == "0000000" || habitDay.length != 7) throw new Error("올바른 요일을 선택하세요");
+  // 입력은 0010000이런식으로 수가 들어와야 함
+  if (Number.isNaN(Number(habitDay))) throw new Error("올바른 요일을 입력하세요");
   // 2. habitName
   if (!habitName) throw new Error("습관명을 입력하세요");
   // 3. allDay
@@ -43,10 +46,9 @@ const validateHabitInput = async (userId: number, habitInput: HabitInput) => {
     const allDayHabits = await Habit.find({ userId });
     let dailyAllDayHabits = [0, 0, 0, 0, 0, 0, 0];
     allDayHabits.forEach((value) => {
-      if (value.allDay) {
-        for (let i = 0; i < value.habitDay.length; i++) {
-          dailyAllDayHabits[Number(value.habitDay[i]) - 1]++;
-        }
+      for (let i = 0; i < value.habitDay.length; i++) {
+        // EX) habitDay = "0010001"
+        if (value.allDay) dailyAllDayHabits[i] += Number(value.habitDay[i]);
       }
     });
     if (Math.max(...dailyAllDayHabits) >= 6)
@@ -54,7 +56,7 @@ const validateHabitInput = async (userId: number, habitInput: HabitInput) => {
     habitInput.habitStart = "00:00";
     habitInput.habitEnd = "00:00";
   } else {
-    // 4. habitStart, habitEnd
+    // 4. habitStart, habitEnd 있는지 + 겹치는 시간대가 있는지 확인
     if (!habitStart || !habitEnd) throw new Error("습관 시간을 입력하세요");
   }
   return habitInput;
@@ -110,7 +112,7 @@ export class HabitResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async deleteHabit(
-    @Arg("habitId") habitId: number,
+    @Arg("habitId", () => Int) habitId: number,
     @Ctx() { req }: ReqResContext
   ): Promise<boolean> {
     // 다른 유저가 내 습관을 없애버리는 불상사를 막기 위해 userId 추가
@@ -125,7 +127,7 @@ export class HabitResolver {
   @Mutation(() => Habit)
   @UseMiddleware(isAuth)
   async editHabit(
-    @Arg("habitId") habitId: number,
+    @Arg("habitId", () => Int) habitId: number,
     @Arg("habitInput") habitInput: HabitInput,
     @Ctx() { req }: ReqResContext
   ): Promise<Habit | null> {

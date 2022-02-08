@@ -1,0 +1,5 @@
+mutation EditHabit($habitId: Int!, $habitInput: HabitInput!) {
+  editHabit(habitId: $habitId, habitInput: $habitInput) {
+    ...habitFrag
+  }
+}

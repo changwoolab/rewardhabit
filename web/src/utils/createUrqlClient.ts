@@ -6,6 +6,7 @@ import {
   stringifyVariables,
 } from "urql";
 import {
+  DeleteHabitMutationVariables,
   DeletePostMutationVariables,
   LoginMutation,
   MeDocument,
@@ -43,14 +44,30 @@ const errorExchange: Exchange =
     );
   };
 
-/** Post query 모두 삭제 */
-const invalidateAllPosts = (cache: Cache) => {
+// /** Post query 모두 삭제 */
+// const invalidateAllPosts = (cache: Cache) => {
+//   const allFields = cache.inspectFields("Query");
+//   const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
+//   fieldInfos.forEach((fi) => {
+//     cache.invalidate("Query", "posts", fi.arguments || {});
+//   });
+// };
+
+/** Query Cache 모두 삭제 */
+const invalidateAllQueryCache = (cache: Cache, mode: string) => {
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
-  fieldInfos.forEach((fi) => {
-    cache.invalidate("Query", "posts", fi.arguments || {});
-  });
+  const fieldInfos = allFields.filter((info) => info.fieldName === mode);
+  if (mode === "posts") {
+    fieldInfos.forEach((fi) => {
+      cache.invalidate("Query", "posts", fi.arguments || {});
+    });
+  } else {
+    fieldInfos.forEach((fi) => {
+      cache.invalidate("Query", mode);
+    });
+  }
 };
+
 
 /**
  * 현재 CursorPagination 작동방식
@@ -155,15 +172,16 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         // cache를 업데이트할 조건
         updates: {
           Mutation: {
+            // 습관 삭제 시 캐시 업데이트
+            deleteHabit: (result, args, cache, info) => {
+              cache.invalidate({
+                __typename: "Habit",
+                id: (args as DeleteHabitMutationVariables).habitId,
+              });
+            },
             // 습관 추가 시 캐시 업데이트
             createHabit: (result, args, cache, info) => {
-              const allFields = cache.inspectFields("Query");
-              const fieldInfos = allFields.filter(
-                (info) => info.fieldName === "myHabits"
-              );
-              fieldInfos.forEach((fi) => {
-                cache.invalidate("Query", "myHabits"); // invalidateAllPost를 사용하고 싶지만.. argument 넣으면 안됨.
-              });
+              invalidateAllQueryCache(cache, "myHabits");
             },
             // 포스트 삭제 시 캐시 업데이트
             deletePost: (result, args, cache, info) => {
@@ -190,18 +208,20 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
-              invalidateAllPosts(cache);
+              invalidateAllQueryCache(cache, "posts");
+              invalidateAllQueryCache(cache, "myHabits");
             },
             // 로그아웃
             logout: (result, args, cache, info) => {
               cache.updateQuery({ query: MeDocument }, () => {
                 return { me: null };
               });
-              invalidateAllPosts(cache);
+              invalidateAllQueryCache(cache, "posts");
+              invalidateAllQueryCache(cache, "myHabits");
             },
             // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
             createPost: (result, args, cache, info) => {
-              invalidateAllPosts(cache);
+              invalidateAllQueryCache(cache, "posts");
             },
             // Updoot 눌렀을 때 즉시 반영, 이 때 캐시 전체를 refresh할 필요는 없으니 fragment만 바꾼다.
             vote: (result, args, cache, info) => {

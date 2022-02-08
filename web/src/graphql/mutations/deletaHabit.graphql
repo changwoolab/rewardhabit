@@ -1,0 +1,3 @@
+mutation DeleteHabit($habitId: Int!) {
+  deleteHabit(habitId: $habitId)
+}
