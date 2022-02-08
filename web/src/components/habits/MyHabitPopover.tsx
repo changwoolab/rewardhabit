@@ -9,10 +9,8 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverBody,
-  useColorMode,
   IconButton,
   Button,
-  Box,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { InputField } from "../InputField";
@@ -24,14 +22,15 @@ import { validateHabits } from "../../utils/validateHabits";
 import { useDeleteHabitMutation, useEditHabitMutation } from "../../generated/graphql";
 
 interface MyHabitPopoverProps {
-  height: number;
   habit: any;
+  colorMode: string;
 }
 
-
+/** 습관을 보여주는 Popover, Trigger를 children으로 넣어주면 됩니다. */
 export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
-  height,
   habit,
+  colorMode,
+  children
 }) => {
   const myHabitInitialValues = {
     habitDay: habit.habitDay,
@@ -49,12 +48,6 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
   myDays.push(habit.allDay);
   const weekDaysHook = useState<boolean[]>(myDays);
 
-  // 다크모드인지 확인 후 색깔 결정
-  const { colorMode } = useColorMode();
-  const bgColor =
-    colorMode === "dark" ? habit.bgColor.split(".")[0] + ".700" : habit.bgColor;
-  const borderColor = colorMode === "dark" ? "#c8c8c8" : "gray";
-
   const days = ["월", "화", "수", "목", "금", "토", "일"];
   let habitDays = [];
   for (let i = 0; i < 7; i++) {
@@ -68,27 +61,7 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
 
   return (
     <Popover placement="auto" closeOnBlur={false}>
-      <PopoverTrigger>
-        <Flex
-          bgColor={bgColor}
-          w="100%"
-          as="button"
-          direction="column"
-          justifyContent={"center"}
-          alignItems={"center"}
-          h={`${height}px`}
-          border="1px"
-          borderRadius={"sm"}
-          borderColor={borderColor}
-        >
-          <Text fontSize={"5px"}>{habit.habitName}</Text>
-          {habit.allDay ? null : (
-            <Text fontSize="3px">
-              {habit.habitStart}~{habit.habitEnd}{" "}
-            </Text>
-          )}
-        </Flex>
-      </PopoverTrigger>
+      <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent color="white" bg="blue.800" borderColor="blue.800">
         <Formik
           initialValues={myHabitInitialValues}
@@ -98,8 +71,8 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
             const res = await updateHabit({
               habitId: habit.id,
               habitInput: {
-                ...validateResult
-              }
+                ...validateResult,
+              },
             });
             if (res && !res.error) {
               alert("수정되었습니다");
@@ -113,26 +86,36 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                 justifyContent={"space-between"}
                 alignItems="center"
               >
-                {!editHabit ? habit.habitName : <InputField name="habitName" />}
-                <Box>
-                  <IconButton aria-label="delete-habit"
-                    icon={<DeleteIcon />}
+                {!editHabit ? habit.habitName : <InputField mt={1} name="habitName" />}
+                <Flex ml={1} mt={3}>
+                  <IconButton
+                    mr={1}
+                    aria-label="delete-habit"
+                    colorScheme='blue'
+                    size={"sm"}
+                    color={"white"}
+                    bgColor={"gray.800"}
+                    icon={<DeleteIcon/>}
                     onClick={async () => {
                       const really = confirm("정말 삭제하시겠습니까?");
                       if (really) {
-                        let res = await deleteHabit({habitId: habit.id});
-                        if (res.data?.deleteHabit) alert("삭제되었습니다")
+                        let res = await deleteHabit({ habitId: habit.id });
+                        if (res.data?.deleteHabit) alert("삭제되었습니다");
                       }
                     }}
                   />
-                <IconButton
-                  aria-label="edit-habit"
-                  icon={<EditIcon />}
-                  onClick={() => {
-                    setEditHabit(!editHabit);
-                  }}
-                />
-                </Box>
+                  <IconButton
+                    aria-label="edit-habit"
+                    colorScheme='blue'
+                    size={"sm"}
+                    color={"white"}
+                    bgColor={"gray.800"}
+                    icon={<EditIcon />}
+                    onClick={() => {
+                      setEditHabit(!editHabit);
+                    }}
+                  />
+                </Flex>
               </Flex>
             </PopoverHeader>
             <PopoverArrow />
@@ -149,21 +132,21 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                     ))}
                 {!editHabit ? null : (
                   <>
-                    <DayButton weekDaysHook={weekDaysHook} day="월" idx={0} />
-                    <DayButton weekDaysHook={weekDaysHook} day="화" idx={1} />
-                    <DayButton weekDaysHook={weekDaysHook} day="수" idx={2} />
-                    <DayButton weekDaysHook={weekDaysHook} day="목" idx={3} />
-                    <DayButton weekDaysHook={weekDaysHook} day="금" idx={4} />
-                    <DayButton weekDaysHook={weekDaysHook} day="토" idx={5} />
-                    <DayButton weekDaysHook={weekDaysHook} day="일" idx={6} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="월" idx={0} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="화" idx={1} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="수" idx={2} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="목" idx={3} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="금" idx={4} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="토" idx={5} />
+                    <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="일" idx={6} />
                   </>
                 )}
               </Flex>
               {!editHabit ? null : (
-                <Flex alignItems={"center"}>
+                <Flex mt={1} alignItems={"center"}>
                   <Text fontSize="sm">종일여부 </Text>
-                  <DayButton weekDaysHook={weekDaysHook} day="종일" idx={7} />
-                  <SelectHabitColor />
+                  <DayButton bg={"rgb(59 82 113)"} weekDaysHook={weekDaysHook} day="종일" idx={7} />
+                  <SelectHabitColor size={"xs"} colorMode={colorMode}/>
                 </Flex>
               )}
               <Flex>
@@ -189,7 +172,7 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                   </Flex>
                 )}
               </Flex>
-              {!editHabit ? null : <Button type="submit">저장</Button>}
+              {!editHabit ? null : <Button mt={2} bg={"rgb(59 82 113)"} type="submit">저장</Button>}
             </PopoverBody>
           </Form>
         </Formik>

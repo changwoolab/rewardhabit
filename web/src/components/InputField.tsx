@@ -51,7 +51,7 @@ export const InputField: React.FC<InputFieldProps> = ({
     InputOrElse = Select;
     selectOptions?.map((values) => {
       body.push(
-        <option key={values.value} value={values.value}>
+        <option style={{color: borderColor}} key={values.value} value={values.value}>
           {values.option}
         </option>
       );

@@ -14,11 +14,19 @@ import {
 import { useFormikContext } from "formik";
 import React, { useState } from "react";
 
-interface SelectHabitColorProps {}
+interface SelectHabitColorProps {
+  colorMode: string;
+  size?: string;
+}
 
-export const SelectHabitColor: React.FC<SelectHabitColorProps> = ({}) => {
+export const SelectHabitColor: React.FC<SelectHabitColorProps> = ({
+  size,
+  colorMode,
+}) => {
   const [isEditing, setIsEditing] = useBoolean();
-  const [color, setColor] = useState("red");
+  const [color, setColor] = useState(
+    colorMode === "dark" ? "red.700" : "red.200"
+  );
   const { values } = useFormikContext();
   return (
     <Popover
@@ -44,13 +52,22 @@ export const SelectHabitColor: React.FC<SelectHabitColorProps> = ({}) => {
         </PopoverAnchor>
 
         <PopoverTrigger>
-          <Button size="sm" borderRadius={"full"} colorScheme={`${color.split(".")[0]}`}>
+          <Button
+            size={size}
+            borderRadius={"full"}
+            color={colorMode === "dark" ? "white" : "black"}
+            bgColor={
+              colorMode === "dark"
+                ? color.split(".")[0] + ".700"
+                : color.split(".")[0] + ".200"
+            }
+          >
             색상
           </Button>
         </PopoverTrigger>
       </HStack>
 
-      <PopoverContent>
+      <PopoverContent bg={"gray.700"} borderColor={"gray.700"}>
         <PopoverBody>
           Colors:
           <RadioGroup

@@ -4,10 +4,11 @@ import React from 'react';
 interface DayButtonProps {
     weekDaysHook: [boolean[], React.Dispatch<React.SetStateAction<boolean[]>>]
     day: string; idx: number;
+    bg?: string;
 }
 
 export const DayButton: React.FC<DayButtonProps> = ({
-    weekDaysHook, day, idx
+    weekDaysHook, day, idx, bg
 }) => {
     const [weekDays, setWeekDays] = weekDaysHook;
     const color = weekDays[idx] ? "teal" : undefined;
@@ -15,6 +16,7 @@ export const DayButton: React.FC<DayButtonProps> = ({
         <Button
           size={"xs"}
           colorScheme={color}
+          bg={weekDays[idx] ? undefined : bg}
           borderRadius="full"
           onClick={() => {
             weekDays[idx] = !weekDays[idx]
