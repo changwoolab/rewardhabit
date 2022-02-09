@@ -88,16 +88,20 @@ const habit: React.FC<habitProps> = ({}) => {
         <Text mb={4} fontSize={"large"}>
           <strong>내 시간표</strong>
         </Text>
-        <MyTimetable />
+        <MyTimetable colorMode={colorMode} />
       </Box>
 
       <Flex
         borderRadius={"xl"}
-        bgColor={"teal"}
         justifyContent={"left"}
         textAlign={"center"}
+        border={"1px"}
+        w={"100%"}
       >
-        <Box borderRadius={"xl"} bgColor={"gray"} fontSize={"large"}>
+        <Box
+          borderRadius={"xl"}
+          bgColor={colorMode === "dark" ? "gray.600" : "gray.300"}
+        >
           <Text m={10}>
             <strong>내 습관</strong>
           </Text>
@@ -108,7 +112,11 @@ const habit: React.FC<habitProps> = ({}) => {
               <Stack m={3} key={"myHabitStack" + idx} spacing={1}>
                 {myHabits.map((p) =>
                   !p ? null : (
-                    <MyHabitPopover colorMode={colorMode} key={"myHabit" + idx + p.id} habit={p}>
+                    <MyHabitPopover
+                      colorMode={colorMode}
+                      key={"myHabit" + idx + p.id}
+                      habit={p}
+                    >
                       <Button
                         key={"myHabits" + p.id}
                         p={2}
@@ -139,7 +147,7 @@ const habit: React.FC<habitProps> = ({}) => {
           </Flex>
         )}
       </Flex>
-      <Box borderRadius={"xl"} mt={8} textAlign={"center"}>
+      <Box borderRadius={"xl"} mt={8} mb={8} textAlign={"center"}>
         <Text fontSize="xl">
           <strong>습관 추가하기</strong>
         </Text>

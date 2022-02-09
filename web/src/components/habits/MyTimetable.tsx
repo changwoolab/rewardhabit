@@ -3,13 +3,16 @@ import React from "react";
 import { useMyHabitsQuery } from "../../generated/graphql";
 import { MyHabitPopover } from "./MyHabitPopover";
 
-interface MyTimetableProps {}
+interface MyTimetableProps {
+  colorMode: string;
+}
 
-export const MyTimetable: React.FC<MyTimetableProps> = ({}) => {
+export const MyTimetable: React.FC<MyTimetableProps> = ({
+  colorMode,
+}) => {
   // MyHabit Hook
   const [{ data: myHabits }] = useMyHabitsQuery();
   // 다크모드인지 확인 후 색깔 결정
-  const { colorMode } = useColorMode();
   const borderColor = colorMode === "dark" ? "#c8c8c8" : "gray";
 
   // 시간 당 높이
