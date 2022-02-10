@@ -44,11 +44,7 @@ export class User extends BaseEntity {
 
   @Field()
   @Column()
-  lastName: string; // 성
-
-  @Field()
-  @Column()
-  firstName: string; // 이름
+  fullName: string; // 이름(성 포함)
 
   @Field()
   @Column({ unique: true })

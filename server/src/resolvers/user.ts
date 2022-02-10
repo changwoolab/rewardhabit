@@ -31,6 +31,7 @@ import { v4 } from "uuid";
 import { isAuth } from "../middleware/isAuth";
 import { decrypeUserInfo } from "../utils/forUserResolver/decryptUserInfo";
 import { Subscript } from "../entities/Subscript";
+import { MyAccountInput } from "../types/MyAccountInput";
 
 @Resolver(User)
 export class UserResolver {
@@ -54,15 +55,9 @@ export class UserResolver {
     return "";
   }
   @FieldResolver(() => String)
-  lastName(@Root() user: User, @Ctx() { req }: ReqResContext) {
+  fullName(@Root() user: User, @Ctx() { req }: ReqResContext) {
     if (req.session.userId === user.id)
-      return decrypeUserInfo(user, "lastName");
-    return "";
-  }
-  @FieldResolver(() => String)
-  firstName(@Root() user: User, @Ctx() { req }: ReqResContext) {
-    if (req.session.userId === user.id)
-      return decrypeUserInfo(user, "firstName");
+      return decrypeUserInfo(user, "fullName");
     return "";
   }
   @FieldResolver(() => String)
@@ -88,6 +83,7 @@ export class UserResolver {
   ///////////////* 여기부터는 Query 및 Mutation 정의*//////////////////
   ///////////////////////////////////////////////////////////////////
 
+  /** 내 계정 확인 */
   @Query(() => UserResponse)
   @UseMiddleware(isAuth)
   async myAccount(@Ctx() { req }: ReqResContext) {
@@ -97,6 +93,15 @@ export class UserResolver {
     const user = await User.findOne({ id: userId });
     if (!user) return null;
     return { user };
+  }
+
+  /** 내 계정 업데이트 */
+  @Mutation(() => UserResponse)
+  @UseMiddleware(isAuth)
+  async updateMyAccount(
+    @Arg("inputs") inputs: MyAccountInput
+  ) {
+
   }
 
   @Query(() => UserResponse, { nullable: true })
@@ -125,7 +130,7 @@ export class UserResolver {
     const { user, iv } = await makeUserAndIV(inputs);
     if (!user || !iv) return notExpectedErr;
 
-    // 3. DB에 저장
+    // 3. DB에 저장 -> transaction으로 처리하기
     const resUser = await getRepository(User).save(user);
     if (!resUser) return notExpectedErr;
     const resIV = await getRepository(User_IV).save(iv);
@@ -174,13 +179,11 @@ export class UserResolver {
     // 1. userId, userName 중복 검사
     if (mode == "userId") {
       const user = await User.findOne({ where: { userId: input } });
-      console.log(user);
       if (user) {
         return false;
       }
     } else if (mode == "userName") {
       const user = await User.findOne({ where: { userName: input } });
-      console.log(user);
       if (user) {
         return false;
       }

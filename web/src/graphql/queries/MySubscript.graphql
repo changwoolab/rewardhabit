@@ -2,8 +2,7 @@ query MySubscript {
     myAccount {
         user {
             id
-            lastName
-            firstName
+            fullName
             subscripts {
                 id
                 userId

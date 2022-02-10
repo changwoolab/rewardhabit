@@ -3,8 +3,7 @@ query MyAccount {
         user {
             id
             userId
-            lastName
-            firstName
+            fullName
             email
             userName
             bank

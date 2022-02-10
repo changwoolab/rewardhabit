@@ -2,8 +2,7 @@ import { encrypt } from "../utils/encrypt/encrypt";
 import { UserRegisterInput } from "./UserRegisterInput";
 
 export const keysToBeEncrypted = [
-  "lastName",
-  "firstName",
+  "fullName",
   "email",
   "bank",
   "account",
@@ -20,8 +19,7 @@ export class EncryptedData {
       this[key] = encrypt(inputs[key]);
     });
   }
-  lastName: Encrypted;
-  firstName: Encrypted;
+  fullName: Encrypted;
   email: Encrypted;
   bank: Encrypted;
   account: Encrypted;

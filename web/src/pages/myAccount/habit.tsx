@@ -30,6 +30,7 @@ import { SelectHabitColor } from "../../components/habits/SelectHabitColor";
 import { DayButton } from "../../components/habits/DayButton";
 import { validateHabits } from "../../utils/validateHabits";
 import { MyTimetable } from "../../components/habits/MyTimetable";
+import { ContainerBox } from "../../components/ContainerBox";
 
 export const habitInitialValue = {
   habitDay: "",
@@ -92,13 +93,7 @@ const habit: React.FC<habitProps> = ({}) => {
         <MyTimetable colorMode={colorMode} />
       </Box>
 
-      <Flex
-        borderRadius={"xl"}
-        justifyContent={"left"}
-        textAlign={"center"}
-        border={"1px"}
-        w={"100%"}
-      >
+      <ContainerBox>
         <Box
           borderRadius={"xl"}
           bgColor={colorMode === "dark" ? "gray.600" : "gray.300"}
@@ -160,7 +155,7 @@ const habit: React.FC<habitProps> = ({}) => {
             ))}
           </Flex>
         )}
-      </Flex>
+      </ContainerBox>
       <Box borderRadius={"xl"} mt={8} mb={8} textAlign={"center"}>
         <Text fontSize="xl">
           <strong>습관 추가하기</strong>

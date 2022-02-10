@@ -1,14 +1,7 @@
 import { InputType, Field } from "type-graphql";
 
 @InputType()
-export class UserRegisterInput {
-  @Field()
-  userId: string; // 아이디
-
-  @Field()
-  password: string; // 비밀번호
-
-  @Field()
+export class MyAccountInput {
   fullName: string; // 이름
 
   @Field()

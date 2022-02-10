@@ -71,6 +71,7 @@ export type Mutation = {
   login?: Maybe<UserResponse>;
   logout: Scalars['Boolean'];
   register: UserResponse;
+  updateMyAccount: UserResponse;
   updatePost?: Maybe<Post>;
   vote: Scalars['Boolean'];
 };
@@ -147,6 +148,11 @@ export type MutationRegisterArgs = {
 };
 
 
+export type MutationUpdateMyAccountArgs = {
+  inputs: MyAccountInput;
+};
+
+
 export type MutationUpdatePostArgs = {
   id: Scalars['Int'];
   texts: Scalars['String'];
@@ -157,6 +163,13 @@ export type MutationUpdatePostArgs = {
 export type MutationVoteArgs = {
   postId: Scalars['Int'];
   value: Scalars['Int'];
+};
+
+export type MyAccountInput = {
+  account: Scalars['String'];
+  bank: Scalars['String'];
+  email: Scalars['String'];
+  userName: Scalars['String'];
 };
 
 export type PaginatedPosts = {
@@ -269,9 +282,8 @@ export type User = {
   bank: Scalars['String'];
   email: Scalars['String'];
   exp: Scalars['Float'];
-  firstName: Scalars['String'];
+  fullName: Scalars['String'];
   id: Scalars['Float'];
-  lastName: Scalars['String'];
   level: Scalars['Float'];
   point: Scalars['Float'];
   registerDate: Scalars['DateTime'];
@@ -284,8 +296,7 @@ export type UserRegisterInput = {
   account: Scalars['String'];
   bank: Scalars['String'];
   email: Scalars['String'];
-  firstName: Scalars['String'];
-  lastName: Scalars['String'];
+  fullName: Scalars['String'];
   password: Scalars['String'];
   userId: Scalars['String'];
   userName: Scalars['String'];
@@ -414,7 +425,7 @@ export type VoteMutation = { __typename?: 'Mutation', vote: boolean };
 export type MySubscriptQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MySubscriptQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, lastName: string, firstName: string, subscripts?: { __typename?: 'Subscript', id: number, userId: number, type: number, startedAt: any, expireAt: any, reward: number, rewardCount: number, totalPayment: number, daysRemain: number } | null | undefined } | null | undefined } };
+export type MySubscriptQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, fullName: string, subscripts?: { __typename?: 'Subscript', id: number, userId: number, type: number, startedAt: any, expireAt: any, reward: number, rewardCount: number, totalPayment: number, daysRemain: number } | null | undefined } | null | undefined } };
 
 export type CheckImmediateDuplicateMutationVariables = Exact<{
   mode: Scalars['String'];
@@ -432,7 +443,7 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'UserResponse'
 export type MyAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, lastName: string, firstName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
+export type MyAccountQuery = { __typename?: 'Query', myAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, fullName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
 
 export type MyHabitQueryVariables = Exact<{
   habitId: Scalars['Float'];
@@ -699,8 +710,7 @@ export const MySubscriptDocument = gql`
   myAccount {
     user {
       id
-      lastName
-      firstName
+      fullName
       subscripts {
         id
         userId
@@ -748,8 +758,7 @@ export const MyAccountDocument = gql`
     user {
       id
       userId
-      lastName
-      firstName
+      fullName
       email
       userName
       bank

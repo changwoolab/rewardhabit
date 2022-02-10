@@ -19,10 +19,7 @@ export class User_IV extends BaseEntity {
   user: User;
 
   @Column()
-  lastNameIV: string;
-
-  @Column()
-  firstNameIV: string;
+  fullNameIV: string;
 
   @Column()
   emailIV: string;

@@ -57,8 +57,7 @@ const Register: React.FC<registerProps> = () => {
     confirmPassword: string()
       .required("비밀번호확인을 입력해주세요")
       .oneOf([ref("password")], "비밀번호가 일치하지 않습니다"),
-    lastName: string().required("성을 입력해주세요"),
-    firstName: string().required("이름을 입력해주세요"),
+    fullName: string().required("이름을 입력해주세요"),
     email: string()
       .required("이메일을 입력해주세요")
       .email("유효하지 않은 이메일 주소입니다")
@@ -102,8 +101,7 @@ const Register: React.FC<registerProps> = () => {
           userId: "",
           password: "",
           confirmPassword: "",
-          lastName: "",
-          firstName: "",
+          fullName: "",
           email: "",
           userName: "",
           bank: "",
@@ -115,8 +113,7 @@ const Register: React.FC<registerProps> = () => {
             userId: string;
             password: string;
             confirmPassword?: string;
-            lastName: string;
-            firstName: string;
+            fullName: string;
             email: string;
             userName: string;
             bank: string;
@@ -149,8 +146,7 @@ const Register: React.FC<registerProps> = () => {
               label="비밀번호확인"
               type="password"
             />
-            <InputField name="lastName" label="성" />
-            <InputField name="firstName" label="이름" />
+            <InputField name="fullName" label="이름" />
             <InputField name="email" label="이메일 주소" />
             <InputField name="userName" label="별명" />
             <InputField name="bank" label="은행명" />
