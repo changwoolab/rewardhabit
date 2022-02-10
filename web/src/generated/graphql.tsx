@@ -37,7 +37,7 @@ export type Habit = {
   __typename?: 'Habit';
   allDay: Scalars['Boolean'];
   bgColor: Scalars['String'];
-  checked: Scalars['Boolean'];
+  checked: Scalars['String'];
   habitDay: Scalars['String'];
   habitEnd: Scalars['String'];
   habitName: Scalars['String'];
@@ -58,6 +58,7 @@ export type HabitInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: Scalars['Boolean'];
+  checkHabit?: Maybe<Habit>;
   checkImmediateDuplicate: Scalars['Boolean'];
   createComment?: Maybe<Post>;
   createHabit: Habit;
@@ -78,6 +79,11 @@ export type Mutation = {
 export type MutationChangePasswordArgs = {
   newPassword: Scalars['String'];
   token: Scalars['String'];
+};
+
+
+export type MutationCheckHabitArgs = {
+  habitId: Scalars['Int'];
 };
 
 
@@ -298,7 +304,7 @@ export type ErrorsFragFragment = { __typename?: 'FieldError', field: string, mes
 
 export type PostFragFragment = { __typename?: 'Post', id: number, userId: number, writtenDate: any, updateDate: any, type: number, likes: number, title: string, voteStatus?: number | null | undefined, user: { __typename?: 'User', id: number, userName: string, level: number }, comments?: Array<{ __typename?: 'Comment', id: number, userName: string, texts: string, writtenDate: any }> | null | undefined };
 
-export type HabitFragFragment = { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string };
+export type HabitFragFragment = { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string };
 
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
@@ -310,12 +316,19 @@ export type ChangePasswordMutationVariables = Exact<{
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: boolean };
 
+export type CheckHabitMutationVariables = Exact<{
+  habitId: Scalars['Int'];
+}>;
+
+
+export type CheckHabitMutation = { __typename?: 'Mutation', checkHabit?: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string } | null | undefined };
+
 export type CreateHabitMutationVariables = Exact<{
   habitInput: HabitInput;
 }>;
 
 
-export type CreateHabitMutation = { __typename?: 'Mutation', createHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
+export type CreateHabitMutation = { __typename?: 'Mutation', createHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string } };
 
 export type CreatePostMutationVariables = Exact<{
   input: PostInput;
@@ -344,7 +357,7 @@ export type EditHabitMutationVariables = Exact<{
 }>;
 
 
-export type EditHabitMutation = { __typename?: 'Mutation', editHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
+export type EditHabitMutation = { __typename?: 'Mutation', editHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string } };
 
 export type ForgotPasswordMutationVariables = Exact<{
   userId: Scalars['String'];
@@ -426,12 +439,12 @@ export type MyHabitQueryVariables = Exact<{
 }>;
 
 
-export type MyHabitQuery = { __typename?: 'Query', myHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string } };
+export type MyHabitQuery = { __typename?: 'Query', myHabit: { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string } };
 
 export type MyHabitsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyHabitsQuery = { __typename?: 'Query', myHabits: Array<{ __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: boolean, bgColor: string }> };
+export type MyHabitsQuery = { __typename?: 'Query', myHabits: Array<{ __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string }> };
 
 export type OffsetBasePostsQueryVariables = Exact<{
   type: Scalars['Int'];
@@ -529,6 +542,17 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CheckHabitDocument = gql`
+    mutation CheckHabit($habitId: Int!) {
+  checkHabit(habitId: $habitId) {
+    ...habitFrag
+  }
+}
+    ${HabitFragFragmentDoc}`;
+
+export function useCheckHabitMutation() {
+  return Urql.useMutation<CheckHabitMutation, CheckHabitMutationVariables>(CheckHabitDocument);
 };
 export const CreateHabitDocument = gql`
     mutation CreateHabit($habitInput: HabitInput!) {

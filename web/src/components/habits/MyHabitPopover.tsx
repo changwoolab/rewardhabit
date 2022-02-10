@@ -1,4 +1,4 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Popover,
   Text,
@@ -11,6 +11,7 @@ import {
   PopoverBody,
   IconButton,
   Button,
+  ColorMode,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { InputField } from "../InputField";
@@ -19,11 +20,12 @@ import { HourMinInput } from "./HourMinInput";
 import { SelectHabitColor } from "./SelectHabitColor";
 import { DayButton } from "./DayButton";
 import { validateHabits } from "../../utils/validateHabits";
-import { useDeleteHabitMutation, useEditHabitMutation } from "../../generated/graphql";
+import { useCheckHabitMutation, useDeleteHabitMutation, useEditHabitMutation } from "../../generated/graphql";
+import { getHabitDays } from "../../utils/getHabitDays";
 
 interface MyHabitPopoverProps {
   habit: any;
-  colorMode: string;
+  colorMode: ColorMode;
 }
 
 /** 습관을 보여주는 Popover, Trigger를 children으로 넣어주면 됩니다. */
@@ -48,14 +50,11 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
   myDays.push(habit.allDay);
   const weekDaysHook = useState<boolean[]>(myDays);
 
-  const days = ["월", "화", "수", "목", "금", "토", "일"];
-  let habitDays = [];
-  for (let i = 0; i < 7; i++) {
-    if (habit.habitDay[i] == "1") habitDays.push(days[i]);
-  }
+  let habitDays = getHabitDays(habit.habitDay);
 
   const [, updateHabit] = useEditHabitMutation();
   const [, deleteHabit] = useDeleteHabitMutation();
+  const [, checkHabit] = useCheckHabitMutation();
 
   const [editHabit, setEditHabit] = useState<boolean>(false);
 
@@ -88,8 +87,34 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
               >
                 {!editHabit ? habit.habitName : <InputField mt={1} name="habitName" />}
                 <Flex ml={1} mt={3}>
+                <IconButton
+                  mr={1}
+                    aria-label="check-habit"
+                    colorScheme='blue'
+                    size={"sm"}
+                    color={"white"}
+                    bgColor={"gray.800"}
+                    icon={<CheckIcon />}
+                    onClick={async () => {
+                      const res = await checkHabit({habitId: habit.id});
+                      if (res && !res.error) {
+                        alert("완료되었습니다.");
+                      }
+                    }}
+                  />
                   <IconButton
-                    mr={1}
+                  mr={1}
+                    aria-label="edit-habit"
+                    colorScheme='blue'
+                    size={"sm"}
+                    color={"white"}
+                    bgColor={"gray.800"}
+                    icon={<EditIcon />}
+                    onClick={() => {
+                      setEditHabit(!editHabit);
+                    }}
+                  />
+                  <IconButton
                     aria-label="delete-habit"
                     colorScheme='blue'
                     size={"sm"}
@@ -102,17 +127,6 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
                         let res = await deleteHabit({ habitId: habit.id });
                         if (res.data?.deleteHabit) alert("삭제되었습니다");
                       }
-                    }}
-                  />
-                  <IconButton
-                    aria-label="edit-habit"
-                    colorScheme='blue'
-                    size={"sm"}
-                    color={"white"}
-                    bgColor={"gray.800"}
-                    icon={<EditIcon />}
-                    onClick={() => {
-                      setEditHabit(!editHabit);
                     }}
                   />
                 </Flex>
@@ -180,3 +194,4 @@ export const MyHabitPopover: React.FC<MyHabitPopoverProps> = ({
     </Popover>
   );
 };
+

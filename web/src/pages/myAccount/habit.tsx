@@ -24,6 +24,7 @@ import {
 } from "../../generated/graphql";
 import { useRouter } from "next/router";
 import { MyHabitPopover } from "../../components/habits/MyHabitPopover";
+import { getHabitDays } from "../../utils/getHabitDays";
 import { HourMinInput } from "../../components/habits/HourMinInput";
 import { SelectHabitColor } from "../../components/habits/SelectHabitColor";
 import { DayButton } from "../../components/habits/DayButton";
@@ -103,7 +104,7 @@ const habit: React.FC<habitProps> = ({}) => {
           bgColor={colorMode === "dark" ? "gray.600" : "gray.300"}
         >
           <Text m={10}>
-            <strong>내 습관</strong>
+            <strong>내 습관 목록</strong>
           </Text>
         </Box>
         {!myHabits ? null : (
@@ -122,12 +123,25 @@ const habit: React.FC<habitProps> = ({}) => {
                         p={2}
                         shadow="md"
                         borderwidth="1px"
+                        size="xl"
                       >
                         <Flex>
                           <Box flex={1} textAlign={"left"}>
                             <Heading fontSize="sm">
                               습관명: {p.habitName}
                             </Heading>
+                            <Flex>
+                              <Text fontSize="sm">매주 </Text>
+                              {getHabitDays(p.habitDay).map((value) => (
+                                <Text
+                                  fontSize="sm"
+                                  ml={1}
+                                  key={"myHabitHabitDays" + value}
+                                >
+                                  {value}
+                                </Text>
+                              ))}
+                            </Flex>
                             <Flex>
                               <Text fontSize="sm">
                                 시작시간: {p.habitStart}

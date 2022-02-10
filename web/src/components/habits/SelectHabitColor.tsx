@@ -10,12 +10,13 @@ import {
   PopoverBody,
   RadioGroup,
   Radio,
+  ColorMode,
 } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import React, { useState } from "react";
 
 interface SelectHabitColorProps {
-  colorMode: string;
+  colorMode: ColorMode;
   size?: string;
 }
 
@@ -68,8 +69,8 @@ export const SelectHabitColor: React.FC<SelectHabitColorProps> = ({
       </HStack>
 
       <PopoverContent bg={"gray.700"} borderColor={"gray.700"}>
-        <PopoverBody>
-          Colors:
+        <PopoverBody color={"white"}>
+          색상선택
           <RadioGroup
             value={color}
             onChange={(newColor) => {

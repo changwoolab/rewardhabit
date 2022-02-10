@@ -1,10 +1,10 @@
-import { Text, Flex, Box, useColorMode } from "@chakra-ui/react";
+import { Text, Flex, Box, ColorMode } from "@chakra-ui/react";
 import React from "react";
 import { useMyHabitsQuery } from "../../generated/graphql";
 import { MyHabitPopover } from "./MyHabitPopover";
 
 interface MyTimetableProps {
-  colorMode: string;
+  colorMode: ColorMode;
 }
 
 export const MyTimetable: React.FC<MyTimetableProps> = ({
@@ -17,6 +17,18 @@ export const MyTimetable: React.FC<MyTimetableProps> = ({
 
   // 시간 당 높이
   const heightPerHour = 35;
+
+  // 오늘 요일 및 주간 날짜 구하기
+  const now = new Date();
+  let month = now.getMonth() + 1 < 10 ? "0" + (now.getMonth()+1) : (now.getMonth()+1);
+  let date = now.getDate();
+  let day = now.getDay();
+  // 월화수목금토일의 날짜 구하기
+  let dayDates: string[] = [];
+  for(let i = 1; i <= 7; i++) {
+    let weekDate = date-day+i < 10 ? "0" + (date-day+i) : date-day+i;
+    dayDates.push(month+"-"+ weekDate)
+  }
 
   /** 시간표 시간대 생성기 */
   const TimeTableHours = () => {
@@ -61,7 +73,7 @@ export const MyTimetable: React.FC<MyTimetableProps> = ({
   /** 요일별 시간표 생성기 */
   const DayTimeGenerator = (type: number) => {
     if (!myHabits || myHabits.myHabits.length == 0) return null;
-    // 1. 요일에 type이 포함된 것들만 뽑아내기 + 정렬 위한 인덱싱
+    // 1. 요일 == type인 것들만 뽑아내기 + 정렬 위한 인덱싱
     let habits: any[] = [];
     myHabits.myHabits.forEach((value) => {
       let start, end;
@@ -72,8 +84,14 @@ export const MyTimetable: React.FC<MyTimetableProps> = ({
       end = Number(endSplit[0]);
       if (endSplit[1] !== "00") end += 0.5;
       if (value.habitDay[type] == "1") {
+        let checkedHabitName = value.habitName;
+        // 만약 이미 해당날짜의 습관이 check된 것이라면,
+        if (value.checked.includes(dayDates[type])) {
+          checkedHabitName = value.habitName + "(완료)"
+        }
         habits.push({
           ...value,
+          habitName: checkedHabitName,
           start,
           end,
         });

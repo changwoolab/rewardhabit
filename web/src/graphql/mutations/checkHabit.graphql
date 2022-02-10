@@ -1,0 +1,5 @@
+mutation CheckHabit($habitId: Int!) {
+  checkHabit(habitId: $habitId) {
+    ...habitFrag
+  }
+}

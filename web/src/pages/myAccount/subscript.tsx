@@ -40,6 +40,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
   const subscript = data?.myAccount.user
     ? data?.myAccount.user?.subscripts
     : null;
+    // 기간(시작일자~완료일자), 남은일수, 지킨일수, 완료율, 일일반환액, 환급완료금액
   return (
     <MyAccountLayout>
       <Box textAlign={"center"}>

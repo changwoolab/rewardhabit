@@ -41,10 +41,10 @@ export class Habit extends BaseEntity {
   @Field()
   @Column({ nullable: true })
   habitEnd: string;
-  // 5. 습관 확인 여부 (DEFAULT FALSE)
+  // 5. 습관 확인 여부 (DEFAULT "")
   @Field()
-  @Column({ default: false })
-  checked: boolean;
+  @Column({ default: "" })
+  checked: string;
   // 6. 종일여부
   @Field()
   @Column({ default: false })
