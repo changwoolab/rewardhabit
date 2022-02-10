@@ -96,6 +96,35 @@ export class UserResolver {
     return { user };
   }
 
+  /** 회원탈퇴 */
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async deleteAccount(
+    @Arg("userId") userId: string,
+    @Arg("email") email: string,
+    @Arg("confirmText") confirmText: string,
+    @Arg("password") password: string,
+    @Ctx() { req }: ReqResContext
+  ): Promise<Boolean> {
+    const { userId: id } = req.session;
+    if (!id) throw new Error("로그인되지 않았습니다");
+    
+    const user = await User.findOne({id});
+    if (!user) throw new Error("존재하지 않는 아이디입니다");
+
+    // 인풋이 정확한지 검증
+    if (userId !== user.userId) throw new Error("아이디를 잘못 입력했습니다");
+    if (confirmText !== "보상습관 계정을 삭제합니다") throw new Error("확인문구를 잘못 입력했습니다");
+    const valid = await argon2.verify(user.password, password);
+    if (!valid) throw new Error("비밀번호를 잘못 입력했습니다");
+    const decryptedEmail = await decrypeUserInfo(user, "email");
+    if (decryptedEmail !== email) throw new Error("이메일을 잘못 입력했습니다");
+    
+    const res = await User.delete({id});
+    if (res.affected === 1) return true;
+    throw new Error("오류가 발생했습니다. 잠시 후 다시 시도해주세요");
+  }
+
   /** 내 계정 업데이트 */
   @Mutation(() => UserResponse)
   @UseMiddleware(isAuth)

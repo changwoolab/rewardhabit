@@ -63,6 +63,7 @@ export type Mutation = {
   createComment?: Maybe<Post>;
   createHabit: Habit;
   createPost: Post;
+  deleteAccount: Scalars['Boolean'];
   deleteHabit: Scalars['Boolean'];
   deletePost: Scalars['Boolean'];
   editHabit: Habit;
@@ -107,6 +108,14 @@ export type MutationCreateHabitArgs = {
 
 export type MutationCreatePostArgs = {
   input: PostInput;
+};
+
+
+export type MutationDeleteAccountArgs = {
+  confirmText: Scalars['String'];
+  email: Scalars['String'];
+  password: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 
@@ -350,6 +359,16 @@ export type CreatePostMutationVariables = Exact<{
 
 
 export type CreatePostMutation = { __typename?: 'Mutation', createPost: { __typename?: 'Post', id: number, userId: number, writtenDate: any, type: number, title: string, texts: string } };
+
+export type DeleteAccountMutationVariables = Exact<{
+  userId: Scalars['String'];
+  email: Scalars['String'];
+  confirmText: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount: boolean };
 
 export type DeleteHabitMutationVariables = Exact<{
   habitId: Scalars['Int'];
@@ -612,6 +631,20 @@ export const CreatePostDocument = gql`
 
 export function useCreatePostMutation() {
   return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
+};
+export const DeleteAccountDocument = gql`
+    mutation DeleteAccount($userId: String!, $email: String!, $confirmText: String!, $password: String!) {
+  deleteAccount(
+    userId: $userId
+    email: $email
+    confirmText: $confirmText
+    password: $password
+  )
+}
+    `;
+
+export function useDeleteAccountMutation() {
+  return Urql.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(DeleteAccountDocument);
 };
 export const DeleteHabitDocument = gql`
     mutation DeleteHabit($habitId: Int!) {

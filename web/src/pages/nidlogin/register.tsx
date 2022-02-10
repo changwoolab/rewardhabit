@@ -133,6 +133,7 @@ const Register: React.FC<registerProps> = () => {
 
           // 회원가입 성공시 index page로
           if (reg.data?.register) {
+            alert("회원가입되었습니다");
             router.push("/");
           }
         }}
@@ -140,6 +141,8 @@ const Register: React.FC<registerProps> = () => {
         {({ isSubmitting }) => (
           <Form>
             <InputField name="userId" label="아이디" />
+            <InputField name="userName" label="별명" />
+            <InputField name="email" label="이메일 주소" />
             <InputField name="password" label="비밀번호" type="password" />
             <InputField
               name="confirmPassword"
@@ -147,8 +150,6 @@ const Register: React.FC<registerProps> = () => {
               type="password"
             />
             <InputField name="fullName" label="이름" />
-            <InputField name="email" label="이메일 주소" />
-            <InputField name="userName" label="별명" />
             <InputField name="bank" label="은행명" />
             <InputField name="account" label="계좌번호" />
             <Button

@@ -14,7 +14,7 @@ export class User_IV extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, { cascade: true })
+  @OneToOne(() => User, { onDelete: "CASCADE", })
   @JoinColumn()
   user: User;
 

@@ -1,0 +1,13 @@
+mutation DeleteAccount(
+  $userId: String!
+  $email: String!
+  $confirmText: String!
+  $password: String!
+) {
+  deleteAccount(
+    userId: $userId
+    email: $email
+    confirmText: $confirmText
+    password: $password
+  )
+}
