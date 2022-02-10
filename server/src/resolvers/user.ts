@@ -12,7 +12,7 @@ import { User } from "../entities/User";
 import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
 import { UserResponse } from "../types/UserResponse";
-import { createQueryBuilder, getRepository } from "typeorm";
+import { createQueryBuilder, getConnection, getRepository } from "typeorm";
 import { makeUserAndIV } from "../utils/forUserResolver/makeUserAndIV";
 import { notExpectedErr } from "../utils/errors";
 import { checkDuplicateRegister } from "../utils/forUserResolver/checkDuplicateRegister";
@@ -32,6 +32,7 @@ import { isAuth } from "../middleware/isAuth";
 import { decrypeUserInfo } from "../utils/forUserResolver/decryptUserInfo";
 import { Subscript } from "../entities/Subscript";
 import { MyAccountInput } from "../types/MyAccountInput";
+import { EncryptedData } from "../types/Encrypted";
 
 @Resolver(User)
 export class UserResolver {
@@ -99,9 +100,37 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   @UseMiddleware(isAuth)
   async updateMyAccount(
-    @Arg("inputs") inputs: MyAccountInput
-  ) {
+    @Arg("inputs") inputs: MyAccountInput,
+    @Ctx() { req }: ReqResContext,
+  ): Promise<UserResponse> {
+    const { userId } = req.session;
+    if (!userId) throw new Error("로그인 되어있지 않습니다.");
 
+    // 민감정보 암호화
+    const encryptedData = new EncryptedData(inputs);
+    const {email, fullName, bank, account} = encryptedData;
+
+    // userIV와 user 모두 업데이트
+    // Transaction, 댓글 Insert + Post comment개수 업데이트
+    await getConnection().transaction(async (tm) => {
+      // 1. userIV 업데이트
+      await tm.query(
+        `
+            update user_iv set emailIV = ?, fullNameIV = ?, bankIV = ?, accountIV = ? where userId = ?;
+            `,
+        [email.iv, fullName.iv, bank.iv, account.iv, userId]
+      );
+      // 2. User 업데이트
+      await tm.query(
+        `
+            update user set userName = ?, email = ?, fullName = ?, bank = ?, account = ? where id = ?;
+            `,
+        [inputs.userName, email.encryptedData, fullName.encryptedData, bank.encryptedData, account.encryptedData, userId]
+      );
+    });
+
+    const user = await User.findOne({id: userId});
+    return {user}
   }
 
   @Query(() => UserResponse, { nullable: true })

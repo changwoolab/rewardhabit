@@ -1,4 +1,5 @@
 import { encrypt } from "../utils/encrypt/encrypt";
+import { MyAccountInput } from "./MyAccountInput";
 import { UserRegisterInput } from "./UserRegisterInput";
 
 export const keysToBeEncrypted = [
@@ -14,7 +15,7 @@ export class Encrypted {
 }
 
 export class EncryptedData {
-  constructor(inputs: UserRegisterInput) {
+  constructor(inputs: UserRegisterInput | MyAccountInput) {
     keysToBeEncrypted.forEach((key) => {
       this[key] = encrypt(inputs[key]);
     });

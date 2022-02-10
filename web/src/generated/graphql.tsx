@@ -169,6 +169,7 @@ export type MyAccountInput = {
   account: Scalars['String'];
   bank: Scalars['String'];
   email: Scalars['String'];
+  fullName: Scalars['String'];
   userName: Scalars['String'];
 };
 
@@ -317,6 +318,8 @@ export type PostFragFragment = { __typename?: 'Post', id: number, userId: number
 
 export type HabitFragFragment = { __typename?: 'Habit', id: number, allDay: boolean, habitName: string, habitDay: string, habitStart: string, habitEnd: string, checked: string, bgColor: string };
 
+export type MyAccountUserFragFragment = { __typename?: 'User', id: number, userId: string, fullName: string, email: string, userName: string, bank: string, account: string };
+
 export type PartialUserFragFragment = { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number };
 
 export type ChangePasswordMutationVariables = Exact<{
@@ -404,6 +407,13 @@ export type RegisterMutationVariables = Exact<{
 
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null | undefined, partialUser?: { __typename?: 'PartialUser', id: number, userId: string, userName: string, point: number, level: number, exp: number } | null | undefined } };
+
+export type UpdateMyAccountMutationVariables = Exact<{
+  inputs: MyAccountInput;
+}>;
+
+
+export type UpdateMyAccountMutation = { __typename?: 'Mutation', updateMyAccount: { __typename?: 'UserResponse', user?: { __typename?: 'User', id: number, userId: string, fullName: string, email: string, userName: string, bank: string, account: string } | null | undefined } };
 
 export type UpdatePostMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -533,6 +543,17 @@ export const HabitFragFragmentDoc = gql`
   habitEnd
   checked
   bgColor
+}
+    `;
+export const MyAccountUserFragFragmentDoc = gql`
+    fragment MyAccountUserFrag on User {
+  id
+  userId
+  fullName
+  email
+  userName
+  bank
+  account
 }
     `;
 export const PartialUserFragFragmentDoc = gql`
@@ -678,6 +699,19 @@ ${PartialUserFragFragmentDoc}`;
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const UpdateMyAccountDocument = gql`
+    mutation UpdateMyAccount($inputs: MyAccountInput!) {
+  updateMyAccount(inputs: $inputs) {
+    user {
+      ...MyAccountUserFrag
+    }
+  }
+}
+    ${MyAccountUserFragFragmentDoc}`;
+
+export function useUpdateMyAccountMutation() {
+  return Urql.useMutation<UpdateMyAccountMutation, UpdateMyAccountMutationVariables>(UpdateMyAccountDocument);
+};
 export const UpdatePostDocument = gql`
     mutation UpdatePost($id: Int!, $title: String!, $texts: String!) {
   updatePost(id: $id, title: $title, texts: $texts) {
@@ -756,17 +790,11 @@ export const MyAccountDocument = gql`
     query MyAccount {
   myAccount {
     user {
-      id
-      userId
-      fullName
-      email
-      userName
-      bank
-      account
+      ...MyAccountUserFrag
     }
   }
 }
-    `;
+    ${MyAccountUserFragFragmentDoc}`;
 
 export function useMyAccountQuery(options: Omit<Urql.UseQueryArgs<MyAccountQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyAccountQuery>({ query: MyAccountDocument, ...options });

@@ -2,6 +2,7 @@ import { InputType, Field } from "type-graphql";
 
 @InputType()
 export class MyAccountInput {
+  @Field()
   fullName: string; // 이름
 
   @Field()

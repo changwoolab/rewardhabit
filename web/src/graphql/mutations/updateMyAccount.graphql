@@ -1,0 +1,9 @@
+mutation UpdateMyAccount(
+    $inputs: MyAccountInput!
+) {
+    updateMyAccount(inputs: $inputs) {
+        user {
+            ...MyAccountUserFrag
+        } 
+    }
+}

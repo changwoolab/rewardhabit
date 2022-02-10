@@ -16,7 +16,7 @@ import { InputField } from "../../components/InputField";
 import { Layout } from "../../components/Layout";
 import { MyAccountLayout } from "../../components/myAccountLayout";
 import { SideBar } from "../../components/SideBar";
-import { useMyAccountQuery } from "../../generated/graphql";
+import { useMyAccountQuery, useUpdateMyAccountMutation } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 
 interface editAccountProps {}
@@ -82,6 +82,7 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
   const { colorMode } = useColorMode();
   const inputFieldBorderColor = colorMode === "dark" ? "black" : "white";
   const [accountInfo] = useMyAccountQuery();
+  const [, updateMyAccount] = useUpdateMyAccountMutation();
   const editHook = {
     userName: useState<"edit" | "readOnly">("readOnly"),
     fullName: useState<"edit" | "readOnly">("readOnly"),
@@ -99,7 +100,19 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
         <Formik
           initialValues={accountInfo.data?.myAccount.user}
           onSubmit={async (values, { setErrors }) => {
-            console.log(values);
+            const {fullName, email, userName, bank, account} = values;
+            const res = await updateMyAccount({
+              inputs: {
+                fullName,
+                email,
+                userName,
+                bank,
+                account,
+              },
+            });
+            if(res && !res.error) {
+              alert("수정되었습니다");
+            }
           }}
         >
           {({ isSubmitting }) => (
@@ -138,8 +151,11 @@ const editAccount: React.FC<editAccountProps> = ({}) => {
                       이메일 주소입니다."
               />
 
-              <Text fontSize={"lg"} mt={4} mb={4}>
+              <Text fontSize={"lg"} mt={4}>
                 <strong>환급 계좌 설정</strong>
+              </Text>
+              <Text fontSize={"xs"} color={"gray"} mb={4}>
+                본인의 부주의로 잘못 입력하여 다른 계좌로 송금된 경우 재환급이 불가능하므로, 정확히 입력해주세요
               </Text>
 
               <EditAccountBox

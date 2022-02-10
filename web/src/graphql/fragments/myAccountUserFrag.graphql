@@ -1,0 +1,9 @@
+fragment MyAccountUserFrag on User {
+    id
+    userId
+    fullName
+    email
+    userName
+    bank
+    account
+}
