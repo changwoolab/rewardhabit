@@ -193,6 +193,8 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             // result: 지금 cache에 저장되고 있는 모든 API 결과(즉, 방금 막 변한 따끈따끈한 데이터), args: Field가(아래의 login 등이) call될 때 함께 오는 arguments
             // cache: local cache에 접근할 수 있는 방법 제공, info: query document 탐색 정보
             login: (result, args, cache, info) => {
+              // 로그인 시 모든 캐시 초기화
+              cache.invalidate("Query");
               // Login Mutation이 진행됐을 때 MeQuery Cache Update 진행 (유저 정보가 떠야 하므로..)
               betterUpdateQuery<LoginMutation, MeQuery>(
                 cache,
@@ -208,16 +210,14 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
-              invalidateAllQueryCache(cache, "posts");
-              invalidateAllQueryCache(cache, "myHabits");
             },
             // 로그아웃
             logout: (result, args, cache, info) => {
               cache.updateQuery({ query: MeDocument }, () => {
                 return { me: null };
               });
-              invalidateAllQueryCache(cache, "posts");
-              invalidateAllQueryCache(cache, "myHabits");
+              // 로그아웃 시 모든 캐시 초기화
+              cache.invalidate("Query");
             },
             // 포스트 올렸을 때, 자동으로 새로고침해서 내가 올린 포스트가 보이도록 + 기존 쿼리는 모두 없애기
             createPost: (result, args, cache, info) => {
