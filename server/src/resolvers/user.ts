@@ -19,7 +19,6 @@ import { checkDuplicateRegister } from "../utils/forUserResolver/checkDuplicateR
 import argon2 from "argon2";
 import { ReqResContext } from "../types/ReqResContext";
 import { PartialUser } from "../types/PartialUser";
-import { directQuerying } from "../utils/directQuerying";
 import { decrypt } from "../utils/encrypt/encrypt";
 import {
   COOKIE_NAME,
@@ -329,7 +328,7 @@ export class UserResolver {
     // 이메일이 인풋으로 들어왔을 때 아이디를 찾아야 하므로, userId, email, emailIV를 select
     const sql =
       "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
-    const users = await directQuerying(sql, []);
+    const users = await getConnection().query(sql, []);
     if (!users) return false;
     // 이메일을 Decrypt하여 대응되는 아이디 찾기
     for (let key in users) {
@@ -365,7 +364,7 @@ export class UserResolver {
     if (!email || !userId) return false;
     const sql =
       "SELECT user.userId, email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId) WHERE user.userId = ?;";
-    const user = await directQuerying(sql, [userId]);
+    const user = await getConnection().query(sql, [userId]);
     if (!user) return false;
     // 이메일을 Decrypt하여 대응되는 아이디 찾기
     let beforeDecrypteEmail = {

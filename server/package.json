@@ -36,7 +36,6 @@
     "graphql": "^15.3.0",
     "ioredis": "^4.28.2",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.3",
     "nodemailer": "^6.7.2",
     "nodemailer-smtp-transport": "^2.7.4",
     "openai": "^2.0.2",
