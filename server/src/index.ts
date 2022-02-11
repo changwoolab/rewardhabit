@@ -22,7 +22,6 @@ import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { ReqResContext } from "./types/ReqResContext";
-import { TestResolver } from "./resolvers/test";
 import cors from "cors";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
@@ -32,6 +31,8 @@ import { Comment } from "./entities/Comment";
 import { SubscriptResolver } from "./resolvers/subscript";
 import { Habit } from "./entities/Habit";
 import { HabitResolver } from "./resolvers/habit";
+import { TestEntity } from "./entities/TestEntity";
+import { TestEntityResolver } from "./resolvers/testEntity";
 
 const main = async () => {
   // Typeorm Connection
@@ -44,7 +45,7 @@ const main = async () => {
     password: DB_PASSWORD,
     logging: true,
     synchronize: true, // migration 없이 자동 synchronize
-    entities: [User, Post, Subscript, User_IV, Updoot, Comment, Habit],
+    entities: [User, Post, Subscript, User_IV, Updoot, Comment, Habit, TestEntity],
     migrations: [path.join(__dirname, "./migrations/*")], // MOCK DATA Migrations
     multipleStatements: true, // 여러개의 mock data를 넣을 것이므로
   });
@@ -89,7 +90,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
-        TestResolver,
+        TestEntityResolver,
         PostResolver,
         UserResolver,
         SubscriptResolver,
