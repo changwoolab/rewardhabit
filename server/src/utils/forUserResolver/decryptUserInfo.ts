@@ -9,6 +9,6 @@ export const decrypeUserInfo = async (user: User, mode: string) => {
     encryptedData: user[mode],
     iv: userIv[mode + "IV"],
   };
-  const decryptedBankInfo = decrypt(forDecrypte);
-  return decryptedBankInfo;
+  const decryptedUserInfo = decrypt(forDecrypte);
+  return decryptedUserInfo;
 };

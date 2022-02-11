@@ -12,7 +12,7 @@ import { User } from "../entities/User";
 import { User_IV } from "../entities/User_IV";
 import { UserRegisterInput } from "../types/UserRegisterInput";
 import { UserResponse } from "../types/UserResponse";
-import { createQueryBuilder, getConnection, getRepository } from "typeorm";
+import { createQueryBuilder, getConnection, getRepository, Not } from "typeorm";
 import { makeUserAndIV } from "../utils/forUserResolver/makeUserAndIV";
 import { notExpectedErr } from "../utils/errors";
 import { checkDuplicateRegister } from "../utils/forUserResolver/checkDuplicateRegister";
@@ -135,6 +135,36 @@ export class UserResolver {
     const { userId } = req.session;
     if (!userId) throw new Error("로그인 되어있지 않습니다.");
 
+    // 별명 중복 확인
+    const dupUserName = await getConnection()
+                          .createQueryBuilder(User, "user")
+                          .select("user.userName")
+                          .where("userName = :userName", {userName: inputs.userName})
+                          .andWhere("id != :id", {id: userId})
+                          .getOne();
+    if (dupUserName) throw new Error("이미 존재하는 별명입니다.");
+
+    // 계좌번호&이메일 중복 확인 (decryptUserInfo는 user를 가져가기 때문에 overFetching 문제 발생, 따라서 따로 제작)
+    const sql = `SELECT email, emailIV, account, accountIV 
+                  FROM user JOIN user_iv ON (user.id = user_iv.userId)
+                  WHERE user.id != ?;`;
+    const users = await getConnection().query(sql, [userId]);
+    // Decrypt하여 중복되는지 검사하기
+    const mode = ["account", "email"];
+    const modeKorean = ["계좌번호", "이메일"]
+    for (let key in users) {
+        for (let i in mode) {
+        let forDecrypte = {
+          encryptedData: users[key][mode[i]],
+          iv: users[key][mode[i] + "IV"],
+        };
+        const decryptedUserInfo = decrypt(forDecrypte);
+        if (inputs[mode[i]] == decryptedUserInfo) {
+          throw new Error(`${modeKorean[i]}이(가) 중복됩니다`);
+        }
+      }
+    }
+
     // 민감정보 암호화
     const encryptedData = new EncryptedData(inputs);
     const {email, fullName, bank, account} = encryptedData;
@@ -158,8 +188,9 @@ export class UserResolver {
       );
     });
 
-    const user = await User.findOne({id: userId});
-    return {user}
+    // 
+    const updatedUser = await User.findOne({id: userId});
+    return {user: updatedUser}
   }
 
   @Query(() => UserResponse, { nullable: true })
@@ -256,7 +287,7 @@ export class UserResolver {
         sql =
           "SELECT email, emailIV FROM user JOIN user_iv ON (user.id = user_iv.userId);";
       else return false;
-      const users = await directQuerying(sql, []);
+      const users = await getConnection().query(sql);
       // Decrypt하여 중복되는지 검사하기
       for (let key in users) {
         let forDecrypte = {
