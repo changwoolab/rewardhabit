@@ -48,7 +48,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ data }) => {
             <MenuItem color={bgColor}>내 구독</MenuItem>
           </NextLink>
           <NextLink href="/myAccount/myPost?page=1&limit=10&type=0">
-            <MenuItem color={bgColor}>내가 쓴 글</MenuItem>
+            <MenuItem color={bgColor}>내 글</MenuItem>
           </NextLink>
         </MenuGroup>
         <MenuDivider />

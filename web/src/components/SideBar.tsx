@@ -45,7 +45,7 @@ export const SideBar: React.FC<SideBarProps> = ({}) => {
         <NextLink href="/myAccount/myPost">
           <Button m={1} h={35} bgColor={color} justifyContent={"left"}>
             <EditIcon mr={4} />
-            내가 쓴 글
+            내 글
           </Button>
         </NextLink>
       </Flex>
