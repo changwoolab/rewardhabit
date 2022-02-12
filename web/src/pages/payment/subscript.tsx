@@ -11,6 +11,8 @@ import {
   targetSelectOptions,
 } from "../../utils/selectOptions";
 import { SubscriptBox } from "../../components/SubscriptBox";
+import Script from "next/script";
+import { tossPayment } from "../../utils/tossPayment";
 
 interface subscriptProps {}
 
@@ -29,7 +31,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
   const [packageValues, setPackageValues] = useState({
     type: 0,
     target: 0,
-    dailyRefund: 0,
+    reward: 0,
     term: 0,
     payment: 0,
   });
@@ -46,7 +48,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
     variables: {
       type: number;
       target: number;
-      dailyRefund: number;
+      reward: number;
       term: number;
       payment: number;
     }
@@ -125,7 +127,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
           {
             type: 1,
             target: 0,
-            dailyRefund: 10000,
+            reward: 10000,
             term: 31,
             payment: 299000,
           }
@@ -141,7 +143,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
           {
             type: 2,
             target: 0,
-            dailyRefund: 10000,
+            reward: 10000,
             term: 62,
             payment: 599000,
           }
@@ -157,7 +159,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
           {
             type: 3,
             target: 0,
-            dailyRefund: 10000,
+            reward: 10000,
             term: 93,
             payment: 899000,
           }
@@ -204,10 +206,10 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                     <SubscriptBox desc="일일반환액">
                       <InputField
                         width={"80%"}
-                        name="dailyRefund"
+                        name="reward"
                         placeholder="일일반환액 입력"
                         type="number"
-                        value={packageValues.dailyRefund}
+                        value={packageValues.reward}
                         readOnly
                       />
                     </SubscriptBox>
@@ -231,7 +233,9 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                     </SubscriptBox>
                   </Flex>
                   <Box textAlign={"center"}>
-                    <Button mb={4} w={"30%"} colorScheme="teal" type="submit">
+                    <Button mb={4} w={"30%"} colorScheme="teal" onClick={() => {
+                      tossPayment()
+                    }}>
                       패키지 구매하기
                     </Button>
                   </Box>
@@ -248,7 +252,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
         </Text>
       </strong>
       <Formik
-        initialValues={{ target: 0, dailyRefund: 0, term: 0, payment: 0 }}
+        initialValues={{ target: 0, reward: 0, term: 0, payment: 0 }}
         onSubmit={(value) => {
           console.log(value);
         }}
@@ -280,7 +284,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                       <Box m="auto">
                         <InputField
                           width={"80%"}
-                          name="dailyRefund"
+                          name="reward"
                           placeholder="일일반환액 입력"
                           type="number"
                         />
@@ -298,7 +302,7 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                       <InputField
                         width={"80%"}
                         name="payment"
-                        value={values.dailyRefund * values.term}
+                        value={values.reward * values.term}
                         readOnly
                       />
                     </SubscriptBox>
