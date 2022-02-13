@@ -13,6 +13,7 @@ import {
 import { SubscriptBox } from "../../components/SubscriptBox";
 import Script from "next/script";
 import { tossPayment } from "../../utils/tossPayment";
+import { useMeQuery } from "../../generated/graphql";
 
 interface subscriptProps {}
 
@@ -22,10 +23,16 @@ interface subscriptProps {}
     3. 나머지는 다 똑같음
 */
 const subscript: React.FC<subscriptProps> = ({}) => {
+  const [{data: me}] = useMeQuery();
   // 다크모드인지 확인 후 색깔 결정
   const { colorMode } = useColorMode();
   const color = colorMode === "dark" ? "white" : "black";
   const hrStyle = colorMode === "dark" ? styles.hr_dark : styles.hr_light;
+  const date = new Date();
+  let todayDate = "";
+  todayDate += date.getFullYear();
+  todayDate += date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : (date.getMonth()+1);
+  todayDate += date.getDate() < 10 ? "0" + date.getDate() : date.getDate()
 
   // Values
   const [packageValues, setPackageValues] = useState({
@@ -113,6 +120,9 @@ const subscript: React.FC<subscriptProps> = ({}) => {
     );
   };
 
+  if (!me || !me.me || !me.me.partialUser) {
+    return <Layout variant="regular">로딩중...</Layout>
+  }
   return (
     <Layout variant="large">
       <Flex justifyContent={"center"}>
@@ -234,7 +244,11 @@ const subscript: React.FC<subscriptProps> = ({}) => {
                   </Flex>
                   <Box textAlign={"center"}>
                     <Button mb={4} w={"30%"} colorScheme="teal" onClick={() => {
-                      tossPayment()
+                      const { type, payment } = packageValues;
+                      const orderId = `Package${type}${todayDate}${Math.ceil(Math.random()*100000000)}`;
+                      tossPayment(
+                        payment, orderId, `보상습관 패키지 ${type}`, `${me.me?.partialUser?.userName}`, packageValues
+                      )
                     }}>
                       패키지 구매하기
                     </Button>
@@ -253,8 +267,13 @@ const subscript: React.FC<subscriptProps> = ({}) => {
       </strong>
       <Formik
         initialValues={{ target: 0, reward: 0, term: 0, payment: 0 }}
-        onSubmit={(value) => {
+        onSubmit={async (value) => {
           console.log(value);
+          const { reward, term } = value;
+          const orderId = `Normal${todayDate}${Math.ceil(Math.random()*100000000)}`;
+          tossPayment(
+            reward*term, orderId, `보상습관 일반 구매`, `${me.me?.partialUser?.userName}`, value
+          )
         }}
       >
         {({ isSubmitting, values }) => {
