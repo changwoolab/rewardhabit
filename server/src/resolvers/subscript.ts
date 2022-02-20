@@ -34,15 +34,15 @@ export class SubscriptResolver {
     return diff <= 0 ? 0 : diff;
   }
 
-  @Mutation(() => String)
+  @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async doSubscript(
-    @Arg("type", {nullable: true}) type: number | null,
+    @Arg("type") type: number,
     @Arg("target") target: number,
     @Arg("reward") reward: number,
     @Arg("term") term: number,
     @Ctx() { req }: ReqResContext
-  ) {
+  ): Promise<Boolean> {
     const { userId } = req.session;
     const user = await User.findOne({id: userId})
     // 1. 해당 유저에게 이미 구독이 있는지 확인
@@ -62,12 +62,13 @@ export class SubscriptResolver {
     } else {
 
     }
+    return false;
   }
 
   /** 이미 구독중인지 확인해줌, 이미 구독중이면 결제 못하도록 함 */
-  @Mutation(() => String)
+  @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async checkSubscript() {
-
+  async checkSubscript(): Promise<Boolean> {
+    return false;
   }
 }
