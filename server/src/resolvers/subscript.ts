@@ -5,6 +5,9 @@ import { getManager } from "typeorm";
 import { isAuth } from "../middleware/isAuth";
 import { InputType, Field } from "type-graphql";
 import { User } from "../entities/User";
+import { getApproval } from "../utils/getApproval";
+import http from "https";
+
 
 @InputType()
 export class DoSubscriptInput {
@@ -41,10 +44,12 @@ export class SubscriptResolver {
     @Arg("target") target: number,
     @Arg("reward") reward: number,
     @Arg("term") term: number,
+    @Arg("paymentKey") paymentKey: string,
+    @Arg("amount") amount: string,
+    @Arg("orderId") orderId: string,
     @Ctx() { req }: ReqResContext
   ): Promise<Boolean> {
     const { userId } = req.session;
-    const user = await User.findOne({id: userId})
     // 1. 해당 유저에게 이미 구독이 있는지 확인
     const existingSubscript = await Subscript.findOne({userId});
     // 2. 구독한 적이 있다면
@@ -54,10 +59,14 @@ export class SubscriptResolver {
       let diff = existingSubscript.expireAt.getTime()-today.getTime();
       diff = Math.ceil(diff / (1000 * 3600 * 24));
       if (diff <= 0) {
+        // 결제승인 요청
+        await Subscript.delete({id: existingSubscript.id});
         
       }
       // 2-2. 만료기간이 지나지 않은 경우 -> throw Error
-
+      else {
+        throw new Error("만료기간이 지난 뒤에 구독을 진행해주세요");
+      }
       // 3. 구독중이지 않다면, 새로운 구독 삽입하기
     } else {
 

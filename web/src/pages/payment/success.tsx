@@ -20,6 +20,7 @@ const success: React.FC<successProps> = ({}) => {
 
     /** Toss Payments로부터 결제승인 */
     const getApproval = () => {
+      let body = "";
       const options = {
         method: "POST",
         hostname: "api.tosspayments.com",
@@ -32,21 +33,24 @@ const success: React.FC<successProps> = ({}) => {
         },
       };
 
-      const req = http.request(options, function (res) {
+      const req = http.request(options, async (res) => {
         const chunks: any = [];
 
-        res.on("data", function (chunk) {
+        res.on("data", (chunk) => {
           chunks.push(chunk);
         });
 
-        res.on("end", function () {
-          const body = Buffer.concat(chunks);
-          console.log(body.toString());
+        res.on("end", () => {
+          let tmp = Buffer.concat(chunks);
+          body = tmp.toString();
+          let j = JSON.parse(body);
+          console.log(j.code);
         });
       });
 
       req.write(JSON.stringify({ amount, orderId }));
       req.end();
+      return body;
     };
     return (
       <Layout variant="regular">
@@ -54,9 +58,8 @@ const success: React.FC<successProps> = ({}) => {
           <Button
             colorScheme={"teal"}
             onClick={async () => {
-              const savedInServer = await saveSubscriptToServer();
-              if (savedInServer) getApproval();
-              else alert("오류가 발생했습니다");
+              let ans = getApproval();
+              console.log("ans,", ans);
             }}
           >
             결제 완료하기
