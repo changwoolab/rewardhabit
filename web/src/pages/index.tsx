@@ -9,7 +9,7 @@ const Index = () => (
     <Flex direction={"column"} h={"70vh"} alignItems={"center"} justifyContent={"center"}>
       <Text fontSize={"xl"}>
         <strong>
-          changwoolab의 (사실상) 첫 웹입니다. 아직 부족한 점이 많으니 양해 부탁드려요 :)
+          changwoolab의 (사실상) 첫 웹입니다. 아직 미완이라 부족한 점이 많으니 양해 부탁드려요 :)
         </strong>
       </Text>
       <NextLink href={"/post/askaiBoard"}>
