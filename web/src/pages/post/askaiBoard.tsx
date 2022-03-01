@@ -42,9 +42,10 @@ const askaiBoard: React.FC<myPostProps> = ({}) => {
 
   return (
     <Layout variant="regular">
-      <Center>
-        <Text>인공지능에게 물어봐요!</Text>
-      </Center>
+      <Box textAlign={"center"}>
+        <Text>AI질문게시판입니다.</Text>
+        <Text>반드시 <strong>영어</strong>로 질문해주세요</Text>
+      </Box>
       {!data && fetching ? (
         <div>loading...</div>
       ) : (

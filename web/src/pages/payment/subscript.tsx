@@ -179,8 +179,9 @@ const subscript: React.FC<subscriptProps> = ({}) => {
       <Formik
         initialValues={{ target: 0 }}
         onSubmit={(value) => {
+          alert("아직 구현되지 않은 구현입니다 ㅜㅜ");
           // target만 따로 받고, 넣어서 보내주면 됨.
-          console.log(value);
+          // console.log(value);
         }}
       >
         {({ isSubmitting, values }) => {
@@ -268,7 +269,6 @@ const subscript: React.FC<subscriptProps> = ({}) => {
       <Formik
         initialValues={{ target: 0, reward: 0, term: 0, payment: 0 }}
         onSubmit={async (value) => {
-          console.log(value);
           const { reward, term } = value;
           const orderId = `Normal${todayDate}${Math.ceil(Math.random()*100000000)}`;
           tossPayment(

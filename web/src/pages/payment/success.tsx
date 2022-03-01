@@ -59,7 +59,7 @@ const success: React.FC<successProps> = ({}) => {
             colorScheme={"teal"}
             onClick={async () => {
               let ans = getApproval();
-              console.log("ans,", ans);
+              alert("아직 구현되지 않은 기능입니다 ㅜㅜ");
             }}
           >
             결제 완료하기
